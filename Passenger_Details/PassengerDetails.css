@@ -1,0 +1,97 @@
+
+
+/*--- Booking*/
+fieldset.details {
+    border: 1px ;
+    border-style : solid;
+    border-color: black;
+    padding: 30px 30px 30px 30px;
+    margin: 20px 100px 20px 100px ;
+}
+
+.title,.description{
+    padding: 30px 5px 5px 100px;
+    margin: 5px 5px 5px 5px ;
+}
+
+fieldset.summary{
+    border :1px;
+    border-style : solid;
+    padding: 30px 30px 30px 30px;
+    margin: 20px 50px 20px 20px ;
+    float:right;
+}
+
+.line{
+    border:1px;
+    border-color: rgb(220,220,220);
+    border-style : solid;
+    width:100%;
+}
+
+.price{
+    padding-left:70px;
+}
+
+.totalAmount{
+    font-size:20px;
+    padding-left:150px;
+    font-weight: bold;
+}
+
+body{
+    background-color:#e6e8e6;
+}
+
+.toLine {
+    border-left: 1px dotted black;
+    height: 50px;
+    position: inherit;
+    margin-left: 30px;
+    top: 250px;
+}
+
+.line{
+    border:1px;
+    border-color: rgb(220,220,220);
+    border-style : solid;
+    width:100%;
+    margin-top:20px;
+    margin-bottom:20px;
+}
+
+.showDetails{
+    border : none;
+    background-color:#e6e8e6;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.error {
+    color: red;
+}
+
+.continue{
+    cursor: pointer;
+    background-color: blue;
+    color: #fff;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 1.2rem;
+    font-family: Roboto;
+    padding: 14px 0;
+    line-height: 22px;
+    box-sizing: border-box;
+    border: none;
+    width: 10%;
+    text-align: center;
+    text-decoration: none;
+    display:block;
+    margin-left:1300px;
+    outline: 0;
+}
+.continue:hover{
+    text-decoration: none;
+    color: #fff;
+}
+
