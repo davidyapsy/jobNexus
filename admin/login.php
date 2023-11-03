@@ -1,7 +1,6 @@
-
 <html>
     <head>
-        <title>Gogo Airline good morning</title>
+        <title>Job Nexus Employer</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -11,10 +10,10 @@
                 crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-        
         <!-- icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css">
+    
         <link href="assets/css/content.css" type="text/css" rel="stylesheet">
 
         <style>
@@ -27,22 +26,9 @@
             }
         </style>
     </head>
-
+        
     <body>
-        <?php include('topBar.php') ?>
-        <?php include('sideNav.php') ?>
-
-        <div class="main h-100">
-            <div class="panel p-2">
-                <h1>
-                    <p>Welcome back, David</p>                    
-                </h1>
-            </div>
-            
-            <?php include('footer.php') ?>
-
-        </div>
-
-
+    <?php include('topBar.php') ?>
+        
     </body>
 </html>
