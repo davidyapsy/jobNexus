@@ -8,7 +8,7 @@
     // $companyId = base64_decode($_GET['id']);
 
     $sql = "SELECT employerID, companyName, contactPersonName, emailAddress, password, phoneNumber, address, numberOfEmployees, industry, state, aboutUs, logo, backgroundPicture, 
-            officePicture, facebookUrl, linkedinUrl, whatsappUrl, status, dateJoined
+            officePictures, facebookUrl, linkedinUrl, whatsappUrl, status, dateJoined
             FROM employer
             WHERE employerID = 'E2300000'";
 
@@ -20,24 +20,25 @@
         $data = $row;
     }
 
+    $officePictures = $data['officePictures'];
+    $officePicture_arr = explode(",", $officePictures);
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>Gogo Airline</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-                crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-        <!-- icons -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
+        <!-- Bootstrap 5 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <!-- Sweet Alert CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css">
-        <link rel="stylesheet" href="assets/summernote/summernote.css">
-        <link href="assets/css/content.css" type="text/css" rel="stylesheet">
+        <!-- Bootstrap icon CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
+        <!-- Summernote CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+        <link href="../assets/css/content.css" type="text/css" rel="stylesheet">
+
         <style>
             .required{
                 color:red;
@@ -46,10 +47,10 @@
     </head>
 
     <body>
-        <?php require('topBar.php') ?>
-        <?php require('sideNav.php') ?>
+        <?php require('../topBar.php') ?>
+        <?php require('../sideNav.php') ?>
 
-        <div class="main">
+         <div class="main">
             <div class="panel panel-bordered p-2">
                 <div class="panel-heading p-2">
                     <div class="row">
@@ -141,7 +142,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="price" class="col-sm-3 col-form-label">Number Of Employees: <span class="required">*</span> </label>
+                            <label for="price" class="col-sm-3 col-form-label">Industry: <span class="required">*</span> </label>
                             <div class="col-sm-3">
                                 <select class="form-select" id="numberOfEmployees" name="numberOfEmployees">
                                     <option value=""> -- Please select number of employees. -- </option>
@@ -175,39 +176,100 @@
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
-                        </div>
-                        <!-- Panel Standard Editor -->
+                        </div> 
                         <div class="form-group row">
-                            <label for="price" class="col-sm-3 col-form-label">State: <span class="required">*</span> </label>
-                            <div class="col-sm-3">
-                                <div id="summernote" data-plugin="summernote">
-                                    <h2>WYSIWYG Editor</h2> Lorem ipsum dolor sit amet, consectetur adipiscing
-                                    elit. Aliquam ullamcorper sapien non nisl facilisis bibendum
-                                    in quis tellus. Duis in urna bibendum turpis pretium fringilla.
-                                    Aenean neque velit, porta eget mattis ac, imperdiet quis nisi.
-                                    Donec non dui et tortor vulputate luctus. Praesent consequat
-                                    rhoncus velit, ut molestie arcu venenatis sodales.
-                                    <h4>Lacinia</h4>
-                                    <ul>
-                                        <li>Suspendisse tincidunt urna ut velit ullamcorper fermentum.</li>
-                                        <li>Nullam mattis sodales lacus, in gravida sem auctor at.</li>
-                                        <li>Praesent non lacinia mi.</li>
-                                        <li>Mauris a ante neque.</li>
-                                        <li>Aenean ut magna lobortis nunc feugiat sagittis.</li>
-                                    </ul>
-                                    <h4>Pellentesque Adipiscing</h4> Maecenas quis ante ante. Nunc adipiscing
-                                    rhoncus rutrum. Pellentesque adipiscing urna mi, ut tempus lacus
-                                    ultrices ac. Pellentesque sodales, libero et mollis interdum,
-                                    dui odio vestibulum dolor, eu pellentesque nisl nibh quis nunc.
-                                    Sed porttitor leo adipiscing venenatis vehicula. Aenean quis
-                                    viverra enim. Praesent porttitor ut ipsum id ornare.
-                                </div>
+                            <label for="price" class="col-sm-3 col-form-label">About Us: <span class="required">*</span> </label>
+                            <div class="col-sm-9">
+                                <div id="summernote"></div>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-                        <!-- End Panel Standard Editor -->
-                        
+                        <div class="form-group row">
+                            <label for="logo" class="col-sm-3 col-form-label">Logo: <span class="required">*</span></label>
+                            <div class="col-sm-9">
+                                <div class="body-background">
+                                    <a href="../assets/images/company_profile/<?= $data['logo']; ?>">
+                                        <img src="../assets/images/company_profile/<?= $data['logo']; ?>"
+                                            style="width:250px;">
+                                    </a>
+                                    <button type="button" data-name="deleteLogo" class="btn btn-danger"
+                                        onclick="removeImage(this)"><i class="bi bi-trash"></i></button>
+                                </div>
+                                <input type="file" class="form-control" id="logo" name="logo" value="<?= $data['logo']; ?>"/>
+                                <input type="hidden" id="deleteLogo" name="deleteLogo" value="">
 
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="backgroundPicture" class="col-sm-3 col-form-label">Background Picture: <span class="required">*</span></label>
+                            <div class="col-sm-9">
+                                <div class="body-background">
+                                    <a href="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>">
+                                        <img src="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>"
+                                            style="width:250px;">
+                                    </a>
+                                    <button type="button" data-name="deleteBackgroundPicture" class="btn btn-danger"
+                                        onclick="removeImage(this)"><i class="bi bi-trash"></i></button>
+                                </div>
+                                <input type="file" class="form-control" id="backgroundPicture" name="backgroundPicture" value="<?= $data['backgroundPicture']; ?>"/>
+                                <input type="hidden" id="deleteBackgroundPicture" name="deleteBackgroundPicture" value="">
+
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="officePicture" class="col-sm-3 col-form-label custom-file-label">Office Picture: <span class="required">*</span></label>
+                            <div class="col-sm-9">
+                                <?php foreach($officePicture_arr as $officePicture) { ?>
+                                    <div class="body-background">
+                                        <a href="../assets/images/company_profile/<?= $officePicture ?>">
+                                            <img src="../assets/images/company_profile/<?= $officePicture ?>"
+                                                style="width:250px;">
+                                        </a>
+                                        <button type="button" data-name="deleteOfficePicture" class="btn btn-danger"
+                                            onclick="removeImage(this)"><i class="bi bi-trash"></i></button>
+                                    </div>
+                                <?php } ?>
+                                <input type="file" class="form-control custom-file-input" id="officePicture" name="officePicture" value="<?= $officePictures?>" multiple/>
+                                <input type="hidden" id="deleteOfficePicture" name="deleteOfficePicture" value=""> 
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="facebookUrl" class="col-sm-3 col-form-label">Facebook Url: <span class="required">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="input" class="form-control" name="facebookUrl" id="facebookUrl" rows="3" value="<?= $data['facebookUrl'];?>"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="linkedinUrl" class="col-sm-3 col-form-label">LinkedIn Url: <span class="required">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="input" class="form-control" name="linkedinUrl" id="linkedinUrl" rows="3" value="<?= $data['linkedinUrl'];?>"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="whatsappUrl" class="col-sm-3 col-form-label">Whatsapp Url: <span class="required">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="input" class="form-control" name="whatsappUrl" id="whatsappUrl" rows="3" value="<?= $data['whatsappUrl'];?>"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="status" class="col-sm-3 col-form-label">Status: <span class="required">*</span> </label>
+                            <div class="col-sm-3">
+                                <select class="form-select" id="status" name="status">
+                                    <option value=""> -- Please select status. -- </option>
+                                    <option value="Approved" <?= $data['status']=='Approved'? 'selected':'';?>>Approved</option>
+                                    <option value="Pending" <?= $data['status']=='Pending'? 'selected':'';?>>Pending</option>
+                                    <option value="Rejected" <?= $data['status']=='Rejected'? 'selected':'';?>>Rejected</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <hr>
                         <div class="form-group row">
                             <div class="col-md-12">
                                 <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Save</button>
@@ -217,70 +279,34 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </div> 
 
-        <script src="assets/summernote/summernote.min.js"></script>
-        <script src="assets/summernote/summernote.js"></script>
-        <script src="assets/summernote/editor-summernote.js"></script>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+        <!-- jQuery -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+        <!-- Summernote JS -->
+        <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+        <!-- Sweet Alert -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
+
     </body>
-    <!-- Footer -->
-
-    <!-- Footer -->
 
     <script>
         let url = "flight_schedule_controller.php";
-        let chkedDepartureDay = '<?php echo $data['departure_day'];?>';
-
-        $( window ).on( "load", function() {
-            $("#chk"+'<?php echo $data['departure_day'];?>').click();
-        } );
-
-        $('.departure_day').click(function(){     
-            if(this.checked == true){
-                chkedDepartureDay = this.value;
-                $('.departure_day').attr('disabled', true);
-                $(this).attr('disabled', false);
-                $(this).attr('checked', true);      
-            }else{
-                chkedDepartureDay = "";
-                $(this).attr('checked', false);      
-                $('.departure_day').attr('disabled', false);
-            }    
+        
+        $(".custom-file-input").on("change", function() {
+            var files = Array.from(this.files)
+            var fileName = files.map(f =>{return f.name}).join(",")
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
         });
 
-        function generateDestination(){
-            $('#destination')
-                .find('option')
-                .remove()
-                .end()
-                .append('<option value="">-- Please select a destination. --</option>');
-
-            $.ajax({
-                type: "POST",
-                contentType: "application/x-www-form-urlencoded",
-                url: url,
-                data: { 
-                    mode: "generateDestination",
-                    origin :  $("#origin").val()
-                }, success: function (response) {
-                const data = response;
-                if (data.status) {
-                    let records = data.data;
-                    $.each(records, function (i, record) {
-                        $('#destination').append($('<option>', { 
-                            value: record['destination'],
-                            text : record['destination']
-                        }));
-                    });
-                } else {
-                    console.log("something wrong");
-                }
-            }, failure: function (xhr) {
-                console.log(xhr.status);
-            }
-
+        $('#summernote').summernote({
+            placeholder: 'Hello Bootstrap 5',
+            tabsize: 2,
+            height: 400
         });
-        }
 
         function backConfirmation(){
             Swal.fire({
@@ -377,6 +403,12 @@
                     console.log(xhr.status);
                 }
             })
+        }
+
+        function removeImage(e) {
+            var cSelect = $(e).data("name");
+            document.getElementById(cSelect).value = "1";
+            $(e).parent().hide();
         }
     </script>
 </html>
