@@ -146,10 +146,16 @@
                             <div class="col-sm-3">
                                 <select class="form-select" id="numberOfEmployees" name="numberOfEmployees">
                                     <option value=""> -- Please select number of employees. -- </option>
-                                    <option value="Accounting/Finance" <?= $data['numberOfEmployees']=='10-50'? 'selected':'';?>>10-50</option>
-                                    <option value="Admin/Human Resources" <?= $data['numberOfEmployees']=='50-100'? 'selected':'';?>>50-100</option>
-                                    <option value="Sales/Marketing" <?= $data['numberOfEmployees']=='100-500'? 'selected':'';?>>100-500</option>
-                                    <option value="> 500" <?= $data['numberOfEmployees']=='> 500'? 'selected':'';?>>> 500</option>
+                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -273,14 +279,12 @@
                         <div class="form-group row">
                             <div class="col-md-12">
                                 <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Save</button>
-                                <button type="button" onclick="backConfirmation()" class="btn btn-danger btn-outline">Back</button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
         </div> 
-
 
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
@@ -294,7 +298,7 @@
     </body>
 
     <script>
-        let url = "flight_schedule_controller.php";
+        let url = "company_profile_controller.php";
         
         $(".custom-file-input").on("change", function() {
             var files = Array.from(this.files)
@@ -307,22 +311,6 @@
             tabsize: 2,
             height: 400
         });
-
-        function backConfirmation(){
-            Swal.fire({
-                title: "Are you sure to leave this page?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#ff0000",
-                confirmButtonText: 'Discard',
-                cancelButtonText: "Stay",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "flight_schedule_index.php"
-                }
-                
-            });
-        }
 
         function submitConfirmation(){
             Swal.fire({

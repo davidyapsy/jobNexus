@@ -96,7 +96,7 @@ class ConnectionString
 
 }
 
-class FlightScheduleModel
+class EmployerModel
 {
     private String $employerID;
     private String $companyName;
@@ -118,14 +118,14 @@ class FlightScheduleModel
     private String $status;
     private String $dateJoined;
 
-    public function getEmployerId(): String
+    public function getEmployerID(): String
     {
-        return $this->employerId;
+        return $this->employerID;
     }
 
-    public function setEmployerId(String $employerId): FlightScheduleModel
+    public function setEmployerID(String $employerID): EmployerModel
     {
-        $this->employerId = $employerId;
+        $this->employerID = $employerID;
         return $this;
     }
 
@@ -134,77 +134,199 @@ class FlightScheduleModel
         return $this->companyName;
     }
 
-    public function setCompanyName(String $companyName): FlightScheduleModel
+    public function setCompanyName(String $companyName): EmployerModel
     {
         $this->routeId = $routeId;
         return $this;
     }
 
-    public function getAirplaneId(): int
+    public function getContactPersonName(): int
     {
-        return $this->airplaneId;
+        return $this->contactPersonName;
     }
 
-    public function setAirplaneId(int $airplaneId): FlightScheduleModel
+    public function setcontactPersonName(int $contactPersonName): EmployerModel
     {
-        $this->airplaneId = $airplaneId;
+        $this->contactPersonName = $contactPersonName;
         return $this;
     }
 
-    public function getDepartureTime(): String
+    public function getEmailAddress(): String
     {
-        return $this->departureTime;
+        return $this->emailAddress;
     }
 
-    public function setDepartureTime(String $departureTime): FlightScheduleModel
+    public function setEmailAddress(String $emailAddress): EmployerModel
     {
-        $this->departureTime = $departureTime;
+        $this->emailAddress = $emailAddress;
         return $this;
     }
 
-    public function getArrivalTime(): String
+    public function getPassword(): String
     {
-        return $this->arrivalTime;
+        return $this->password;
     }
 
-    public function setArrivalTime(String $arrivalTime): FlightScheduleModel
+    public function setPassword(String $password): EmployerModel
     {
-        $this->arrivalTime = $arrivalTime;
+        $this->password = $password;
         return $this;
     }
 
-    public function getDepartureDay(): String
+    public function getPhoneNumber(): String
     {
-        return $this->departureDay;
+        return $this->phoneNumber;
     }
 
-    public function setDepartureDay(String $departureDay): FlightScheduleModel
+    public function setPhoneNumber(String $phoneNumber): EmployerModel
     {
-        $this->departureDay = $departureDay;
+        $this->phoneNumber = $phoneNumber;
         return $this;
     }
 
-    public function getPrice(): float
+    public function getAddress(): String
     {
-        return $this->price;
+        return $this->address;
     }
 
-    public function setPrice(float $price): FlightScheduleModel
+    public function setAddress(String $address): EmployerModel
     {
-        $this->price = $price;
+        $this->address = $address;
         return $this;
     }
 
-    public function getStartingDate(): String
+    public function getNumberOfEmployees(): String
     {
-        return $this->startingDate;
+        return $this->numberOfEmployees;
     }
 
-    public function setStartingDate(String $startingDate): FlightScheduleModel
+    public function setNumberOfEmployees(String $numberOfEmployees): EmployerModel
     {
-        $this->startingDate = $startingDate;
+        $this->numberOfEmployees = $numberOfEmployees;
         return $this;
     }
+
+    public function getIndustry(): String
+    {
+        return $this->industry;
+    }
+
+    public function setIndustry(String $industry): EmployerModel
+    {
+        $this->industry = $industry;
+        return $this;
+    }
+
+    public function getState(): String
+    {
+        return $this->state;
+    }
+
+    public function setState(String $state): EmployerModel
+    {
+        $this->state = $state;
+        return $this;
+    }
+
+    public function getAboutUs(): String
+    {
+        return $this->aboutUs;
+    }
+
+    public function setAboutUs(String $aboutUs): EmployerModel
+    {
+        $this->aboutUs = $aboutUs;
+        return $this;
+    }
+
+    public function getLogo(): String
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(String $logo): EmployerModel
+    {
+        $this->logo = $logo;
+        return $this;
+    }
+
+    public function getBackgroundPicture(): String
+    {
+        return $this->backgroundPicture;
+    }
+
+    public function setBackgroundPicture(String $backgroundPicture): EmployerModel
+    {
+        $this->backgroundPicture = $backgroundPicture;
+        return $this;
+    }
+
+    public function getOfficePictures(): String
+    {
+        return $this->officePictures;
+    }
+
+    public function setOfficePictures(String $officePictures): EmployerModel
+    {
+        $this->officePictures = $officePictures;
+        return $this;
+    }
+
+    public function getFacebookUrl(): String
+    {
+        return $this->facebookUrl;
+    }
+    
+    public function setFacebookUrl(String $facebookUrl): EmployerModel
+    {
+        $this->facebookUrl = $facebookUrl;
+        return $this;
+    }
+    
+    public function getLinkedinUrl(): String
+    {
+        return $this->linkedinUrl;
+    }
+    
+    public function setLinkedinUrl(String $linkedinUrl): EmployerModel
+    {
+        $this->linkedinUrl = $linkedinUrl;
+        return $this;
+    }
+    
+    public function getWhatsappUrl(): String
+    {
+        return $this->whatsappUrl;
+    }
+    
+    public function setWhatsappUrl(String $whatsappUrl): EmployerModel
+    {
+        $this->whatsappUrl = $whatsappUrl;
+        return $this;
+    }
+    
+    public function getStatus(): String
+    {
+        return $this->status;
+    }
+    
+    public function setStatus(String $status): EmployerModel
+    {
+        $this->status = $status;
+        return $this;
+    }
+    
+    public function getDateJoined(): String
+    {
+        return $this->dateJoined;
+    }
+    
+    public function setDateJoined(String $dateJoined): EmployerModel
+    {
+        $this->dateJoined = $dateJoined;
+        return $this;
+    }
+
 }
 
 //
@@ -234,82 +356,22 @@ interface  ReturnCode
     const QUERY_FAILURE = 601;
 }
 
-class FlightScheduleOop
+class EmployerOop
 {
     private ConnectionString $connectionString;
-    private FlightScheduleModel $model;
+    private EmployerModel $model;
     private mysqli $connection;
 
-    private $origin;
     private $destination;
-    private $departureTimeFrom;
-    private $departureTimeTo;
-    private $departureDay;
-    private $page;
-
-    public function getDepartureDay(): String
-    {
-        return $this->departureDay;
-    }
-
-    public function setDepartureDay($departureDay=""): FlightScheduleOop
-    {
-        $this->departureDay = $departureDay;
-        return $this;
-    }
-
-    public function getDepartureTimeFrom(): String
-    {
-        return $this->departureTimeFrom;
-    }
-
-    public function setDepartureTimeFrom($departureTimeFrom=""): FlightScheduleOop
-    {
-        $this->departureTimeFrom = $departureTimeFrom;
-        return $this;
-    }
-
-    public function getDepartureTimeTo(): String
-    {
-        return $this->departureTimeTo;
-    }
-
-    public function setDepartureTimeTo($departureTimeTo=""): FlightScheduleOop
-    {
-        $this->departureTimeTo = $departureTimeTo;
-        return $this;
-    }
-    
-    public function getOrigin(): String
-    {
-        return $this->origin;
-    }
-
-    public function setOrigin($origin=""): FlightScheduleOop
-    {
-        $this->origin = $origin;
-        return $this;
-    }
     
     public function getDestination(): String
     {
         return $this->destination;
     }
 
-    public function setDestination($destination=""): FlightScheduleOop
+    public function setDestination($destination=""): EmployerOop
     {
         $this->destination = $destination;
-        return $this;
-    }
-
-    public function getPage()
-    {
-        return $this->page;
-    }
-
-    public function setPage($page=NULL): FlightScheduleOop
-    {
-        $this->page = $page;
         return $this;
     }
 
@@ -320,7 +382,7 @@ class FlightScheduleOop
     function __construct()
     {
         // declare object / injection
-        $this->model = new FlightScheduleModel();
+        $this->model = new EmployerModel();
         $this->connectionString = new ConnectionString();
 
         // connection to the database
@@ -345,7 +407,7 @@ class FlightScheduleOop
         $this->connectionString->setServerName("localhost");
         $this->connectionString->setUserName("root");
         $this->connectionString->setPassword("");
-        $this->connectionString->setDatabase("flight_ticketing");
+        $this->connectionString->setDatabase("db_jobnexus");
         try {
             $this->connection = new mysqli($this->connectionString->getServerName(), $this->connectionString->getUserName(), $this->connectionString->getPassword(), $this->connectionString->getDatabase());
         } catch (Exception $exception) {
@@ -358,316 +420,45 @@ class FlightScheduleOop
      */
     function setParameter()
     {
-        $flightScheduleId =  base64_decode(filter_input(INPUT_POST, "flightScheduleId", FILTER_SANITIZE_STRING));
-        $airplaneId = filter_input(INPUT_POST, "airplaneId", FILTER_SANITIZE_NUMBER_INT);
-        $departureTime = filter_input(INPUT_POST, "departureTime", FILTER_SANITIZE_STRING);
-        $departureDay = filter_input(INPUT_POST, "departureDas", FILTER_SANITIZE_STRING);
-        $price = filter_input(INPUT_POST, "price", FILTER_SANITIZE_NUMBER_FLOAT);
-        $startingDate = filter_input(INPUT_POST, "startingDate", FILTER_SANITIZE_STRING);
-
-        //
-        $origin = filter_input(INPUT_POST, "origin", FILTER_SANITIZE_STRING);
-        $destination = filter_input(INPUT_POST, "destination", FILTER_SANITIZE_STRING);
-        //
-        $departureDay = filter_input(INPUT_POST, "departureDay", FILTER_SANITIZE_STRING);
-        $departureTimeFrom = filter_input(INPUT_POST, "departureTimeFrom", FILTER_SANITIZE_STRING);
-        $departureTimeTo = filter_input(INPUT_POST, "departureTimeTo", FILTER_SANITIZE_STRING);
-
-        $page = filter_input(INPUT_POST, "page", FILTER_SANITIZE_NUMBER_INT);
+        $employerID =  base64_decode(filter_input(INPUT_POST, "employerID", FILTER_SANITIZE_STRING));
+        $companyName = filter_input(INPUT_POST, "companyName", FILTER_SANITIZE_STRING);
+        $contactPersonName = filter_input(INPUT_POST, "contactPersonName", FILTER_SANITIZE_STRING);
+        $emailAddress = filter_input(INPUT_POST, "emailAddress", FILTER_SANITIZE_EMAIL);
+        $password = filter_input(INPUT_POST, "password", FILTER_SANITIZE_STRING);
+        $phoneNumber = filter_input(INPUT_POST, "phoneNumber", FILTER_SANITIZE_STRING);
+        $address = filter_input(INPUT_POST, "address", FILTER_SANITIZE_STRING);
+        $numberOfEmployees = filter_input(INPUT_POST, "numberOfEmployees", FILTER_SANITIZE_STRING);
+        $industry = filter_input(INPUT_POST, "industry", FILTER_SANITIZE_STRING);
+        $state = filter_input(INPUT_POST, "state", FILTER_SANITIZE_STRING);
+        $aboutUs = filter_input(INPUT_POST, "aboutUs", FILTER_SANITIZE_STRING);
+        $logo = filter_input(INPUT_POST, "logo", FILTER_SANITIZE_STRING);
+        $backgroundPicture = filter_input(INPUT_POST, "backgroundPicture", FILTER_SANITIZE_STRING);
+        $officePictures = filter_input(INPUT_POST, "officePictures", FILTER_SANITIZE_STRING);
+        $facebookUrl = filter_input(INPUT_POST, "facebookUrl", FILTER_SANITIZE_URL);
+        $linkedinUrl = filter_input(INPUT_POST, "linkedinUrl", FILTER_SANITIZE_URL);
+        $whatsappUrl = filter_input(INPUT_POST, "whatsappUrl", FILTER_SANITIZE_URL);
+        $status = filter_input(INPUT_POST, "status", FILTER_SANITIZE_STRING);
+        $dateJoined = filter_input(INPUT_POST, "dateJoined", FILTER_SANITIZE_STRING);
         
-        if( filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "create"){
-            $this->model->setAirplaneId($airplaneId);
-            $this->setOrigin($origin);
-            $this->setDestination($destination);
-            $this->model->setDepartureDay($departureDay);
-            $this->model->setDepartureTime($departureTime);
-            $this->model->setPrice($price);
-            $this->model->setStartingDate($startingDate);
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "delete"){
-            if ($flightScheduleId && is_numeric($flightScheduleId)) {
-                if ($flightScheduleId > 0) {
-                    $this->model->setFlightScheduleId($flightScheduleId);
-                }
-            }
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "generateDestination"){
-            $this->setOrigin($origin);
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
-            if ($flightScheduleId && is_numeric($flightScheduleId)) {
-                if ($flightScheduleId > 0) {
-                    $this->model->setFlightScheduleId($flightScheduleId);
-                }
-            }
-            $this->model->setAirplaneId($airplaneId);
-            $this->setOrigin($origin);
-            $this->setDestination($destination);
-            $this->model->setDepartureDay($departureDay);
-            $this->model->setDepartureTime($departureTime);
-            $this->model->setPrice($price);
-            $this->model->setStartingDate($startingDate);
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
-            $this->model->setAirplaneId($airplaneId);
-            $this->setOrigin($origin);
-            $this->setDestination($destination);
-            $this->model->setDepartureDay($departureDay);
-            $this->model->setDepartureTime($departureTime);
-            $this->model->setPrice($price);
-            $this->model->setStartingDate($startingDate);
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
-            $this->setPage($page);
-            $this->setOrigin($origin);
-            $this->setDestination($destination);
-            $this->model->setAirplaneId($airplaneId);
-            $this->setDepartureDay($departureDay);
-            $this->setDepartureTimeFrom($departureTimeFrom);
-            $this->setDepartureTimeTo($departureTimeTo);
-        }       
-    }
-
-    /**
-     * @throws Exception
-     */
-    function create()
-    {
-        $this->connection->autocommit(false);
-
-        $airplaneId = $this->model->getAirplaneId();
-        $origin = $this->getOrigin();
-        $destination = $this->getDestination();
-        $departureDay = $this->model->getDepartureDay();
-        $departureTime = $this->model->getDepartureTime();
-        $price = $this->model->getPrice();
-        $startingDate = $this->model->getStartingDate();
-        
-        $findRoute = $this->connection->query("SELECT route_id, time_taken_hour, time_taken_min
-                                                FROM route WHERE origin = '$origin' AND destination = '$destination'");
-        while (($row = $findRoute->fetch_assoc()) == TRUE) {
-            $routeId =  $row['route_id'];
-            $time_taken_hour = $row['time_taken_hour'];
-            $time_taken_min = $row['time_taken_min'];
-        }
-
-        $arrivalTimeHour = (int)(substr($departureTime,0,2)) + $time_taken_hour;
-        $arrivalTimeMin =(int)(substr($departureTime,3,2)) + $time_taken_min;
-        
-        if($arrivalTimeMin>=60){
-            $arrivalTimeMin -= 60;
-            $arrivalTimeHour += 1;
-        }
-        if($arrivalTimeHour>=24){
-            $arrivalTimeHour-=24;
-        }
-
-        $arrivalTime = $arrivalTimeHour .":".$arrivalTimeMin;
-
-        if ($routeId > 0 &&  $airplaneId > 0 &&  strlen($departureTime) > 0 &&  strlen($arrivalTime) > 0 &&  strlen($departureDay) > 0 &&  strlen($startingDate) > 0) {
-            $statement = $this->connection->prepare("INSERT INTO flight_schedule VALUES (null, ?, ?, ?, ?, ?, ?, ?)");
-            $statement->bind_param("iisssds", $routeId, $airplaneId, $departureTime, $arrivalTime, $departureDay, $price, $startingDate);
-            try {
-                $statement->execute();
-                $statement->insert_id;
-            } catch (Exception $exception) {
-                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
-            }
-
-            $this->connection->commit();
-            echo json_encode(
-                [
-                    "status" => true,
-                    "code" => ReturnCode::CREATE_SUCCESS,
-                ]
-            );
-
-        } else {
-            throw new Exception(ReturnCode::ACCESS_DENIED);
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    function search(){
-        $data = array();
-        $limit = 5;
-        $page = $this->getPage();
-
-        if($page > 1) {
-            $start = (($page - 1) * $limit);
-            $page = $page;
-        } else {
-            $start = 0;
-        }
-
-        // you don't need to commit work here ya !
-        $origin = $this->getOrigin();
-        $destination = $this->getDestination();
-        $airplaneId = $this->model->getAirplaneId();
-        $departureTimeFrom = $this->getDepartureTimeFrom();
-        $departureTimeTo = $this->getDepartureTimeTo();
-        $departureDay = $this->getDepartureDay();
-
-        $sql = "SELECT A.flight_schedule_id, B.origin, B.destination, C.name, A.departure_day, A.departure_time
-        FROM flight_schedule A
-        JOIN route B ON A.route_id = B.route_id
-        JOIN airplane C ON A.airplane_id = C.airplane_id
-        WHERE starting_date >= '2000-01-01'";
-
-        if($origin!=""){
-            $sql.=" AND B.origin = '$origin'";
-        }
-        if($destination!=""){
-            $sql.=" AND B.destination = '$destination'";
-        }
-        if($airplaneId!=0){
-            $sql.=" AND A.airplane_id = $airplaneId";
-        }
-        if($departureDay!=""){
-            $sql.=" AND A.departure_day LIKE '%$departureDay%'";
-        }
-        if($departureTimeFrom!=""){
-            $sql.=" AND A.departure_time >= '$departureTimeFrom'";
-        }
-        if($departureTimeTo!=""){
-            $sql.=" AND A.departure_time <= '$departureTimeTo'";
-        }
-        $sql.=" ORDER BY flight_schedule_id ASC";
-
-        $statement = $this->connection->prepare($sql);
-        $statement->execute();
-        $statement->store_result();
-        $statement->fetch();
-        $total_data = $statement->num_rows;
-
-        $filter_query = $sql . ' LIMIT ' . $start . ', ' . $limit . '';
-        $stat = $this->connection->prepare($filter_query);
-        $stat->execute();
-        $result = $stat->get_result();
-        $data = [];
-            while (($row = $result->fetch_assoc()) == TRUE) {
-                $data[] = $row;
-            }
-
-        $pagination_html = '
-        <div align="center">
-            <ul class="pagination justify-content-center">
-        ';
-
-        $total_links = ceil($total_data/$limit);
-        $previous_link = '';
-        $next_link = '';
-        $page_link = '';
-
-        if($total_links > 4){
-            if($page < 5){
-                for($count = 1; $count <= 5; $count++)
-                {
-                    $page_array[] = $count;
-                }
-                $page_array[] = '...';
-                $page_array[] = $total_links;
-            }else{
-                $end_limit = $total_links - 5;
-
-                if($page > $end_limit)
-                {
-                    $page_array[] = 1;
-                    $page_array[] = '...';
-
-                    for($count = $end_limit; $count <= $total_links; $count++)
-                    {
-                        $page_array[] = $count;
-                    }
-                }
-                else
-                {
-                    $page_array[] = 1;
-                    $page_array[] = '...';
-
-                    for($count = $page - 1; $count <= $page + 1; $count++)
-                    {
-                        $page_array[] = $count;
-                    }
-
-                    $page_array[] = '...';
-                    $page_array[] = $total_links;
-                }
-            }
-        }else{
-            for($count = 1; $count <= $total_links; $count++){
-                $page_array[] = $count;
-            }
-        }
-
-        if($total_links!=0){
-            for($count = 0; $count < count($page_array); $count++)
-            {
-                if($page == $page_array[$count]){
-                    $page_link .= '
-                    <li class="page-item active">
-                        <a class="page-link" href="#">'.$page_array[$count].' </a>
-                    </li>
-                    ';
-
-                    $previous_id = $page_array[$count] - 1;
-
-                    if($previous_id > 0){
-                        $previous_link = '<li class="page-item"><a class="page-link" href="javascript:load_data('.$previous_id.')">Previous</a></li>';
-                    }else{
-                        $previous_link = '
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">Previous</a>
-                        </li>
-                        ';
-                    }
-
-                    $next_id = $page_array[$count] + 1;
-
-                    if($next_id > $total_links){
-                        $next_link = '
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
-                        ';
-                    }else{
-                        $next_link = '
-                        <li class="page-item"><a class="page-link" href="javascript:load_data('.$next_id.')">Next</a></li>
-                        ';
-                    }
-                }
-                else{
-                    if($page_array[$count] == '...')
-                    {
-                        $page_link .= '
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">...</a>
-                        </li>
-                        ';
-                    }
-                    else
-                    {
-                        $page_link .= '
-                        <li class="page-item">
-                            <a class="page-link" href="javascript:load_data('.$page_array[$count].')">'.$page_array[$count].'</a>
-                        </li>
-                        ';
-                    }
-                }
-            }
-
-            $pagination_html .= $previous_link . $page_link . $next_link;
-        }
-        $pagination_html .= '
-            </ul>
-        </div>
-        ';
-
-        $output = array(
-            'data'				=>	$data,
-            'pagination'		=>	$pagination_html,
-            'total_data'		=>	$total_data,
-            'status'            =>  true
-        );
-
-        echo json_encode($output);
+        $this->model->setEmployerID($employerID);
+        $this->model->setCompanyName($companyName);
+        $this->model->setContactPersonName($contactPersonName);
+        $this->model->setEmailAddress($emailAddress);
+        $this->model->setPassword($password);
+        $this->model->setPhoneNumber($phoneNumber);
+        $this->model->setAddress($address);
+        $this->model->setNumberOfEmployees($numberOfEmployees);
+        $this->model->setIndustry($industry);
+        $this->model->setState($state);
+        $this->model->setAboutUs($aboutUs);
+        $this->model->setLogo($logo);
+        $this->model->setBackgroundPicture($backgroundPicture);
+        $this->model->setOfficePictures($officePictures);
+        $this->model->setFacebookUrl($facebookUrl);
+        $this->model->setLinkedinUrl($linkedinUrl);
+        $this->model->setWhatsappUrl($whatsappUrl);
+        $this->model->setStatus($status);
+        $this->model->setDateJoined($dateJoined);
     }
 
     /**
@@ -677,42 +468,43 @@ class FlightScheduleOop
     {
         $this->connection->autocommit(false);
 
-        $flightScheduleId = $this->model->getFlightScheduleId();
-        $airplaneId = $this->model->getAirplaneId();
-        $origin = $this->getOrigin();
-        $destination = $this->getDestination();
-        $departureDay =$this->model->getDepartureDay();
-        $departureTime = $this->model->getDepartureTime();
-        $price = $this->model->getPrice();
-        $startingDate = $this->model->getStartingDate();
-        
-        $findRoute = $this->connection->query("SELECT route_id, time_taken_hour, time_taken_min
-                                                FROM route WHERE origin = '$origin' AND destination = '$destination'");
-        while (($row = $findRoute->fetch_assoc()) == TRUE) {
-            $routeId =  $row['route_id'];
-            $time_taken_hour = $row['time_taken_hour'];
-            $time_taken_min = $row['time_taken_min'];
-        }
+        $employerID = $this->model->getEmployerID();
+        $companyName = $this->model->getCompanyName();
+        $contactPersonName = $this->model->getContactPersonName();
+        $emailAddress = $this->model->getEmailAddress();
+        $password = $this->model->getPassword();
+        $phoneNumber = $this->model->getPhoneNumber();
+        $address = $this->model->getAddress();
+        $numberOfEmployees = $this->model->getNumberOfEmployees();
+        $industry = $this->model->getIndustry();
+        $state = $this->model->getState();
+        $aboutUs = $this->model->getAboutUs();
+        $logo = $this->model->getLogo();
+        $backgroundPicture = $this->model->getBackgroundPicture();
+        $officePictures = $this->model->getOfficePictures();
+        $facebookUrl = $this->model->getFacebookUrl();
+        $linkedinUrl = $this->model->getLinkedinUrl();
+        $whatsappUrl = $this->model->getWhatsappUrl();
+        $status = $this->model->getStatus();
+        $dateJoined = $this->model->getDateJoined();
 
-        $arrivalTimeHour = (int)(substr($departureTime,0,2)) + $time_taken_hour;
-        $arrivalTimeMin =(int)(substr($departureTime,3,2)) + $time_taken_min;
-        
-        if($arrivalTimeMin>=60){
-            $arrivalTimeMin -= 60;
-            $arrivalTimeHour += 1;
-        }
-        if($arrivalTimeHour>=24){
-            $arrivalTimeHour-=24;
-        }
-
-        $arrivalTime = $arrivalTimeHour .":".$arrivalTimeMin;
-
-        if ($routeId > 0 &&  $airplaneId > 0 &&  strlen($departureTime) > 0 &&  strlen($arrivalTime) > 0 &&  strlen($departureDay) > 0 &&  strlen($startingDate) > 0) {
-            $statement = $this->connection->prepare("UPDATE flight_schedule 
-                                                    SET route_id = ?, airplane_id = ?, departure_time = ?, arrival_time = ?, departure_day = ?, 
-                                                        price = ?, starting_date = ?
-                                                    WHERE flight_schedule_id = ?");
-            $statement->bind_param("iisssdsi", $routeId, $airplaneId, $departureTime, $arrivalTime, $departureDay, $price, $startingDate, $flightScheduleId);
+        // if (strlen($name) > 0 &&  strlen($phoneNumber) > 0 &&  strlen($emailAddress) > 0 &&  strlen($status) > 0 &&  strlen($position) > 0) {
+            if($password!=""){
+                $password = md5($password);
+                $statement = $this->connection->prepare("UPDATE employer 
+                SET companyName = ?, contactPersonName = ?, emailAddress = ?, password = ?, phoneNumber = ?, address = ?, numberOfEmployees = ?, industry = ?, 
+                    state = ?, aboutUs = ?, logo = ?, backgroundPicture = ?, officePictures = ?, facebookUrl = ?, linkedinUrl = ?, whatsappUrl = ?, status = ?, dateJoined = ?
+                WHERE employerID = ?");
+                $statement->bind_param("sssssssssssssssssss", $companyName, $contactPersonName, $emailAddress, $password, $phoneNumber, $address, $numberOfEmployees, $industry, $state, 
+                    $aboutUs, $logo, $backgroundPicture, $officePictures, $facebookUrl, $linkedinUrl, $whatsappUrl, $status, $dateJoined, $employerID);
+            }else{
+                $statement = $this->connection->prepare("UPDATE employer 
+                SET companyName = ?, contactPersonName = ?, emailAddress = ?, password = ?, phoneNumber = ?, address = ?, numberOfEmployees = ?, industry = ?, 
+                    state = ?, aboutUs = ?, logo = ?, backgroundPicture = ?, officePictures = ?, facebookUrl = ?, linkedinUrl = ?, whatsappUrl = ?, status = ?, dateJoined = ?
+                WHERE employerID = ?");
+                $statement->bind_param("sssssssssssssssssss", $companyName, $contactPersonName, $emailAddress, $password, $phoneNumber, $address, $numberOfEmployees, $industry, $state, 
+                    $aboutUs, $logo, $backgroundPicture, $officePictures, $facebookUrl, $linkedinUrl, $whatsappUrl, $status, $dateJoined, $employerID);
+            }
             try {
                 $statement->execute();
             } catch (Exception $exception) {
@@ -727,86 +519,22 @@ class FlightScheduleOop
                 ]
             );
 
-        } else {
-            throw new Exception(ReturnCode::ACCESS_DENIED);
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    function delete()
-    {
-        $this->connection->autocommit(false);
-
-        $var1 = $this->model->getFlightScheduleId();
-
-        if ($var1 > 0) {
-
-            $statement = $this->connection->prepare("UPDATE flight_schedule SET starting_date = '1900-01-01'
-                WHERE flight_schedule_id = ? ");
-            // s -> string, i -> integer , d -  double , b - blob
-            $statement->bind_param("i", $var1);
-            try {
-                $statement->execute();
-            } catch (Exception $exception) {
-                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
-            }
-
-            $this->connection->commit();
-            echo json_encode(
-                [
-                    "status" => true,
-                    "code" => ReturnCode::DELETE_SUCCESS
-                ]
-            );
-
-        } else {
-            throw new Exception(ReturnCode::ACCESS_DENIED);
-        }
-    }   
-
-    function generateDestination(){
-        $origin = $this->getOrigin();
-        $sql = "SELECT DISTINCT destination 
-                FROM route
-                WHERE origin = '$origin'";
-        try {
-            $statement = $this->connection->prepare($sql);
-            try {
-                $statement->execute();
-                $result = $statement->get_result();
-                $data = [];
-                while (($row = $result->fetch_assoc()) == TRUE) {
-                    $data[] = $row;
-                }
-                echo json_encode(
-                    [
-                        "status" => true,
-                        "code" => ReturnCode::READ_SUCCESS,
-                        "data" => $data
-                    ]
-                );
-            } catch (Exception $exception) {
-                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
-            }
-
-        } catch (Exception $exception) {
-            throw new Exception(ReturnCode::ACCESS_DENIED, ReturnCode::QUERY_FAILURE);
-        }
+        // } else {
+        //     throw new Exception(ReturnCode::ACCESS_DENIED);
+        // }
     }
 
     function check_validation(){
         $datas[]['inputName']="";
         $datas[]['errorMessage']="";
 
-        $airplaneId = $this->model->getAirplaneId();
+        $contactPersonName = $this->model->getcontactPersonName();
         $origin = $this->getOrigin();
         $destination = $this->getDestination();
-        $departureDay = $this->model->getDepartureDay();
-        $departureTime = $this->model->getDepartureTime();
+        $phoneNumber = $this->model->getDepartureDay();
+        $emailAddress = $this->model->getemailAddress();
         $price = $this->model->getPrice();
-        $startingDate = $this->model->getStartingDate();
+        $address = $this->model->getStartingDate();
         $type = filter_input(INPUT_POST, "type", FILTER_SANITIZE_STRING);
 
         $i=0;
@@ -823,7 +551,7 @@ class FlightScheduleOop
         }
         
         //null checking
-        if($airplaneId==0){
+        if($contactPersonName==0){
             $datas[$i]['inputName']="planeName";
             $datas[$i]['errorMessage']="Plane Number is required";
             $i++;
@@ -838,13 +566,13 @@ class FlightScheduleOop
             $datas[$i]['errorMessage']="Destination is required";
             $i++;
         }
-        if($departureDay==""){
-            $datas[$i]['inputName']="departureDay";
+        if($phoneNumber==""){
+            $datas[$i]['inputName']="phoneNumber";
             $datas[$i]['errorMessage']="Departure day is required";
             $i++;
         }
-        if($departureTime==""){
-            $datas[$i]['inputName']="departureTime";
+        if($emailAddress==""){
+            $datas[$i]['inputName']="emailAddress";
             $datas[$i]['errorMessage']="Departure Time is required";
             $i++;
         }
@@ -853,7 +581,7 @@ class FlightScheduleOop
             $datas[$i]['errorMessage']="Price is required";
             $i++;
         }
-        if($startingDate==""){
+        if($address==""){
             $datas[$i]['inputName']="scheduleStartDate";
             $datas[$i]['errorMessage']="Schedule start date is required";
             $i++;
@@ -870,11 +598,11 @@ class FlightScheduleOop
         }
 
         //server validation
-        if($airplaneId!=0 && $origin !="" && $type=="add"){
+        if($contactPersonName!=0 && $origin !="" && $type=="add"){
             $lastDestination = "";
             $airplaneName = "";
             foreach ($db_datas as $db_data){
-                if($db_data['airplane_id'] == $airplaneId){
+                if($db_data['airplane_id'] == $contactPersonName){
                     $lastDestination = $db_data['destination'];
                     $airplaneName = $db_data['name'];
                 }
@@ -923,29 +651,14 @@ header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript 
 
 $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
 
-$flightScheduleOop = new FlightScheduleOop();
+$employerOop = new EmployerOop();
 try {
     switch ($mode) {
-        case  "create":
-            $flightScheduleOop->create();
-            break;
-        case  "read":
-            $flightScheduleOop->read();
-            break;
-        case  "search":
-            $flightScheduleOop->search();
-            break;
         case  "update":
-            $flightScheduleOop->update();
-            break;
-        case  "delete":
-            $flightScheduleOop->delete();
+            $employerOop->update();
             break;
         case "check_validation":
-            $flightScheduleOop->check_validation();
-            break;
-        case "generateDestination":
-            $flightScheduleOop->generateDestination();
+            $employerOop->check_validation();
             break;
         default:
             throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
