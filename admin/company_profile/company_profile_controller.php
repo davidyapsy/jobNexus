@@ -136,16 +136,16 @@ class EmployerModel
 
     public function setCompanyName(String $companyName): EmployerModel
     {
-        $this->routeId = $routeId;
+        $this->companyName = $companyName;
         return $this;
     }
 
-    public function getContactPersonName(): int
+    public function getContactPersonName(): String
     {
         return $this->contactPersonName;
     }
 
-    public function setcontactPersonName(int $contactPersonName): EmployerModel
+    public function setContactPersonName(String $contactPersonName): EmployerModel
     {
         $this->contactPersonName = $contactPersonName;
         return $this;
@@ -362,16 +362,16 @@ class EmployerOop
     private EmployerModel $model;
     private mysqli $connection;
 
-    private $destination;
+    private $confirmPassword;
     
-    public function getDestination(): String
+    public function getConfirmPassword()
     {
-        return $this->destination;
+        return $this->confirmPassword;
     }
 
-    public function setDestination($destination=""): EmployerOop
+    public function setConfirmPassword($confirmPassword=NULL): StaffOop
     {
-        $this->destination = $destination;
+        $this->confirmPassword = $confirmPassword;
         return $this;
     }
 
@@ -528,104 +528,105 @@ class EmployerOop
         $datas[]['inputName']="";
         $datas[]['errorMessage']="";
 
-        $contactPersonName = $this->model->getcontactPersonName();
-        $origin = $this->getOrigin();
-        $destination = $this->getDestination();
-        $phoneNumber = $this->model->getDepartureDay();
-        $emailAddress = $this->model->getemailAddress();
-        $price = $this->model->getPrice();
-        $address = $this->model->getStartingDate();
-        $type = filter_input(INPUT_POST, "type", FILTER_SANITIZE_STRING);
+        $companyName = $this->model->getCompanyName();
+        $contactPersonName = $this->model->getContactPersonName();
+        $emailAddress = $this->model->getEmailAddress();
+        $password = $this->model->getPassword();
+        $confirmPassword = $this->getConfirmPassword();
+        $phoneNumber = $this->model->getPhoneNumber();
+        $address = $this->model->getAddress();
+        $numberOfEmployees = $this->model->getNumberOfEmployees();
+        $industry = $this->model->getIndustry();
+        $state = $this->model->getState();
+        $aboutUs = $this->model->getAboutUs();
+        $logo = $this->model->getLogo();
+        $backgroundPicture = $this->model->getBackgroundPicture();
+        $officePictures = $this->model->getOfficePictures();
+        $facebookUrl = $this->model->getFacebookUrl();
+        $linkedinUrl = $this->model->getLinkedinUrl();
+        $whatsappUrl = $this->model->getWhatsappUrl();
+        $status = $this->model->getStatus();
+        $dateJoined = $this->model->getDateJoined();
 
         $i=0;
 
         //db loading
-        $db_datas=[];
-        $result = $this->connection->query("SELECT B.origin, B.destination, C.airplane_id, C.name, A.departure_day, A.departure_time, A.arrival_time, B.time_taken_hour
-                                            FROM flight_schedule A
-                                            JOIN route B ON A.route_id = B.route_id
-                                            JOIN airplane C ON A.airplane_id = C.airplane_id
-                                            WHERE starting_date >= '2000-01-01'");
-        while (($row = $result->fetch_assoc()) == TRUE) {
-            $db_datas[] = $row;
-        }
+        // $db_datas=[];
+        // $result = $this->connection->query("SELECT B.origin, B.destination, C.airplane_id, C.name, A.departure_day, A.departure_time, A.arrival_time, B.time_taken_hour
+        //                                     FROM flight_schedule A
+        //                                     JOIN route B ON A.route_id = B.route_id
+        //                                     JOIN airplane C ON A.airplane_id = C.airplane_id
+        //                                     WHERE starting_date >= '2000-01-01'");
+        // while (($row = $result->fetch_assoc()) == TRUE) {
+        //     $db_datas[] = $row;
+        // }
         
+        function nullChecking($attribute, $inputName, $errorMessage){
+            if ($attribute == "") {
+                $datas[$i]['inputName'] = $inputName;
+                $datas[$i]['errorMessage'] = $errorMessage;
+                $i++;
+            }
+        }
+
         //null checking
-        if($contactPersonName==0){
-            $datas[$i]['inputName']="planeName";
-            $datas[$i]['errorMessage']="Plane Number is required";
+        if ($companyName == "") {
+            $datas[$i]['inputName'] = "companyName";
+            $datas[$i]['errorMessage'] = "Company Name is required";
             $i++;
         }
-        if($origin==""){
-            $datas[$i]['inputName']="origin";
-            $datas[$i]['errorMessage']="Origin is required";
+    
+        if ($contactPersonName == "") {
+            $datas[$i]['inputName'] = "contactPersonName";
+            $datas[$i]['errorMessage'] = "Contact Person Name is required";
             $i++;
         }
-        if($destination==""){
-            $datas[$i]['inputName']="destination";
-            $datas[$i]['errorMessage']="Destination is required";
+    
+        if ($emailAddress == "") {
+            $datas[$i]['inputName'] = "emailAddress";
+            $datas[$i]['errorMessage'] = "Email Address is required";
             $i++;
         }
-        if($phoneNumber==""){
-            $datas[$i]['inputName']="phoneNumber";
-            $datas[$i]['errorMessage']="Departure day is required";
+    
+        if($password!=$confirmPassword){
+            $datas[$error]['inputName']="password";
+            $datas[$error]['errorMessage']="Password does not match with Confirm Password";
+            $error++;
+            $datas[$error]['inputName']="confirmPassword";
+            $datas[$error]['errorMessage']="Password does not match with Confirm Password";
+            $error++;
+        }
+    
+        if ($phoneNumber == "") {
+            $datas[$i]['inputName'] = "phoneNumber";
+            $datas[$i]['errorMessage'] = "Phone Number is required";
             $i++;
         }
-        if($emailAddress==""){
-            $datas[$i]['inputName']="emailAddress";
-            $datas[$i]['errorMessage']="Departure Time is required";
+    
+        if ($address == "") {
+            $datas[$i]['inputName'] = "address";
+            $datas[$i]['errorMessage'] = "Address is required";
             $i++;
         }
-        if($price==0){
-            $datas[$i]['inputName']="price";
-            $datas[$i]['errorMessage']="Price is required";
+    
+        if ($numberOfEmployees == "") {
+            $datas[$i]['inputName'] = "numberOfEmployees";
+            $datas[$i]['errorMessage'] = "Number of Employees is required";
             $i++;
         }
-        if($address==""){
-            $datas[$i]['inputName']="scheduleStartDate";
-            $datas[$i]['errorMessage']="Schedule start date is required";
+    
+        if ($industry == "") {
+            $datas[$i]['inputName'] = "industry";
+            $datas[$i]['errorMessage'] = "Industry is required";
             $i++;
         }
-
-        //logical checking
-        if($origin!="" && $origin==$destination){
-            $datas[$i]['inputName']="origin";
-            $datas[$i]['errorMessage']="Origin must not be same as destination";
-            $i++;
-            $datas[$i]['inputName']="destination";
-            $datas[$i]['errorMessage']="Origin must not be same as destination";
+    
+        if ($state == "") {
+            $datas[$i]['inputName'] = "state";
+            $datas[$i]['errorMessage'] = "State is required";
             $i++;
         }
-
-        //server validation
-        if($contactPersonName!=0 && $origin !="" && $type=="add"){
-            $lastDestination = "";
-            $airplaneName = "";
-            foreach ($db_datas as $db_data){
-                if($db_data['airplane_id'] == $contactPersonName){
-                    $lastDestination = $db_data['destination'];
-                    $airplaneName = $db_data['name'];
-                }
-            }
-
-            if($lastDestination !="" && $lastDestination != $origin){
-                $datas[$i]['inputName']="origin";
-                $datas[$i]['errorMessage']="Airplane $airplaneName last destination is in $lastDestination";
-                $i++; 
-            }
-        }
-
-        if($origin != "" && $destination != "" && $price != 0){
-            foreach ($db_datas as $db_data){
-                $db_min_price = $db_data['time_taken_hour']*50;
-
-                if($db_data['origin'] == $origin && $db_data['destination'] == $destination  && $price < $db_min_price){
-                    $datas[$i]['inputName']="price";
-                    $datas[$i]['errorMessage']="From $origin to $destination, price must be larger than $db_min_price";
-                    $i++; 
-                }
-            }
-        }
+    
 
 
         if($i>0){

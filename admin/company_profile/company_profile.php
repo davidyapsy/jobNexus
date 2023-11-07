@@ -5,7 +5,7 @@
     $database = "db_jobnexus";
 
     $connection = new mysqli($serverName, $userName, $password, $database);
-    // $companyId = base64_decode($_GET['id']);
+    // $employerID = base64_decode($_GET['id']);
 
     $sql = "SELECT employerID, companyName, contactPersonName, emailAddress, password, phoneNumber, address, numberOfEmployees, industry, state, aboutUs, logo, backgroundPicture, 
             officePictures, facebookUrl, linkedinUrl, whatsappUrl, status, dateJoined
@@ -63,7 +63,7 @@
                     <h4 style="padding:10px;"><i class="bi bi-person-fill px-2"></i>Profile Details</h4>
                     <hr>
                     <form id="form_details" action="" method="post" >
-                        <input type="hidden" id="companyId" name="companyId" value=" <?= base64_encode($companyId);?>">
+                        <input type="hidden" id="employerID" name="employerID" value="<?= base64_encode($employerID);?>">
                         <div class="form-group row">
                             <label for="companyName" class="col-sm-3 col-form-label">Company Name: <span class="required">*</span></label>
                             <div class="col-sm-9">
@@ -86,7 +86,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="password" class="col-sm-3 col-form-label">Password: <span class="required">*</span></label>
+                            <label for="password" class="col-sm-3 col-form-label">Password: </label>
                             <div class="col-sm-9">
                                 <div class="input-group">
                                     <input type="password" class="form-control" id="password" name="password"> 
@@ -98,7 +98,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="confirmPassword" class="col-sm-3 col-form-label">Confirm Password: <span class="required">*</span></label>
+                            <label for="confirmPassword" class="col-sm-3 col-form-label">Confirm Password: </label>
                             <div class="col-sm-9">
                                 <div class="input-group">
                                     <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"> 
@@ -110,7 +110,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="phoneNumber" class="col-sm-3 col-form-label">Phone Number: <span class="required">*</span></label>
+                            <label for="phoneNumber" class="col-sm-3 col-form-label">Phone Number: </label>
                             <div class="col-sm-9">
                                 <div class="input-group">
                                     <span class="input-group-text">
@@ -144,18 +144,18 @@
                         <div class="form-group row">
                             <label for="price" class="col-sm-3 col-form-label">Industry: <span class="required">*</span> </label>
                             <div class="col-sm-3">
-                                <select class="form-select" id="numberOfEmployees" name="numberOfEmployees">
-                                    <option value=""> -- Please select number of employees. -- </option>
-                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
-                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
-                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
-                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
-                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
-                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
-                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
-                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
-                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
-                                    <option value="Technology" <?= $data['numberOfEmployees']=='Technology'? 'selected':'';?>>Technology</option>
+                                <select class="form-select" id="industry" name="industry">
+                                    <option value=""> -- Please select an industry. -- </option>
+                                    <option value="Technology" <?= $data['industry']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Healthcare" <?= $data['industry']=='Healthcare'? 'selected':'';?>>Healthcare</option>
+                                    <option value="Finance" <?= $data['industry']=='Finance'? 'selected':'';?>>Finance</option>
+                                    <option value="Manufacturing" <?= $data['industry']=='Manufacturing'? 'selected':'';?>>Manufacturing</option>
+                                    <option value="Retail" <?= $data['industry']=='Retail'? 'selected':'';?>>Retail</option>
+                                    <option value="Agriculture" <?= $data['industry']=='Agriculture'? 'selected':'';?>>Agriculture</option>
+                                    <option value="Energy" <?= $data['industry']=='Energy'? 'selected':'';?>>Energy</option>
+                                    <option value="Entertainment" <?= $data['industry']=='Entertainment'? 'selected':'';?>>Entertainment</option>
+                                    <option value="Transportation" <?= $data['industry']=='Transportation'? 'selected':'';?>>Transportation</option>
+                                    <option value="Hospitality and Tourism" <?= $data['industry']=='Hospitality and Tourism'? 'selected':'';?>>Hospitality and Tourism</option>
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -184,14 +184,14 @@
                             </div>
                         </div> 
                         <div class="form-group row">
-                            <label for="price" class="col-sm-3 col-form-label">About Us: <span class="required">*</span> </label>
+                            <label for="price" class="col-sm-3 col-form-label">About Us: </label>
                             <div class="col-sm-9">
-                                <div id="summernote"></div>
+                                <div id="summernote"><?= $data['aboutUs']?></div>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="logo" class="col-sm-3 col-form-label">Logo: <span class="required">*</span></label>
+                            <label for="logo" class="col-sm-3 col-form-label">Logo: </label>
                             <div class="col-sm-9">
                                 <div class="body-background">
                                     <a href="../assets/images/company_profile/<?= $data['logo']; ?>">
@@ -208,7 +208,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="backgroundPicture" class="col-sm-3 col-form-label">Background Picture: <span class="required">*</span></label>
+                            <label for="backgroundPicture" class="col-sm-3 col-form-label">Background Picture: </label>
                             <div class="col-sm-9">
                                 <div class="body-background">
                                     <a href="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>">
@@ -225,7 +225,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="officePicture" class="col-sm-3 col-form-label custom-file-label">Office Picture: <span class="required">*</span></label>
+                            <label for="officePicture" class="col-sm-3 col-form-label custom-file-label">Office Pictures: </label>
                             <div class="col-sm-9">
                                 <?php foreach($officePicture_arr as $officePicture) { ?>
                                     <div class="body-background">
@@ -237,41 +237,48 @@
                                             onclick="removeImage(this)"><i class="bi bi-trash"></i></button>
                                     </div>
                                 <?php } ?>
-                                <input type="file" class="form-control custom-file-input" id="officePicture" name="officePicture" value="<?= $officePictures?>" multiple/>
+                                <input type="file" class="form-control custom-file-input" id="officePictures" name="officePictures" value="<?= $officePictures?>" multiple/>
                                 <input type="hidden" id="deleteOfficePicture" name="deleteOfficePicture" value=""> 
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="facebookUrl" class="col-sm-3 col-form-label">Facebook Url: <span class="required">*</span></label>
+                            <label for="facebookUrl" class="col-sm-3 col-form-label">Facebook Url: </label>
                             <div class="col-sm-9">
                                 <input type="input" class="form-control" name="facebookUrl" id="facebookUrl" rows="3" value="<?= $data['facebookUrl'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="linkedinUrl" class="col-sm-3 col-form-label">LinkedIn Url: <span class="required">*</span></label>
+                            <label for="linkedinUrl" class="col-sm-3 col-form-label">LinkedIn Url: </label>
                             <div class="col-sm-9">
                                 <input type="input" class="form-control" name="linkedinUrl" id="linkedinUrl" rows="3" value="<?= $data['linkedinUrl'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="whatsappUrl" class="col-sm-3 col-form-label">Whatsapp Url: <span class="required">*</span></label>
+                            <label for="whatsappUrl" class="col-sm-3 col-form-label">Whatsapp Url: </label>
                             <div class="col-sm-9">
                                 <input type="input" class="form-control" name="whatsappUrl" id="whatsappUrl" rows="3" value="<?= $data['whatsappUrl'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="status" class="col-sm-3 col-form-label">Status: <span class="required">*</span> </label>
+                            <label for="status" class="col-sm-3 col-form-label">Status: </label>
                             <div class="col-sm-3">
-                                <select class="form-select" id="status" name="status">
+                                <select class="form-select" id="status" name="status" disabled>
                                     <option value=""> -- Please select status. -- </option>
                                     <option value="Approved" <?= $data['status']=='Approved'? 'selected':'';?>>Approved</option>
                                     <option value="Pending" <?= $data['status']=='Pending'? 'selected':'';?>>Pending</option>
                                     <option value="Rejected" <?= $data['status']=='Rejected'? 'selected':'';?>>Rejected</option>
                                 </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="dateJoined" class="col-sm-3 col-form-label">Date Joined: </label>
+                            <div class="col-sm-9">
+                                <input type="input" class="form-control" name="dateJoined" id="dateJoined" value="<?= $data['dateJoined'];?>" disabled/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -307,7 +314,6 @@
         });
 
         $('#summernote').summernote({
-            placeholder: 'Hello Bootstrap 5',
             tabsize: 2,
             height: 400
         });
@@ -336,13 +342,26 @@
                 data: {
                     mode: "check_validation",
                     type: "edit",
-                    airplaneId : $("#planeName").val(),
-                    origin : $("#origin").val(),
-                    destination : $("#destination").val(),
-                    departureDay : chkedDepartureDay,
-                    departureTime : $("#departureTime").val(),
-                    price : $('#price').val(),
-                    startingDate : $('#scheduleStartDate').val()
+                    employerID : $("#employerID").val(),
+                    companyName: $("#companyName").val(),
+                    contactPersonName: $("#contactPersonName").val(),
+                    emailAddress: $("#emailAddress").val(),
+                    password: $("#password").val(),
+                    confirmPassword: $("#confirmPassword").val(),
+                    phoneNumber: $("#phoneNumber").val(),
+                    address: $("#address").val(),
+                    numberOfEmployees: $("#numberOfEmployees").val(),
+                    industry: $("#industry").val(),
+                    state: $("#state").val(),
+                    aboutUs: $("#summernote").html(),
+                    logo: $("#logo").val(),
+                    backgroundPicture: $("#backgroundPicture").val(),
+                    officePictures: $("#officePictures").val(),
+                    facebookUrl: $("#facebookUrl").val(),
+                    linkedinUrl: $("#linkedinUrl").val(),
+                    whatsappUrl: $("#whatsappUrl").val(),
+                    status: $("#status").val(),
+                    dateJoined: $("#dateJoined").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status==false) {
@@ -368,14 +387,25 @@
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "update",
-                    companyId : $('#companyId').val(),
-                    airplaneId : $("#planeName").val(),
-                    origin : $("#origin").val(),
-                    destination : $("#destination").val(),
-                    departureDay : chkedDepartureDay,
-                    departureTime : $("#departureTime").val(),
-                    price : $('#price').val(),
-                    startingDate : $('#scheduleStartDate').val()
+                    employerID : $("#employerID").val(),
+                    companyName: $("#companyName").val(),
+                    contactPersonName: $("#contactPersonName").val(),
+                    emailAddress: $("#emailAddress").val(),
+                    password: $("#password").val(),
+                    phoneNumber: $("#phoneNumber").val(),
+                    address: $("#address").val(),
+                    numberOfEmployees: $("#numberOfEmployees").val(),
+                    industry: $("#industry").val(),
+                    state: $("#state").val(),
+                    aboutUs: $("#aboutUs").val(),
+                    logo: $("#logo").val(),
+                    backgroundPicture: $("#backgroundPicture").val(),
+                    officePictures: $("#officePictures").val(),
+                    facebookUrl: $("#facebookUrl").val(),
+                    linkedinUrl: $("#linkedinUrl").val(),
+                    whatsappUrl: $("#whatsappUrl").val(),
+                    status: $("#status").val(),
+                    dateJoined: $("#dateJoined").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
