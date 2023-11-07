@@ -96,104 +96,164 @@ class ConnectionString
 
 }
 
-class FlightScheduleModel
+class JobPostingModel
 {
-    private int $flightScheduleId;
-    private int $routeId;
-    private int $airplaneId;
-    private String $departureTime;
-    private String $arrivalTime;
-    private String $departureDay;
-    private float $price;
-    private String $startingDate;
+    private String $employerID;
+    private String $jobPostingID;
+    private String $jobCategoryID;
+    private String $jobTitle;
+    private String $jobDescription;
+    private String $jobRequirement;
+    private String $skills;
+    private String $experienceLevel;
+    private String $locationState;
+    private float $salary;
+    private String $employmentType;
+    private String $applicationDeadline;
+    private String $postDate;
+    private String $status;
 
-    public function getFlightScheduleId(): int
-    {
-        return $this->flightScheduleId;
+    public function getEmployerID(): String{
+        return $this->employerID;
     }
 
-    public function setFlightScheduleId(int $flightScheduleId): FlightScheduleModel
-    {
-        $this->flightScheduleId = $flightScheduleId;
+    public function setEmployerID(String $employerID): JobPostingModel{
+        $this->employerID = $employerID;
         return $this;
     }
 
-    public function getRouteId(): int
+    public function getJobPostingID(): String
     {
-        return $this->routeId;
+        return $this->jobPostingID;
     }
 
-    public function setRouteId(int $routeId): FlightScheduleModel
+    public function setJobPostingID(String $jobPostingID): JobPostingModel
     {
-        $this->routeId = $routeId;
+        $this->jobPostingID = $jobPostingID;
         return $this;
     }
 
-    public function getAirplaneId(): int
+    public function getJobCategoryID(): String
     {
-        return $this->airplaneId;
+        return $this->jobCategoryID;
     }
 
-    public function setAirplaneId(int $airplaneId): FlightScheduleModel
+    public function setJobCategoryID(String $jobCategoryID): JobPostingModel
     {
-        $this->airplaneId = $airplaneId;
+        $this->jobCategoryID = $jobCategoryID;
         return $this;
     }
 
-    public function getDepartureTime(): String
+    public function getJobTitle(): String
     {
-        return $this->departureTime;
+        return $this->jobTitle;
     }
 
-    public function setDepartureTime(String $departureTime): FlightScheduleModel
+    public function setJobTitle(String $jobTitle): JobPostingModel
     {
-        $this->departureTime = $departureTime;
+        $this->jobTitle = $jobTitle;
         return $this;
     }
 
-    public function getArrivalTime(): String
+    public function getJobDescription(): String
     {
-        return $this->arrivalTime;
+        return $this->jobDescription;
     }
 
-    public function setArrivalTime(String $arrivalTime): FlightScheduleModel
+    public function setJobDescription(String $jobDescription): JobPostingModel
     {
-        $this->arrivalTime = $arrivalTime;
+        $this->jobDescription = $jobDescription;
         return $this;
     }
 
-    public function getDepartureDay(): String
+    public function getSkills(): String
     {
-        return $this->departureDay;
+        return $this->skills;
     }
 
-    public function setDepartureDay(String $departureDay): FlightScheduleModel
+    public function setSkills(String $skills): JobPostingModel
     {
-        $this->departureDay = $departureDay;
+        $this->skills = $skills;
         return $this;
     }
 
-    public function getPrice(): float
+    public function getExperienceLevel(): String
     {
-        return $this->price;
+        return $this->experienceLevel;
     }
 
-    public function setPrice(float $price): FlightScheduleModel
+    public function setExperienceLevel(String $experienceLevel): JobPostingModel
     {
-        $this->price = $price;
+        $this->experienceLevel = $experienceLevel;
         return $this;
     }
 
-    public function getStartingDate(): String
+    public function getLocationState(): String
     {
-        return $this->startingDate;
+        return $this->locationState;
     }
 
-    public function setStartingDate(String $startingDate): FlightScheduleModel
+    public function setLocationState(String $locationState): JobPostingModel
     {
-        $this->startingDate = $startingDate;
+        $this->locationState = $locationState;
         return $this;
     }
+
+    public function getSalary(): String
+    {
+        return $this->salary;
+    }
+
+    public function setSalary(String $salary): JobPostingModel
+    {
+        $this->salary = $salary;
+        return $this;
+    }
+
+    public function getEmploymentType(): String
+    {
+        return $this->employmentType;
+    }
+
+    public function setEmploymentType(String $employmentType): JobPostingModel
+    {
+        $this->employmentType = $employmentType;
+        return $this;
+    }
+
+    public function getApplicationDeadline(): String
+    {
+        return $this->applicationDeadline;
+    }
+
+    public function setApplicationDeadline(String $applicationDeadline): JobPostingModel
+    {
+        $this->applicationDeadline = $applicationDeadline;
+        return $this;
+    }
+
+    public function getPostDate(): String
+    {
+        return $this->postDate;
+    }
+
+    public function setPostDate(String $postDate): JobPostingModel
+    {
+        $this->postDate = $postDate;
+        return $this;
+    }
+
+    public function getStatus(): String
+    {
+        return $this->status;
+    }
+
+    public function setStatus(String $status): JobPostingModel
+    {
+        $this->status = $status;
+        return $this;
+    }
+
 }
 
 //
@@ -226,13 +286,9 @@ interface  ReturnCode
 class FlightScheduleOop
 {
     private ConnectionString $connectionString;
-    private FlightScheduleModel $model;
+    private JobPostingModel $model;
     private mysqli $connection;
 
-    private $origin;
-    private $destination;
-    private $departureTimeFrom;
-    private $departureTimeTo;
     private $departureDay;
     private $page;
 
@@ -244,50 +300,6 @@ class FlightScheduleOop
     public function setDepartureDay($departureDay=""): FlightScheduleOop
     {
         $this->departureDay = $departureDay;
-        return $this;
-    }
-
-    public function getDepartureTimeFrom(): String
-    {
-        return $this->departureTimeFrom;
-    }
-
-    public function setDepartureTimeFrom($departureTimeFrom=""): FlightScheduleOop
-    {
-        $this->departureTimeFrom = $departureTimeFrom;
-        return $this;
-    }
-
-    public function getDepartureTimeTo(): String
-    {
-        return $this->departureTimeTo;
-    }
-
-    public function setDepartureTimeTo($departureTimeTo=""): FlightScheduleOop
-    {
-        $this->departureTimeTo = $departureTimeTo;
-        return $this;
-    }
-    
-    public function getOrigin(): String
-    {
-        return $this->origin;
-    }
-
-    public function setOrigin($origin=""): FlightScheduleOop
-    {
-        $this->origin = $origin;
-        return $this;
-    }
-    
-    public function getDestination(): String
-    {
-        return $this->destination;
-    }
-
-    public function setDestination($destination=""): FlightScheduleOop
-    {
-        $this->destination = $destination;
         return $this;
     }
 
@@ -309,7 +321,7 @@ class FlightScheduleOop
     function __construct()
     {
         // declare object / injection
-        $this->model = new FlightScheduleModel();
+        $this->model = new JobPostingModel();
         $this->connectionString = new ConnectionString();
 
         // connection to the database
@@ -334,7 +346,7 @@ class FlightScheduleOop
         $this->connectionString->setServerName("localhost");
         $this->connectionString->setUserName("root");
         $this->connectionString->setPassword("");
-        $this->connectionString->setDatabase("flight_ticketing");
+        $this->connectionString->setDatabase("db_jobnexus");
         try {
             $this->connection = new mysqli($this->connectionString->getServerName(), $this->connectionString->getUserName(), $this->connectionString->getPassword(), $this->connectionString->getDatabase());
         } catch (Exception $exception) {
@@ -347,68 +359,46 @@ class FlightScheduleOop
      */
     function setParameter()
     {
-        $flightScheduleId =  base64_decode(filter_input(INPUT_POST, "flightScheduleId", FILTER_SANITIZE_STRING));
-        $airplaneId = filter_input(INPUT_POST, "airplaneId", FILTER_SANITIZE_NUMBER_INT);
-        $departureTime = filter_input(INPUT_POST, "departureTime", FILTER_SANITIZE_STRING);
-        $departureDay = filter_input(INPUT_POST, "departureDas", FILTER_SANITIZE_STRING);
-        $price = filter_input(INPUT_POST, "price", FILTER_SANITIZE_NUMBER_FLOAT);
-        $startingDate = filter_input(INPUT_POST, "startingDate", FILTER_SANITIZE_STRING);
-
-        //
-        $origin = filter_input(INPUT_POST, "origin", FILTER_SANITIZE_STRING);
-        $destination = filter_input(INPUT_POST, "destination", FILTER_SANITIZE_STRING);
-        //
-        $departureDay = filter_input(INPUT_POST, "departureDay", FILTER_SANITIZE_STRING);
-        $departureTimeFrom = filter_input(INPUT_POST, "departureTimeFrom", FILTER_SANITIZE_STRING);
-        $departureTimeTo = filter_input(INPUT_POST, "departureTimeTo", FILTER_SANITIZE_STRING);
-
+        $employerID =  base64_decode(filter_input(INPUT_POST, "employerID", FILTER_SANITIZE_STRING));
+        $jobPostingID =  base64_decode(filter_input(INPUT_POST, "jobPostingID", FILTER_SANITIZE_STRING));
+        $jobCategoryID =  base64_decode(filter_input(INPUT_POST, "jobCategoryID", FILTER_SANITIZE_STRING));
+        $jobTitle = filter_input(INPUT_POST, "jobTitle", FILTER_SANITIZE_STRING);
+        $jobDescription = filter_input(INPUT_POST, "jobDescription", FILTER_SANITIZE_STRING);
+        $skills = filter_input(INPUT_POST, "skills", FILTER_SANITIZE_STRING);
+        $experienceLevel = filter_input(INPUT_POST, "experienceLevel", FILTER_SANITIZE_STRING);
+        $locationState = filter_input(INPUT_POST, "locationState", FILTER_SANITIZE_STRING);
+        $salary = filter_input(INPUT_POST, "salary", FILTER_SANITIZE_NUMBER_FLOAT);
+        $employmentType = filter_input(INPUT_POST, "employmentType", FILTER_SANITIZE_STRING);
+        $applicationDeadline = filter_input(INPUT_POST, "applicationDeadline", FILTER_SANITIZE_STRING);
+        $postDate = filter_input(INPUT_POST, "postDate", FILTER_SANITIZE_STRING);
+        $status = filter_input(INPUT_POST, "status", FILTER_SANITIZE_STRING);
         $page = filter_input(INPUT_POST, "page", FILTER_SANITIZE_NUMBER_INT);
         
+        $this->model->setEmployerID($employerID);
+        $this->model->setJobPostingID($jobPostingID);
+        $this->model->setJobCategoryID($jobCategoryID);
+        $this->model->setJobTitle($jobTitle);
+        $this->model->setJobDescription($jobDescription);
+        $this->model->setSkills($skills);
+        $this->model->setExperienceLevel($experienceLevel);
+        $this->model->setLocationState($locationState);
+        $this->model->setSalary($salary);
+        $this->model->setEmploymentType($employmentType);
+        $this->model->setApplicationDeadline($applicationDeadline);
+        $this->model->setPostDate($postDate);
+        $this->model->setStatus($status);
+        $this->setPage($page);
+
         if( filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "create"){
-            $this->model->setAirplaneId($airplaneId);
-            $this->setOrigin($origin);
-            $this->setDestination($destination);
-            $this->model->setDepartureDay($departureDay);
-            $this->model->setDepartureTime($departureTime);
-            $this->model->setPrice($price);
-            $this->model->setStartingDate($startingDate);
+
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "delete"){
-            if ($flightScheduleId && is_numeric($flightScheduleId)) {
-                if ($flightScheduleId > 0) {
-                    $this->model->setFlightScheduleId($flightScheduleId);
-                }
-            }
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "generateDestination"){
-            $this->setOrigin($origin);
+
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
-            if ($flightScheduleId && is_numeric($flightScheduleId)) {
-                if ($flightScheduleId > 0) {
-                    $this->model->setFlightScheduleId($flightScheduleId);
-                }
-            }
-            $this->model->setAirplaneId($airplaneId);
-            $this->setOrigin($origin);
-            $this->setDestination($destination);
-            $this->model->setDepartureDay($departureDay);
-            $this->model->setDepartureTime($departureTime);
-            $this->model->setPrice($price);
-            $this->model->setStartingDate($startingDate);
+
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
-            $this->model->setAirplaneId($airplaneId);
-            $this->setOrigin($origin);
-            $this->setDestination($destination);
-            $this->model->setDepartureDay($departureDay);
-            $this->model->setDepartureTime($departureTime);
-            $this->model->setPrice($price);
-            $this->model->setStartingDate($startingDate);
+
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
-            $this->setPage($page);
-            $this->setOrigin($origin);
-            $this->setDestination($destination);
-            $this->model->setAirplaneId($airplaneId);
-            $this->setDepartureDay($departureDay);
-            $this->setDepartureTimeFrom($departureTimeFrom);
-            $this->setDepartureTimeTo($departureTimeTo);
+
         }       
     }
 
@@ -494,13 +484,13 @@ class FlightScheduleOop
         $departureTimeTo = $this->getDepartureTimeTo();
         $departureDay = $this->getDepartureDay();
 
-        $sql = "SELECT A.flight_schedule_id, B.origin, B.destination, C.name, A.departure_day, A.departure_time
-        FROM flight_schedule A
-        JOIN route B ON A.route_id = B.route_id
-        JOIN airplane C ON A.airplane_id = C.airplane_id
-        WHERE starting_date >= '2000-01-01'";
+        $sql = "SELECT jobTitle, skills, experienceLevel, locationState, salary, employmentType, applicationDeadline, status
+        FROM job_posting A
+        JOIN employer B ON A.employerID = B.employerID
+        JOIN job_category C ON A.jobCategoryID = C.jobCategoryID
+        WHERE A.employerID = 'E2300000'";
 
-        if($origin!=""){
+        if($jobTitle!=""){
             $sql.=" AND B.origin = '$origin'";
         }
         if($destination!=""){
@@ -518,7 +508,7 @@ class FlightScheduleOop
         if($departureTimeTo!=""){
             $sql.=" AND A.departure_time <= '$departureTimeTo'";
         }
-        $sql.=" ORDER BY flight_schedule_id ASC";
+        $sql.=" ORDER BY postDate DESC";
 
         $statement = $this->connection->prepare($sql);
         $statement->execute();
@@ -755,35 +745,6 @@ class FlightScheduleOop
         }
     }   
 
-    function generateDestination(){
-        $origin = $this->getOrigin();
-        $sql = "SELECT DISTINCT destination 
-                FROM route
-                WHERE origin = '$origin'";
-        try {
-            $statement = $this->connection->prepare($sql);
-            try {
-                $statement->execute();
-                $result = $statement->get_result();
-                $data = [];
-                while (($row = $result->fetch_assoc()) == TRUE) {
-                    $data[] = $row;
-                }
-                echo json_encode(
-                    [
-                        "status" => true,
-                        "code" => ReturnCode::READ_SUCCESS,
-                        "data" => $data
-                    ]
-                );
-            } catch (Exception $exception) {
-                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
-            }
-
-        } catch (Exception $exception) {
-            throw new Exception(ReturnCode::ACCESS_DENIED, ReturnCode::QUERY_FAILURE);
-        }
-    }
 
     function check_validation(){
         $datas[]['inputName']="";
@@ -932,9 +893,6 @@ try {
             break;
         case "check_validation":
             $flightScheduleOop->check_validation();
-            break;
-        case "generateDestination":
-            $flightScheduleOop->generateDestination();
             break;
         default:
             throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);

@@ -369,7 +369,7 @@ class EmployerOop
         return $this->confirmPassword;
     }
 
-    public function setConfirmPassword($confirmPassword=NULL): StaffOop
+    public function setConfirmPassword($confirmPassword=NULL): EmployerOop
     {
         $this->confirmPassword = $confirmPassword;
         return $this;
@@ -430,7 +430,7 @@ class EmployerOop
         $numberOfEmployees = filter_input(INPUT_POST, "numberOfEmployees", FILTER_SANITIZE_STRING);
         $industry = filter_input(INPUT_POST, "industry", FILTER_SANITIZE_STRING);
         $state = filter_input(INPUT_POST, "state", FILTER_SANITIZE_STRING);
-        $aboutUs = filter_input(INPUT_POST, "aboutUs", FILTER_SANITIZE_STRING);
+        $aboutUs = filter_input(INPUT_POST, "aboutUs");
         $logo = filter_input(INPUT_POST, "logo", FILTER_SANITIZE_STRING);
         $backgroundPicture = filter_input(INPUT_POST, "backgroundPicture", FILTER_SANITIZE_STRING);
         $officePictures = filter_input(INPUT_POST, "officePictures", FILTER_SANITIZE_STRING);
@@ -439,6 +439,9 @@ class EmployerOop
         $whatsappUrl = filter_input(INPUT_POST, "whatsappUrl", FILTER_SANITIZE_URL);
         $status = filter_input(INPUT_POST, "status", FILTER_SANITIZE_STRING);
         $dateJoined = filter_input(INPUT_POST, "dateJoined", FILTER_SANITIZE_STRING);
+
+        $confirmPassword = filter_input(INPUT_POST, "confirmPassword", FILTER_SANITIZE_STRING);
+
         
         $this->model->setEmployerID($employerID);
         $this->model->setCompanyName($companyName);
@@ -459,6 +462,7 @@ class EmployerOop
         $this->model->setWhatsappUrl($whatsappUrl);
         $this->model->setStatus($status);
         $this->model->setDateJoined($dateJoined);
+        $this->setConfirmPassword($confirmPassword);
     }
 
     /**
@@ -488,6 +492,7 @@ class EmployerOop
         $status = $this->model->getStatus();
         $dateJoined = $this->model->getDateJoined();
 
+
         // if (strlen($name) > 0 &&  strlen($phoneNumber) > 0 &&  strlen($emailAddress) > 0 &&  strlen($status) > 0 &&  strlen($position) > 0) {
             if($password!=""){
                 $password = md5($password);
@@ -499,10 +504,10 @@ class EmployerOop
                     $aboutUs, $logo, $backgroundPicture, $officePictures, $facebookUrl, $linkedinUrl, $whatsappUrl, $status, $dateJoined, $employerID);
             }else{
                 $statement = $this->connection->prepare("UPDATE employer 
-                SET companyName = ?, contactPersonName = ?, emailAddress = ?, password = ?, phoneNumber = ?, address = ?, numberOfEmployees = ?, industry = ?, 
+                SET companyName = ?, contactPersonName = ?, emailAddress = ?, phoneNumber = ?, address = ?, numberOfEmployees = ?, industry = ?, 
                     state = ?, aboutUs = ?, logo = ?, backgroundPicture = ?, officePictures = ?, facebookUrl = ?, linkedinUrl = ?, whatsappUrl = ?, status = ?, dateJoined = ?
                 WHERE employerID = ?");
-                $statement->bind_param("sssssssssssssssssss", $companyName, $contactPersonName, $emailAddress, $password, $phoneNumber, $address, $numberOfEmployees, $industry, $state, 
+                $statement->bind_param("ssssssssssssssssss", $companyName, $contactPersonName, $emailAddress, $phoneNumber, $address, $numberOfEmployees, $industry, $state, 
                     $aboutUs, $logo, $backgroundPicture, $officePictures, $facebookUrl, $linkedinUrl, $whatsappUrl, $status, $dateJoined, $employerID);
             }
             try {
@@ -560,14 +565,6 @@ class EmployerOop
         // while (($row = $result->fetch_assoc()) == TRUE) {
         //     $db_datas[] = $row;
         // }
-        
-        function nullChecking($attribute, $inputName, $errorMessage){
-            if ($attribute == "") {
-                $datas[$i]['inputName'] = $inputName;
-                $datas[$i]['errorMessage'] = $errorMessage;
-                $i++;
-            }
-        }
 
         //null checking
         if ($companyName == "") {
@@ -587,15 +584,28 @@ class EmployerOop
             $datas[$i]['errorMessage'] = "Email Address is required";
             $i++;
         }
-    
-        if($password!=$confirmPassword){
-            $datas[$error]['inputName']="password";
-            $datas[$error]['errorMessage']="Password does not match with Confirm Password";
-            $error++;
-            $datas[$error]['inputName']="confirmPassword";
-            $datas[$error]['errorMessage']="Password does not match with Confirm Password";
-            $error++;
+        
+        if($password!=""){
+            $uppercase = preg_match('@[A-Z]@', $password);
+            $lowercase = preg_match('@[a-z]@', $password);
+            $number    = preg_match('@[0-9]@', $password);
+            $specialChars = preg_match('@[^\w]@', $password);
+            if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($password) < 8) {
+                $datas[$i]['inputName']="password";
+                $datas[$i]['errorMessage']="Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character";
+                $i++;
+            }
+
+            if($password!=$confirmPassword){
+                $datas[$i]['inputName']="password";
+                $datas[$i]['errorMessage']="Password does not match with Confirm Password";
+                $i++;
+                $datas[$i]['inputName']="confirmPassword";
+                $datas[$i]['errorMessage']="Password does not match with Confirm Password";
+                $i++;
+            }
         }
+        
     
         if ($phoneNumber == "") {
             $datas[$i]['inputName'] = "phoneNumber";
@@ -620,14 +630,21 @@ class EmployerOop
             $datas[$i]['errorMessage'] = "Industry is required";
             $i++;
         }
-    
+
         if ($state == "") {
             $datas[$i]['inputName'] = "state";
             $datas[$i]['errorMessage'] = "State is required";
             $i++;
         }
-    
-
+        
+        if($logo != ""){
+            $ext = strtolower(pathinfo($logo, PATHINFO_EXTENSION));
+            if ($ext !== 'gif' && $ext !== 'png' && $ext !== 'jpg') {
+                $datas[$i]['inputName'] = "logo";
+                $datas[$i]['errorMessage'] = "File should only in .gif | .png | .jpg format";
+                $i++;
+            }
+        }
 
         if($i>0){
             echo json_encode(
@@ -645,6 +662,21 @@ class EmployerOop
         }
     }
 
+    private function uploadImages($inputFieldName){
+        $file = $this->request->getFile($inputFieldName);
+		if ($file!="") {
+            $uniqueName = $file->getRandomName();
+			if ($file->isValid() && !$file->hasMoved()) {
+                $file->move('../assets/images/company_profile/', $uniqueName);
+            }
+		}
+        else{
+            $uniqueName = "";
+        }
+        
+		return $uniqueName;
+
+    }
 }
 
 header('Content-Type: application/json');

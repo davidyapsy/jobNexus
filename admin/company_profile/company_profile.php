@@ -63,7 +63,7 @@
                     <h4 style="padding:10px;"><i class="bi bi-person-fill px-2"></i>Profile Details</h4>
                     <hr>
                     <form id="form_details" action="" method="post" >
-                        <input type="hidden" id="employerID" name="employerID" value="<?= base64_encode($employerID);?>">
+                        <input type="hidden" id="employerID" name="employerID" value="<?= base64_encode('E2300000');?>">
                         <div class="form-group row">
                             <label for="companyName" class="col-sm-3 col-form-label">Company Name: <span class="required">*</span></label>
                             <div class="col-sm-9">
@@ -89,7 +89,8 @@
                             <label for="password" class="col-sm-3 col-form-label">Password: </label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <input type="password" class="form-control" id="password" name="password"> 
+                                    <input type="password" class="form-control" id="password" name="password" 
+                                        title="Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character"> 
                                     <span class="input-group-text" onclick="toggleVisibility('password', 'passwordVisibility')">
                                         <i id="passwordVisibility" class='bi bi-eye-slash'></i>
                                     </span>
@@ -193,51 +194,56 @@
                         <div class="form-group row">
                             <label for="logo" class="col-sm-3 col-form-label">Logo: </label>
                             <div class="col-sm-9">
-                                <div class="body-background">
-                                    <a href="../assets/images/company_profile/<?= $data['logo']; ?>">
-                                        <img src="../assets/images/company_profile/<?= $data['logo']; ?>"
-                                            style="width:250px;">
-                                    </a>
-                                    <button type="button" data-name="deleteLogo" class="btn btn-danger"
-                                        onclick="removeImage(this)"><i class="bi bi-trash"></i></button>
-                                </div>
-                                <input type="file" class="form-control" id="logo" name="logo" value="<?= $data['logo']; ?>"/>
+                                <?php if($data['logo']!="") { ?>
+                                    <div class="body-background">
+                                        <a href="../assets/images/company_profile/<?= $data['logo']; ?>">
+                                            <img src="../assets/images/company_profile/<?= $data['logo']; ?>"
+                                                style="width:250px;">
+                                        </a>
+                                        <button type="button" data-name="deleteLogo" class="btn btn-danger"
+                                            onclick="removeImage(this)"><i class="bi bi-trash"></i></button>
+                                    </div>
+                                <?php } ?>
+                                <input type="file" class="form-control" id="logo" name="logo" value=""/>
                                 <input type="hidden" id="deleteLogo" name="deleteLogo" value="">
-
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="backgroundPicture" class="col-sm-3 col-form-label">Background Picture: </label>
                             <div class="col-sm-9">
-                                <div class="body-background">
-                                    <a href="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>">
-                                        <img src="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>"
-                                            style="width:250px;">
-                                    </a>
-                                    <button type="button" data-name="deleteBackgroundPicture" class="btn btn-danger"
-                                        onclick="removeImage(this)"><i class="bi bi-trash"></i></button>
-                                </div>
-                                <input type="file" class="form-control" id="backgroundPicture" name="backgroundPicture" value="<?= $data['backgroundPicture']; ?>"/>
-                                <input type="hidden" id="deleteBackgroundPicture" name="deleteBackgroundPicture" value="">
+                                <?php if($data['backgroundPicture']!="") { ?>
 
+                                    <div class="body-background">
+                                        <a href="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>">
+                                            <img src="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>"
+                                                style="width:250px;">
+                                        </a>
+                                        <button type="button" data-name="deleteBackgroundPicture" class="btn btn-danger"
+                                            onclick="removeImage(this)"><i class="bi bi-trash"></i></button>
+                                    </div>
+                                <?php } ?>
+                                <input type="file" class="form-control" id="backgroundPicture" name="backgroundPicture" value=""/>
+                                <input type="hidden" id="deleteBackgroundPicture" name="deleteBackgroundPicture" value="">
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="officePicture" class="col-sm-3 col-form-label custom-file-label">Office Pictures: </label>
                             <div class="col-sm-9">
-                                <?php foreach($officePicture_arr as $officePicture) { ?>
-                                    <div class="body-background">
-                                        <a href="../assets/images/company_profile/<?= $officePicture ?>">
-                                            <img src="../assets/images/company_profile/<?= $officePicture ?>"
-                                                style="width:250px;">
-                                        </a>
-                                        <button type="button" data-name="deleteOfficePicture" class="btn btn-danger"
-                                            onclick="removeImage(this)"><i class="bi bi-trash"></i></button>
-                                    </div>
+                                <?php if($data['officePictures']!="") { ?>
+                                    <?php foreach($officePicture_arr as $officePicture) { ?>
+                                        <div class="body-background">
+                                            <a href="../assets/images/company_profile/<?= $officePicture ?>">
+                                                <img src="../assets/images/company_profile/<?= $officePicture ?>"
+                                                    style="width:250px;">
+                                            </a>
+                                            <button type="button" data-name="deleteOfficePicture" class="btn btn-danger"
+                                                onclick="removeImage(this)"><i class="bi bi-trash"></i></button>
+                                        </div>
+                                    <?php } ?>
                                 <?php } ?>
-                                <input type="file" class="form-control custom-file-input" id="officePictures" name="officePictures" value="<?= $officePictures?>" multiple/>
+                                <input type="file" class="form-control custom-file-input" id="officePictures" name="officePictures" value="" multiple/>
                                 <input type="hidden" id="deleteOfficePicture" name="deleteOfficePicture" value=""> 
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -277,7 +283,7 @@
                         </div>
                         <div class="form-group row">
                             <label for="dateJoined" class="col-sm-3 col-form-label">Date Joined: </label>
-                            <div class="col-sm-9">
+                            <div class="col-sm-3">
                                 <input type="input" class="form-control" name="dateJoined" id="dateJoined" value="<?= $data['dateJoined'];?>" disabled/>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -334,7 +340,6 @@
 
         function submitValidate(){
             $('.is-invalid').removeClass('is-invalid');
-
             $.ajax({
                 type: "post",
                 url: url,
@@ -353,10 +358,10 @@
                     numberOfEmployees: $("#numberOfEmployees").val(),
                     industry: $("#industry").val(),
                     state: $("#state").val(),
-                    aboutUs: $("#summernote").html(),
-                    logo: $("#logo").val(),
-                    backgroundPicture: $("#backgroundPicture").val(),
-                    officePictures: $("#officePictures").val(),
+                    aboutUs: $('#summernote').summernote('code'),
+                    logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
+                    backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
+                    officePictures: $('#officePictures').val().split('\\').pop() =="" ? "" : $('#officePictures').val().split('\\').pop(),
                     facebookUrl: $("#facebookUrl").val(),
                     linkedinUrl: $("#linkedinUrl").val(),
                     whatsappUrl: $("#whatsappUrl").val(),
@@ -397,10 +402,10 @@
                     numberOfEmployees: $("#numberOfEmployees").val(),
                     industry: $("#industry").val(),
                     state: $("#state").val(),
-                    aboutUs: $("#aboutUs").val(),
-                    logo: $("#logo").val(),
-                    backgroundPicture: $("#backgroundPicture").val(),
-                    officePictures: $("#officePictures").val(),
+                    aboutUs: $('#summernote').summernote('code'),
+                    logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
+                    backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
+                    officePictures: $('#officePictures').val().split('\\').pop() =="" ? "" : $('#officePictures').val().split('\\').pop(),
                     facebookUrl: $("#facebookUrl").val(),
                     linkedinUrl: $("#linkedinUrl").val(),
                     whatsappUrl: $("#whatsappUrl").val(),
@@ -427,6 +432,17 @@
             var cSelect = $(e).data("name");
             document.getElementById(cSelect).value = "1";
             $(e).parent().hide();
+        }
+
+        function toggleVisibility(input, e){
+            var passInput=$("#"+input);
+            if(passInput.attr('type')==='password'){
+                passInput.attr('type','text');
+                $('#'+e).removeClass('bi bi-eye-slash').addClass('bi bi-eye');
+            }else{
+                passInput.attr('type','password');
+                $('#'+e).removeClass('bi bi-eye').addClass('bi bi-eye-slash');
+            }
         }
     </script>
 </html>

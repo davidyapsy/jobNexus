@@ -2,7 +2,7 @@
     $serverName = "localhost";
     $userName = "root";
     $password = "";
-    $database = "flight_ticketing";
+    $database = "db_jobnexus";
 
     $connection = new mysqli($serverName, $userName, $password, $database);
 ?>
@@ -45,7 +45,7 @@
                             <h3>Job Post</h3>
                         </div>
                             <div class="col">
-                                <a href="flight_schedule_add.php">
+                                <a href="job_nexus_add.php">
                                     <button type="button" class="btn btn-primary btn-round">
                                         <i class="bi bi-plus-lg" aria-hidden="true"></i>
                                             <span class="text hidden-md-down">Add</span>
@@ -155,7 +155,7 @@
                     </form>
 
                     <div class="row" style="padding-left:15px; padding-right:15px;">
-                        <table class="table table-bordered" id="flight_schedule_table">
+                        <table class="table table-bordered" id="job_post_table">
                             <thead>
                                 <tr>
                                     <th scope="col" style="width:5%;">No.</th>
@@ -183,7 +183,7 @@
 
     <script>
     // at here we try to be native as possible and you can use url to ease change the which one you prefer
-    let url = "flight_schedule_controller.php";
+    let url = "job_post_controller.php";
     const tbody = $("#filtered_data");
         
         $(window).on( "load", function() {
@@ -225,18 +225,18 @@
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
-                                "             <a href=\"flight_schedule_view.php?id="+ encodeURI(btoa(records[i].flight_schedule_id)) + "\">"+
+                                "             <a href=\"job_post_view.php?id="+ encodeURI(btoa(records[i].job_post_id)) + "\">"+
                                 "               <button type=\"button\"  title=\"view\" class=\"btn btn-sm btn-info\">" +
                                 "                 <i class=\"bi bi-eye\"></i>" +
                                 "               </button>"+
                                 "             </a>" +
                                 <?php if($position =="manager"){?>
-                                "             <a href=\"flight_schedule_edit.php?id="+ encodeURI(btoa(records[i].flight_schedule_id)) + "\">"+
+                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].job_post_id)) + "\">"+
                                 "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
                                 "                 <i class=\"bi bi-pencil\"></i>" +
                                 "               </button>"+
                                 "             </a>" +
-                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].flight_schedule_id)) + "')\" class=\"btn btn-sm btn-danger\">" +
+                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].job_post_id)) + "')\" class=\"btn btn-sm btn-danger\">" +
                                 "              <i class=\"bi bi-trash\"></i>" +
                                 "            </button>" +
                                 <?php }?>
@@ -319,7 +319,7 @@
 
             $.ajax({
                 type: "post",
-                url: "flight_schedule_export.php",
+                url: "job_post_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     origin: origin,
@@ -329,7 +329,7 @@
                     departureTimeFrom: departureTimeFrom,
                     departureTimeTo: departureTimeTo
                 },success: function(dataResult){
-                    window.open('flight_schedule_export.php?origin='+origin+'&destination='+destination+'&airplaneId='+airplaneId
+                    window.open('job_post_export.php?origin='+origin+'&destination='+destination+'&airplaneId='+airplaneId
                     +'&departureDay='+departureDay+'&departureTimeFrom='+departureTimeFrom+'&departureTimeTo='+departureTimeTo);
                 }, failure: function(xhr){
                     console.log(xhr);
