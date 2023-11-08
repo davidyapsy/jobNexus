@@ -2,7 +2,7 @@
     $serverName = "localhost";
     $userName = "root";
     $password = "";
-    $database = "db_jobnexus";
+    $database = "flight_ticketing";
 
     $connection = new mysqli($serverName, $userName, $password, $database);
 ?>
@@ -45,7 +45,7 @@
                             <h3>Job Post</h3>
                         </div>
                             <div class="col">
-                                <a href="job_post_add.php">
+                                <a href="flight_schedule_add.php">
                                     <button type="button" class="btn btn-primary btn-round">
                                         <i class="bi bi-plus-lg" aria-hidden="true"></i>
                                             <span class="text hidden-md-down">Add</span>
@@ -58,51 +58,76 @@
                 <div class="panel-body bg-white p-2 rounded">
                     <form id="filterBox" method="post" action="">
                         <h4 style="padding-left:15px;">Filter Box</h4>
-                        <div class="row pb-2">
+                        <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="jobTitle" id="jobTitle" placeholder="Job Title"/>
-                                </div>                            
-                            </div>
-                            <div class="col-sm-3">
-                                <select class="form-select" id="locationState" name="locationState">
-                                    <option value="">All (State)</option>
-                                    <option value="Selangor">Selangor</option>
-                                    <option value="Kuala Lumpur">Kuala Lumpur</option>
-                                    <option value="Sabah">Sabah</option>
-                                    <option value="Kelantan">Kelantan</option>
-                                    <option value="Sarawak">Sarawak</option>
-                                    <option value="Pahang">Pahang</option>
-                                    <option value="Kedah">Kedah</option>
-                                    <option value="Terengganu">Terengganu</option>
-                                    <option value="Negeri Sembilan">Negeri Sembilan</option>
-                                    <option value="Perak">Perak</option>
-                                    <option value="Johor">Johor</option>
-                                    <option value="Malacca">Malacca</option>
-                                    <option value="Penang">Penang</option>
-                                    <option value="Perlis">Perlis</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <select class="form-select" id="employmentType" name="employmentType">
-                                        <option value="">All (Employment Type)</option>
-                                        <option value="Full-time">Full-time</option>
-                                        <option value="Part-time">Part-time</option>
-                                        <option value="Temporary">Temporary</option>
-                                        <option value="Contract">Contract</option>
-                                        <option value="Internship">Internship</option>
+                                    <select class="form-select" id="origin" name="origin">
+                                        <option value="">All (Origin)</option>
+                                        <?php $route_sql = "SELECT DISTINCT origin
+                                                            FROM route
+                                                            ORDER BY route_id ASC";
+                                        $route_result = $connection->query($route_sql);
+                                        while (($route = $route_result->fetch_assoc()) == TRUE) { ?>
+                                            <option value="<?= $route['origin'] ?>"><?= $route['origin'] ?></option>
+                                         <?php } ?>
                                     </select>
                                 </div>                            
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <select class="form-select" id="status" name="status">
-                                        <option value="">All (Status)</option>
-                                        <option value="Posted">Posted</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Closed">Closed</option>
+                                    <select class="form-select" id="destination" name="destination">
+                                        <option value="">All (Destination)</option>
+                                        <?php $route_sql = "SELECT DISTINCT destination 
+                                                            FROM route
+                                                            ORDER BY route_id ASC";
+                                        $route_result = $connection->query($route_sql);
+                                        while (($route = $route_result->fetch_assoc()) == TRUE) { ?>
+                                            <option value="<?= $route['destination'] ?>"><?= $route['destination'] ?></option>
+                                         <?php } ?>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <select class="form-select" id="planeName" name="planeName">
+                                        <option value="0">All (Airplane)</option>
+                                        <?php $airplane_sql = "SELECT airplane_id, name 
+                                                                FROM airplane
+                                                                WHERE status='active'
+                                                                ORDER BY airplane_id ASC";
+                                        $airplane_result = $connection->query($airplane_sql);
+                                        while (($row = $airplane_result->fetch_assoc()) == TRUE) { ?>
+                                                    <option value="<?= $row['airplane_id'] ?>"><?= $row['name'] ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>                            
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <select class="form-select" id="departureDay" name="departureDay">
+                                        <option value="">All (Day)</option>
+                                        <option value="Monday">Monday</option>
+                                        <option value="Tuesday">Tuesday</option>
+                                        <option value="Wednesday">Wednesday</option>
+                                        <option value="Thursday">Thursday</option>
+                                        <option value="Friday">Friday</option>
+                                        <option value="Saturday">Saturday</option>
+                                        <option value="Sunday">Sunday</option>
+                                    </select>
+                                </div>                            
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input type="time" class="form-control time" name="departureTimeFrom" id="departureTimeFrom" title="Departure Time(From)">
+                                    <label for="departure_time_from">Departure Time (From)</label>
+                                </div>                            
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input type="time" class="form-control time" name="departureTimeTo" id="departureTimeTo" title="Departure Time(To)">
+                                    <label for="departure_time_to">Departure Time (To)</label>
                                 </div>                            
                             </div>
                         </div>
@@ -130,15 +155,15 @@
                     </form>
 
                     <div class="row" style="padding-left:15px; padding-right:15px;">
-                        <table class="table table-bordered" id="job_post_table">
+                        <table class="table table-bordered" id="flight_schedule_table">
                             <thead>
                                 <tr>
                                     <th scope="col" style="width:5%;">No.</th>
-                                    <th scope="col" style="width:25%;">Job Title</th>
-                                    <th scope="col" style="width:15%;">Location (State)</th>
-                                    <th scope="col" style="width:15%;">Employment Type</th>
-                                    <th scope="col" style="width:15%;">Salary</th>
-                                    <th scope="col" style="width:10%;">Status</th>
+                                    <th scope="col" style="width:20%;">Origin</th>
+                                    <th scope="col" style="width:20%;">Destination</th>
+                                    <th scope="col" style="width:10%;">Airplane</th>
+                                    <th scope="col" style="width:25%;">Departure Day</th>
+                                    <th scope="col" style="width:10%;">Departure Time</th>
                                     <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
                                 </tr>
                             </thead>
@@ -158,7 +183,7 @@
 
     <script>
     // at here we try to be native as possible and you can use url to ease change the which one you prefer
-    let url = "job_post_controller.php";
+    let url = "flight_schedule_controller.php";
     const tbody = $("#filtered_data");
         
         $(window).on( "load", function() {
@@ -173,10 +198,12 @@
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     mode: "search",
-                    jobTitle: $("#jobTitle").val(),
-                    locationState: $("#locationState").val(),
-                    employmentType: $("#employmentType").val(),
-                    status: $("#status").val(),
+                    origin: $("#origin").val(),
+                    destination: $("#destination").val(),
+                    airplaneId: $("#planeName").val(),
+                    departureDay: $("#departureDay").val(),
+                    departureTimeFrom: $("#departureTimeFrom").val(),
+                    departureTimeTo: $("#departureTimeTo").val(),
                     page: page_number
                 }, success: function (response) {
                     const data = response;
@@ -190,26 +217,26 @@
                                 tableStringBuilder+=
                                 "  <tr>" +
                                 "        <th scope='row' class='text-center'>" + (((i+1)+page_number*5)-5) + ".</th>" +
-                                "        <td>" + records[i].jobTitle + "</td>" +
-                                "        <td>" + records[i].locationState + "</td>" +
-                                "        <td>" + records[i].employmentType + "</td>" +
-                                "        <td>" + records[i].salary + "</td>" +
-                                "        <td>" + records[i].status + "</td>" +
+                                "        <td>" + records[i].origin + "</td>" +
+                                "        <td>" + records[i].destination + "</td>" +
+                                "        <td>" + records[i].name + "</td>" +
+                                "        <td>" + records[i].departure_day + "</td>" +
+                                "        <td>" + records[i].departure_time + "</td>" +
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
-                                "             <a href=\"job_post_view.php?id="+ encodeURI(btoa(records[i].job_post_id)) + "\">"+
+                                "             <a href=\"flight_schedule_view.php?id="+ encodeURI(btoa(records[i].flight_schedule_id)) + "\">"+
                                 "               <button type=\"button\"  title=\"view\" class=\"btn btn-sm btn-info\">" +
                                 "                 <i class=\"bi bi-eye\"></i>" +
                                 "               </button>"+
                                 "             </a>" +
                                 <?php if($position =="manager"){?>
-                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].job_post_id)) + "\">"+
+                                "             <a href=\"flight_schedule_edit.php?id="+ encodeURI(btoa(records[i].flight_schedule_id)) + "\">"+
                                 "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
                                 "                 <i class=\"bi bi-pencil\"></i>" +
                                 "               </button>"+
                                 "             </a>" +
-                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].job_post_id)) + "')\" class=\"btn btn-sm btn-danger\">" +
+                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].flight_schedule_id)) + "')\" class=\"btn btn-sm btn-danger\">" +
                                 "              <i class=\"bi bi-trash\"></i>" +
                                 "            </button>" +
                                 <?php }?>
@@ -243,7 +270,7 @@
             load_data();
         }
         
-        function deleteRecord(employerID, jobPostingID) {
+        function deleteRecord(flightScheduleId) {
             
             Swal.fire({
                 title: "Are you sure?",
@@ -261,8 +288,7 @@
                         contentType: "application/x-www-form-urlencoded",
                         data: {
                             mode: "delete",
-                            employerID: employerID,
-                            jobPostingID: jobPostingID
+                            flightScheduleId: flightScheduleId
                         }, success: function (response) {
                             const data = response;
                             if (data.status) {
@@ -293,7 +319,7 @@
 
             $.ajax({
                 type: "post",
-                url: "job_post_export.php",
+                url: "flight_schedule_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     origin: origin,
@@ -303,7 +329,7 @@
                     departureTimeFrom: departureTimeFrom,
                     departureTimeTo: departureTimeTo
                 },success: function(dataResult){
-                    window.open('job_post_export.php?origin='+origin+'&destination='+destination+'&airplaneId='+airplaneId
+                    window.open('flight_schedule_export.php?origin='+origin+'&destination='+destination+'&airplaneId='+airplaneId
                     +'&departureDay='+departureDay+'&departureTimeFrom='+departureTimeFrom+'&departureTimeTo='+departureTimeTo);
                 }, failure: function(xhr){
                     console.log(xhr);

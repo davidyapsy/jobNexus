@@ -10,7 +10,7 @@
     $sql = "SELECT employerID, companyName, contactPersonName, emailAddress, password, phoneNumber, address, numberOfEmployees, industry, state, aboutUs, logo, backgroundPicture, 
             officePictures, facebookUrl, linkedinUrl, whatsappUrl, status, dateJoined
             FROM employer
-            WHERE employerID = 'E2300000'";
+            WHERE employerID = ''";
 
     $statement = $connection->prepare($sql);
     $statement->execute();
@@ -26,7 +26,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Gogo Airline</title>
+        <title>Job Nexus</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- Bootstrap 5 CSS -->
@@ -187,7 +187,7 @@
                         <div class="form-group row">
                             <label for="price" class="col-sm-3 col-form-label">About Us: </label>
                             <div class="col-sm-9">
-                                <div id="summernote"><?= $data['aboutUs']?></div>
+                                <div id="aboutUs"><?= $data['aboutUs']?></div>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -319,7 +319,7 @@
             $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
         });
 
-        $('#summernote').summernote({
+        $('#aboutUs').summernote({
             tabsize: 2,
             height: 400
         });
@@ -358,7 +358,7 @@
                     numberOfEmployees: $("#numberOfEmployees").val(),
                     industry: $("#industry").val(),
                     state: $("#state").val(),
-                    aboutUs: $('#summernote').summernote('code'),
+                    aboutUs: $('#aboutUs').summernote('code'),
                     logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
                     backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
                     officePictures: $('#officePictures').val().split('\\').pop() =="" ? "" : $('#officePictures').val().split('\\').pop(),
@@ -402,7 +402,7 @@
                     numberOfEmployees: $("#numberOfEmployees").val(),
                     industry: $("#industry").val(),
                     state: $("#state").val(),
-                    aboutUs: $('#summernote').summernote('code'),
+                    aboutUs: $('#aboutUs').summernote('code'),
                     logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
                     backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
                     officePictures: $('#officePictures').val().split('\\').pop() =="" ? "" : $('#officePictures').val().split('\\').pop(),

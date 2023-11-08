@@ -1,30 +1,28 @@
 <?php
-
-
     $serverName = "localhost";
     $userName = "root";
     $password = "";
-    $database = "flight_ticketing";
+    $database = "db_jobnexus";
 
     $connection = new mysqli($serverName, $userName, $password, $database);
+
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
-        <title>Gogo Airline</title>
+        <title>Job Nexus</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-                crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-        <!-- icons -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
+        <!-- Bootstrap 5 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <!-- Sweet Alert CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css">
-    
-        <link href="../../admin/assets/css/content.css" type="text/css" rel="stylesheet">
+        <!-- Bootstrap icon CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
+        <!-- Summernote CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+        <link href="../assets/css/content.css" type="text/css" rel="stylesheet">
+
         <style>
             .required{
                 color:red;
@@ -33,247 +31,174 @@
     </head>
 
     <body>
-        <?php require('../../admin/topBar.php') ?>
-        <?php require('../../admin/sideNav.php') ?>
+        <?php require('../topBar.php') ?>
+        <?php require('../sideNav.php') ?>
 
-        <div class="main">
+         <div class="main">
             <div class="panel panel-bordered p-2">
                 <div class="panel-heading p-2">
                     <div class="row">
                         <div class="col-12">
-                            <h3>Flight Schedule / Add</h3>
+                            <h3>Job Post</h3>
                         </div>
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
-                    <h4 style="padding:10px;">New Flight Schedule Details</h4>
+                    <h4 style="padding:10px;"><i class="bi bi-person-fill px-2"></i>Job Post Details</h4>
                     <hr>
-                    <form id="form_details" action="" method="post" >  
-                    <div class="form-group text-center">
-                            <h3>Plane</h3>
-                        </div>  
-                        <div class="form-group row">                        
-                            <label for="planeName" class="col-sm-3 col-form-label">Plane Number: <span class="required">*</span></label>
+                    <form id="form_details" action="" method="post" >
+                        <div class="form-group row">
+                            <label for="jobCategory" class="col-sm-3 col-form-label">Job Category: <span class="required">*</span> </label>
                             <div class="col-sm-9">
-                                <select class="form-select" id="planeName" name="planeName">
-                                    <option value="0"> -- Please select a plane number. -- </option>
-                                    <?php $airplane_sql = "SELECT airplane_id, name, plane_type
-                                                            FROM airplane
-                                                            WHERE status='active'
-                                                            ORDER BY airplane_id ASC";
-                                    $airplane_result = $connection->query($airplane_sql);
-                                    while (($row = $airplane_result->fetch_assoc()) == TRUE) { ?>
-                                                <option value="<?= $row['airplane_id'] ?>"><?= $row['name'] ?></option>
+                                <select class="form-select" id="jobCategory" name="jobCategory">
+                                    <option value=""> -- Please select a job category. -- </option>
+                                    <?php $jobCategory_sql = "SELECT jobCategoryID, categoryName
+                                                            FROM job_category";
+                                    $jobCategory_result = $connection->query($jobCategory_sql);
+                                    while (($row = $jobCategory_result->fetch_assoc()) == TRUE) { ?>
+                                                <option value="<?= base64_encode($row['jobCategoryID']); ?>"><?= $row['categoryName'] ?></option>
                                     <?php } ?>
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-                        <hr>
-                        
-                        <div class="form-group text-center">
-                            <h3>Route</h3>
-                        </div>    
-                        <div class="form-group row">                        
-                            <label for="origin" class="col-sm-3 col-form-label">Origin: <span class="required">*</span></label>
-                            <div class="col-sm-9">
-                                <select class="form-select" id="origin" name="origin" onchange="generateDestination()">
-                                    <option value=""> -- Please select an origin. --</option>
-                                    <?php $origin_sql = "SELECT DISTINCT origin
-                                                        FROM route
-                                                        ORDER BY route_id ASC";
-                                    $origin_result = $connection->query($origin_sql);
-                                    while (($route = $origin_result->fetch_assoc()) == TRUE) { ?>
-                                        <option value="<?= $route['origin'] ?>"><?= $route['origin'] ?></option>
-                                        <?php } ?>
-                                </select>
-                                <div class="invalid-feedback"></div>
-
-                            </div>
-                        </div>
-                        <div class="form-group row">                        
-                            <label for="destination" class="col-sm-3 col-form-label">Destination: <span class="required">*</span></label>
-                            <div class="col-sm-9">
-                                <select class="form-select" id="destination" name="destination">
-                                    <option value="">-- Please select a destination. --</option>
-                                </select>
-                                <div class="invalid-feedback"></div>
-
-                            </div>
-                        </div>
-                        <hr>
-
                         <div class="form-group row">
-                            <div class="col-sm-3">Departure day: <span class="required">*</span></div>
+                            <label for="Job Title" class="col-sm-3 col-form-label">Job Title: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input departure_day" type="checkbox" id="chkMonday"
-                                        name="departureDay" value="Monday">
-                                    <label class="form-check-label" for="gridCheck1">
-                                        Monday
-                                    </label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input departure_day" type="checkbox" id="chkTuesday"
-                                        name="departureDay" value="Tuesday">
-                                    <label class="form-check-label" for="gridCheck1">
-                                        Tuesday
-                                    </label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input departure_day" type="checkbox" id="chkWednesday" 
-                                        name="departureDay" value="Wednesday">
-                                    <label class="form-check-label" for="gridCheck1">
-                                        Wednesday
-                                    </label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input departure_day" type="checkbox" id="chkThursday" 
-                                        name="departureDay" value="Thursday">
-                                    <label class="form-check-label" for="gridCheck1">
-                                        Thursday
-                                    </label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input departure_day" type="checkbox" id="chkFriday" 
-                                        name="departureDay" value="Friday">
-                                    <label class="form-check-label" for="gridCheck1">
-                                        Friday
-                                    </label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input departure_day" type="checkbox" id="chkSaturday"
-                                        name="departureDay" value="Saturday">
-                                    <label class="form-check-label" for="gridCheck1">
-                                        Saturday
-                                    </label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input departure_day" type="checkbox" id="chkSunday" 
-                                        name="departureDay" value="Sunday">
-                                    <label class="form-check-label" for="gridCheck1">
-                                        Sunday
-                                    </label>
+                                <input type="input" class="form-control" name="jobTitle" id="jobTitle"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="jobDescription" class="col-sm-3 col-form-label">Job Description: <span class="required">*</span></label>
+                            <div class="col-sm-9">
+                                <div id="jobDescription" name="jobDescription"></div>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="jobRequirement" class="col-sm-3 col-form-label">Job Requirement: <span class="required">*</span></label>
+                            <div class="col-sm-9">
+                                <div id="jobRequirement" name="jobRequirement"></div>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="jobHighlight" class="col-sm-3 col-form-label">Job Highlight: </label>
+                            <div class="col-sm-9">
+                                <div id="jobHighlight" name="jobHighlight"></div>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="experienceLevel" class="col-sm-3 col-form-label">Experience Level: </label>
+                            <div class="col-sm-9">
+                                <input type="input" class="form-control" name="experienceLevel" id="experienceLevel"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="locationState" class="col-sm-3 col-form-label">State: <span class="required">*</span> </label>
+                            <div class="col-sm-9">
+                                <select class="form-select" id="locationState" name="locationState">
+                                    <option value=""> -- Please select a state. -- </option>
+                                    <option value="Selangor">Selangor</option>
+                                    <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                    <option value="Sabah">Sabah</option>
+                                    <option value="Kelantan">Kelantan</option>
+                                    <option value="Sarawak">Sarawak</option>
+                                    <option value="Pahang">Pahang</option>
+                                    <option value="Kedah">Kedah</option>
+                                    <option value="Terengganu">Terengganu</option>
+                                    <option value="Negeri Sembilan">Negeri Sembilan</option>
+                                    <option value="Perak">Perak</option>
+                                    <option value="Johor">Johor</option>
+                                    <option value="Malacca">Malacca</option>
+                                    <option value="Penang">Penang</option>
+                                    <option value="Perlis">Perlis</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div> 
+                        <div class="form-group row">
+                            <label for="salary" class="col-sm-3 col-form-label">Salary: </label>
+                            <div class="col-sm-9">
+                                <input type="number" class="form-control" name="salary" id="salary" min="0" max="30000" step="100" value="3000"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="employmentType" class="col-sm-3 col-form-label">Employment Type: <span class="required">*</span> </label>
+                            <div class="col-sm-9">
+                                <select class="form-select" id="employmentType" name="employmentType">
+                                    <option value=""> -- Please select an employment type. -- </option>
+                                    <option value="Full-time">Full-time</option>
+                                    <option value="Part-time">Part-time</option>
+                                    <option value="Temporary">Temporary</option>
+                                    <option value="Contract">Contract</option>
+                                    <option value="Internship">Internship</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div> 
+                        <div class="form-group row">
+                            <label for="applicationDeadline" class="col-sm-3 col-form-label">Application Deadline: </label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline"> 
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="form-group row">
-                            <label for="departureTime" class="col-sm-3 col-form-label">Departure Time: <span class="required">*</span></label>
+                            <label for="status" class="col-sm-3 col-form-label">Publish Job Post: </label>
                             <div class="col-sm-9">
-                                <input type="time" class="form-control time" name="departureTime" id="departureTime">
+                                <div class="form-control form-check form-switch border-0">
+                                    <input class="form-check-input" type="checkbox" id="chkStatus"
+                                        name="chkStatus" value="">
+                                </div>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label for="price" class="col-sm-3 col-form-label">Price (RM): <span class="required">*</span></label>
-                            <div class="col-sm-9">
-                                <input type="number" class="form-control time" step="50" name="price" id="price" value="0">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="scheduleStartDate" class="col-sm-3 col-form-label">Schedule start date: <span class="required">*</span></label>
-                            <div class="col-sm-9">
-                                <input type="date" class="form-control date" name="scheduleStartDate" id="scheduleStartDate"/>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-
-
+                        <hr>
                         <div class="form-group row">
                             <div class="col-md-12">
-                                <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Submit</button>
-                                <button type="button" onclick="backConfirmation()" class="btn btn-danger btn-outline">Back</button>
-                                <button type="reset" id="btnReset" class="btn btn-light btn-outline" onclick="clearForm()">Reset</button>
+                                <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Save</button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
-        
+        </div> 
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+        <!-- jQuery -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+        <!-- Summernote JS -->
+        <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+        <!-- Sweet Alert -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
+
     </body>
-    <!-- Footer -->
 
-    <!-- Footer -->
     <script>
-        let url = "flight_schedule_controller.php";
-        let chkedDepartureDay="";
-        $('.departure_day').click(function(){     
-            if(this.checked == true){
-                chkedDepartureDay = this.value;
-                $('.departure_day').attr('disabled', true);
-                $(this).attr('disabled', false);
-                $(this).attr('checked', true);      
-            }else{
-                chkedDepartureDay = "";
-                $(this).attr('checked', false);      
-                $('.departure_day').attr('disabled', false);
-            }    
+        let url = "job_post_controller.php";
+        
+        $(".custom-file-input").on("change", function() {
+            var files = Array.from(this.files)
+            var fileName = files.map(f =>{return f.name}).join(",")
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
         });
 
-        function generateDestination(){
-            $('#destination')
-                .find('option')
-                .remove()
-                .end()
-                .append('<option value="">-- Please select a destination. --</option>');
-
-            $.ajax({
-                type: "POST",
-                contentType: "application/x-www-form-urlencoded",
-                url: url,
-                data: { 
-                    mode: "generateDestination",
-                    origin :  $("#origin").val()
-                }, success: function (response) {
-                const data = response;
-                if (data.status) {
-                    let records = data.data;
-                    $.each(records, function (i, record) {
-                        $('#destination').append($('<option>', { 
-                            value: record['destination'],
-                            text : record['destination'] 
-                        }));
-                    });
-                } else {
-                    console.log("something wrong");
-                }
-            }, failure: function (xhr) {
-                console.log(xhr.status);
-            }
-
+        $('#jobDescription, #jobRequirement, #jobHighlight').summernote({
+            tabsize: 2,
+            height: 300
         });
-        }
-        
-        function clearForm(){
-            $('.is-invalid').removeClass('is-invalid');
-            $('.departure_day').attr('checked', false);      
-            $('.departure_day').attr('disabled', false);
-            window.scrollTo(0, 0);
-        }
-        
-        function backConfirmation(){
-            Swal.fire({
-                title: "Are you sure to leave this page?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#ff0000",
-                confirmButtonText: 'Discard',
-                cancelButtonText: "Stay",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "flight_schedule_index.php"
-                }
-                
-            });
-        }
 
         function submitConfirmation(){
             Swal.fire({
-                title: "Are you sure to submit it?",
+                title: "Are you sure to save it?",
                 icon: "info",
                 showCancelButton: true,
                 confirmButtonText: 'Yes',
@@ -287,21 +212,24 @@
 
         function submitValidate(){
             $('.is-invalid').removeClass('is-invalid');
-            
             $.ajax({
                 type: "post",
                 url: url,
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "check_validation",
-                    type: "add",
-                    airplaneId : $("#planeName").val(),
-                    origin : $("#origin").val(),
-                    destination : $("#destination").val(),
-                    departureDay : chkedDepartureDay,
-                    departureTime : $("#departureTime").val(),
-                    price : $('#price').val(),
-                    startingDate : $('#scheduleStartDate').val()
+                    employerID : "E2300000",
+                    jobCategory : $("#jobCategory").val(),
+                    jobTitle: $("#jobTitle").val(),
+                    jobDescription: $('#jobDescription').summernote('code'),
+                    jobRequirement: $('#jobRequirement').summernote('code'),
+                    jobHighlight: $('#jobHighlight').summernote('code'),
+                    experienceLevel: $("#experienceLevel").val(),
+                    locationState: $("#locationState").val(),
+                    salary: $("#salary").val(),
+                    employmentType: $("#employmentType").val(),
+                    applicationDeadline: $("#applicationDeadline").val(),
+                    status: ($("#chkStatus").is(':checked') ? "Posted" : "Pending")
                 }, success: function (response) {
                     const data = response;
                     if (data.status==false) {
@@ -328,13 +256,18 @@
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "create",
-                    airplaneId : $("#planeName").val(),
-                    origin : $("#origin").val(),
-                    destination : $("#destination").val(),
-                    departureDay : chkedDepartureDay,
-                    departureTime : $("#departureTime").val(),
-                    price : $('#price').val(),
-                    startingDate : $('#scheduleStartDate').val()
+                    employerID : <?= base_encode("E2300000")?>,
+                    jobCategory : $("#jobCategory").val(),
+                    jobTitle: $("#jobTitle").val(),
+                    jobDescription: $('#jobDescription').summernote('code'),
+                    jobRequirement: $('#jobRequirement').summernote('code'),
+                    jobHighlight: $('#jobHighlight').summernote('code'),
+                    experienceLevel: $("#experienceLevel").val(),
+                    locationState: $("#locationState").val(),
+                    salary: $("#salary").val(),
+                    employmentType: $("#employmentType").val(),
+                    applicationDeadline: $("#applicationDeadline").val(),
+                    status: ($("#chkStatus").is(':checked') ? "Posted" : "Pending")
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
@@ -354,5 +287,6 @@
                 }
             })
         }
+
     </script>
 </html>
