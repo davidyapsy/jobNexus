@@ -46,7 +46,7 @@
                 <div class="panel-body bg-white p-2 rounded">
                     <h4 style="padding:10px;"><i class="bi bi-person-fill px-2"></i>Job Post Details</h4>
                     <hr>
-                    <form id="form_details" action="" method="post" >
+                    <form id="form_details" action="" method="post">
                         <div class="form-group row">
                             <label for="jobCategory" class="col-sm-3 col-form-label">Job Category: <span class="required">*</span> </label>
                             <div class="col-sm-9">
@@ -123,7 +123,7 @@
                         <div class="form-group row">
                             <label for="salary" class="col-sm-3 col-form-label">Salary: </label>
                             <div class="col-sm-9">
-                                <input type="number" class="form-control" name="salary" id="salary" min="0" max="30000" step="100" value="3000"/>
+                                <input type="number" class="form-control" name="salary" id="salary" min="0" max="30000" step="100" value="500"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -151,11 +151,10 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="status" class="col-sm-3 col-form-label">Publish Job Post: </label>
+                            <label for="isPublish" class="col-sm-3 col-form-label">Publish Job Post: </label>
                             <div class="col-sm-9">
                                 <div class="form-control form-check form-switch border-0">
-                                    <input class="form-check-input" type="checkbox" id="chkStatus"
-                                        name="chkStatus" value="">
+                                    <input class="form-check-input" type="checkbox" id="chkIsPublish" name="chkIsPublish" value="">
                                 </div>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -164,6 +163,8 @@
                         <div class="form-group row">
                             <div class="col-md-12">
                                 <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Save</button>
+                                <button type="button" onclick="backConfirmation()" class="btn btn-danger btn-outline">Back</button>
+                                <button type="reset" id="btnReset" class="btn btn-light btn-outline" onclick="clearForm()">Reset</button>
                             </div>
                         </div>
                     </form>
@@ -196,6 +197,29 @@
             height: 300
         });
 
+        function clearForm(){
+            window.scrollTo(0, 0);
+            $('#jobDescription').summernote('code', '');
+            $('#jobRequirement').summernote('code', '');
+            $('#jobHighlight').summernote('code', '');
+        }
+
+        function backConfirmation(){
+            Swal.fire({
+                title: "Are you sure to leave this page?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#ff0000",
+                confirmButtonText: 'Discard',
+                cancelButtonText: "Stay",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "job_post_index.php"
+                }
+                
+            });
+        }
+
         function submitConfirmation(){
             Swal.fire({
                 title: "Are you sure to save it?",
@@ -218,18 +242,13 @@
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "check_validation",
-                    employerID : "E2300000",
-                    jobCategory : $("#jobCategory").val(),
                     jobTitle: $("#jobTitle").val(),
                     jobDescription: $('#jobDescription').summernote('code'),
                     jobRequirement: $('#jobRequirement').summernote('code'),
-                    jobHighlight: $('#jobHighlight').summernote('code'),
-                    experienceLevel: $("#experienceLevel").val(),
                     locationState: $("#locationState").val(),
-                    salary: $("#salary").val(),
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
-                    status: ($("#chkStatus").is(':checked') ? "Posted" : "Pending")
+                    isPublish: ($("#chkIsPublish").is(':checked') ? "Published" : "Unpublished")
                 }, success: function (response) {
                     const data = response;
                     if (data.status==false) {
@@ -249,15 +268,13 @@
         }
 
         function createRecord() {
-
             $.ajax({
                 type: "post",
                 url: url,
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "create",
-                    employerID : <?= base_encode("E2300000")?>,
-                    jobCategory : $("#jobCategory").val(),
+                    jobCategoryID : $("#jobCategory").val(),
                     jobTitle: $("#jobTitle").val(),
                     jobDescription: $('#jobDescription').summernote('code'),
                     jobRequirement: $('#jobRequirement').summernote('code'),
@@ -267,7 +284,7 @@
                     salary: $("#salary").val(),
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
-                    status: ($("#chkStatus").is(':checked') ? "Posted" : "Pending")
+                    isPublish: ($("#chkIsPublish").is(':checked') ? "Published" : "Unpublished")
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
@@ -276,9 +293,13 @@
                             text: 'Record successfully created! ',
                             icon: 'success',
                             confirmButtonText: 'Cool'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                //trigger reset button
+                                $("#btnReset").trigger("click"); 
+                            }
                         });
-                        //trigger reset button
-                        $("#btnReset").trigger("click"); 
+                        
                     } else {
                 
                     }

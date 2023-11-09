@@ -110,8 +110,9 @@ class JobPostingModel
     private float $salary;
     private String $employmentType;
     private String $applicationDeadline;
-    private String $postDate;
-    private String $status;
+    private String $isPublish;
+    private String $publishDate;
+    private int $isDeleted;
 
     public function getEmployerID(): String{
         return $this->employerID;
@@ -243,25 +244,36 @@ class JobPostingModel
         return $this;
     }
 
-    public function getPostDate(): String
+    public function getIsPublish(): String
     {
-        return $this->postDate;
+        return $this->isPublish;
     }
 
-    public function setPostDate(String $postDate): JobPostingModel
+    public function setIsPublish(String $isPublish): JobPostingModel
     {
-        $this->postDate = $postDate;
+        $this->isPublish = $isPublish;
+        return $this;
+    }
+    
+    public function getPublishDate(): String
+    {
+        return $this->publishDate;
+    }
+
+    public function setPublishDate(String $publishDate): JobPostingModel
+    {
+        $this->publishDate = $publishDate;
         return $this;
     }
 
-    public function getStatus(): String
+    public function getIsDeleted(): int
     {
-        return $this->status;
+        return $this->isDeleted;
     }
 
-    public function setStatus(String $status): JobPostingModel
+    public function setIsDeleted(int $isDeleted): JobPostingModel
     {
-        $this->status = $status;
+        $this->isDeleted = $isDeleted;
         return $this;
     }
 
@@ -294,7 +306,7 @@ interface  ReturnCode
     const QUERY_FAILURE = 601;
 }
 
-class FlightScheduleOop
+class JobPostingOop
 {
     private ConnectionString $connectionString;
     private JobPostingModel $model;
@@ -308,7 +320,7 @@ class FlightScheduleOop
         return $this->departureDay;
     }
 
-    public function setDepartureDay($departureDay=""): FlightScheduleOop
+    public function setDepartureDay($departureDay=""): JobPostingOop
     {
         $this->departureDay = $departureDay;
         return $this;
@@ -319,7 +331,7 @@ class FlightScheduleOop
         return $this->page;
     }
 
-    public function setPage($page=NULL): FlightScheduleOop
+    public function setPage($page=NULL): JobPostingOop
     {
         $this->page = $page;
         return $this;
@@ -370,7 +382,8 @@ class FlightScheduleOop
      */
     function setParameter()
     {
-        $employerID =  base64_decode(filter_input(INPUT_POST, "employerID", FILTER_SANITIZE_STRING));
+        //employerID
+        $employerID =  "E2300000";
         $jobPostingID =  base64_decode(filter_input(INPUT_POST, "jobPostingID", FILTER_SANITIZE_STRING));
         $jobCategoryID =  base64_decode(filter_input(INPUT_POST, "jobCategoryID", FILTER_SANITIZE_STRING));
         $jobTitle = filter_input(INPUT_POST, "jobTitle", FILTER_SANITIZE_STRING);
@@ -382,37 +395,67 @@ class FlightScheduleOop
         $salary = filter_input(INPUT_POST, "salary", FILTER_SANITIZE_NUMBER_FLOAT);
         $employmentType = filter_input(INPUT_POST, "employmentType", FILTER_SANITIZE_STRING);
         $applicationDeadline = filter_input(INPUT_POST, "applicationDeadline", FILTER_SANITIZE_STRING);
-        $status = filter_input(INPUT_POST, "status", FILTER_SANITIZE_STRING);
+        $isPublish = filter_input(INPUT_POST, "isPublish", FILTER_SANITIZE_STRING);
         $page = filter_input(INPUT_POST, "page", FILTER_SANITIZE_NUMBER_INT);
-        
-        $this->model->setEmployerID($employerID);
-        $this->model->setJobPostingID($jobPostingID);
-        $this->model->setJobCategoryID($jobCategoryID);
-        $this->model->setJobTitle($jobTitle);
-        $this->model->setJobDescription($jobDescription);
-        $this->model->setJobRequirement($jobRequirement);
-        $this->model->setJobHighlight($jobHighlight);
-        $this->model->setExperienceLevel($experienceLevel);
-        $this->model->setLocationState($locationState);
-        $this->model->setSalary($salary);
-        $this->model->setEmploymentType($employmentType);
-        $this->model->setApplicationDeadline($applicationDeadline);
-        $this->model->setStatus($status);
 
-        if( filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "create"){
-            if($status == "Posted"){
-                $this->model->setPostDate(date("Y-m-d"));
+        if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "create"){
+            $this->model->setEmployerID($employerID);
+            $this->model->setJobPostingID($jobPostingID);
+            $this->model->setJobCategoryID($jobCategoryID);
+            $this->model->setJobTitle($jobTitle);
+            $this->model->setJobDescription($jobDescription);
+            $this->model->setJobRequirement($jobRequirement);
+            $this->model->setJobHighlight($jobHighlight);
+            $this->model->setExperienceLevel($experienceLevel);
+            $this->model->setLocationState($locationState);
+            $this->model->setSalary($salary);
+            $this->model->setEmploymentType($employmentType);
+            $this->model->setApplicationDeadline($applicationDeadline);
+            $this->model->setIsPublish($isPublish);
+            if($isPublish == "Published"){
+                $this->model->setPublishDate(date("Y-m-d"));
             }else{
-                $this->model->setPostDate("");
+                $this->model->setPublishDate("");
             }
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "delete"){
-
+            $this->model->setJobPostingID($jobPostingID);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
-
+            $this->model->setEmployerID($employerID);
+            $this->model->setJobPostingID($jobPostingID);
+            $this->model->setJobCategoryID($jobCategoryID);
+            $this->model->setJobTitle($jobTitle);
+            $this->model->setJobDescription($jobDescription);
+            $this->model->setJobRequirement($jobRequirement);
+            $this->model->setJobHighlight($jobHighlight);
+            $this->model->setExperienceLevel($experienceLevel);
+            $this->model->setLocationState($locationState);
+            $this->model->setSalary($salary);
+            $this->model->setEmploymentType($employmentType);
+            $this->model->setApplicationDeadline($applicationDeadline);
+            $this->model->setIsPublish($isPublish);
+            if($isPublish == "Published"){
+                $this->model->setPublishDate(date("Y-m-d"));
+            }else{
+                $this->model->setPublishDate("");
+            }
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
-
+            $this->model->setJobCategoryID($jobCategoryID);
+            $this->model->setJobTitle($jobTitle);
+            $this->model->setJobDescription($jobDescription);
+            $this->model->setJobRequirement($jobRequirement);
+            $this->model->setExperienceLevel($experienceLevel);
+            $this->model->setLocationState($locationState);
+            $this->model->setEmploymentType($employmentType);
+            $this->model->setIsPublish($isPublish);
+            $this->model->setApplicationDeadline($applicationDeadline);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
             $this->setPage($page);
+            $this->model->setJobCategoryID($jobCategoryID);
+            $this->model->setJobTitle($jobTitle);
+            $this->model->setLocationState($locationState);
+            $this->model->setSalary($salary);
+            $this->model->setEmploymentType($employmentType);
+            $this->model->setIsPublish($isPublish);
         }       
     }
 
@@ -431,45 +474,59 @@ class FlightScheduleOop
         $jobHighlight= $this->model->getJobHighlight();
         $experienceLevel= $this->model->getExperienceLevel();
         $locationState = $this->model->getLocationState();
+        $salary = $this->model->getSalary();
         $employmentType = $this->model->getEmploymentType();
         $applicationDeadline= $this->model->getApplicationDeadline();
-        $postDate= $this->model->getPostDate();
-        $status= $this->model->getStatus();
+        $isPublish= $this->model->getIsPublish();
+        $publishDate= $this->model->getPublishDate();
+        $isDeleted = 0;
 
         //assign new job posting id
         $year = "00";
         $month= "00";
         $day  = "00";
-        if($postDate!=""){
-            $year=substr($postDate, 2,2);
-            $month=substr($postDate, 5,2);
-            $day = substr($postDate, 8,2);
+        if($publishDate!=""){
+            $year=substr($publishDate, 2,2);
+            $month=substr($publishDate, 5,2);
+            $day = substr($publishDate, 8,2);
         }
         $tempID = "JP".$year.$month.$day;
+        $currentID = $tempID."0000";
+
+        //get number of records
+        $total_data=0;
+        $stat = $this->connection->query("SELECT count(*) as totalRecord
+                                                FROM job_posting
+                                                WHERE employerID='$employerID'");
+        while (($row = $stat->fetch_assoc()) == TRUE) {
+            $total_data = $row['totalRecord'];
+        }
 
         //employerID
-        $getJobPostingDetails = $this->connection->query("SELECT jobPostingID
+        if($total_data > 0){
+            $result = $this->connection->query("SELECT jobPostingID
                                                 FROM job_posting
-                                                ORDER BY jobPostingID ASC
-                                                WHERE employerID='$employerID'");
-        while (($row = $getJobPostingDetails->fetch_assoc()) == TRUE) {
-            if(substr($row['jobPostingID'], 0, 8)==$tempID){
-                $jobPostingID =  $row['jobPostingID'];
+                                                WHERE employerID='$employerID'
+                                                ORDER BY jobPostingID ASC");
+            while (($row = $result->fetch_assoc()) == TRUE) {
+                if(substr($row['jobPostingID'], 0, 8)==$tempID){
+                    $currentID = $row['jobPostingID'];
+                }
             }
         }
 
-        if(substr($jobPostingID, 0, 8)==$tempID){
-            $newNumber = (int)(substr($jobPostingID, 7))  +1;
-            $newNumber = sprintf('%04d', $newNumber);
-        }
+        $newNumber = (int)(substr($currentID, 8)) + 1;
+        $newNumber = sprintf('%04d', $newNumber);
         $newID = $tempID.$newNumber;
 
+        //insert into db
         if (strlen($jobCategoryID) > 0 &&  strlen($jobTitle) > 0 &&  strlen($jobDescription) > 0 &&  strlen($jobRequirement) > 0 &&  strlen($locationState) > 0 &&  strlen($employmentType) > 0) {
-            $statement = $this->connection->prepare("INSERT INTO job_posting VALUES (null, ?, ?, ?, ?, ?, ?, ?)");
-            $statement->bind_param("iisssds", $routeId, $airplaneId, $departureTime, $arrivalTime, $departureDay, $price, $startingDate);
+            $statement = $this->connection->prepare("INSERT INTO job_posting VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $statement->bind_param("sssssssssdssssi", $employerID, $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, 
+                                                        $salary, $employmentType, $applicationDeadline, $isPublish, $publishDate, $isDeleted);
+            
             try {
                 $statement->execute();
-                $statement->insert_id;
             } catch (Exception $exception) {
                 throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
             }
@@ -503,44 +560,47 @@ class FlightScheduleOop
         }
 
         // you don't need to commit work here ya !
-        $origin = $this->getOrigin();
-        $destination = $this->getDestination();
-        $airplaneId = $this->model->getAirplaneId();
-        $departureTimeFrom = $this->getDepartureTimeFrom();
-        $departureTimeTo = $this->getDepartureTimeTo();
-        $departureDay = $this->getDepartureDay();
+        $jobCategoryID = $this->model->getJobCategoryID();
+        $jobTitle = $this->model->getJobTitle();
+        $locationState = $this->model->getLocationState();
+        $employmentType = $this->model->getEmploymentType();
+        $salary = $this->model->getSalary();
+        $isPublish = $this->model->getIsPublish();
 
-        $sql = "SELECT jobTitle, locationState, employmentType, salary, status
+        //employerID
+        $sql = "SELECT jobPostingID, B.categoryName, jobTitle, locationState, employmentType, salary, isPublish
         FROM job_posting A
-        JOIN employer B ON A.employerID = B.employerID
-        JOIN job_category C ON A.jobCategoryID = C.jobCategoryID
-        WHERE A.employerID = 'E2300000'";
+        JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
+        WHERE employerID = 'E2300000' AND isDeleted=0 ";
 
+        if($jobCategoryID!=""){
+            $sql.=" AND B.jobCategoryID = '$jobCategoryID'";
+        }
         if($jobTitle!=""){
-            $sql.=" AND B.origin = '$origin'";
+            $sql.=" AND jobTitle LIKE '%$jobTitle%'";
         }
-        if($destination!=""){
-            $sql.=" AND B.destination = '$destination'";
+        if($locationState!=""){
+            $sql.=" AND locationState = '$locationState'";
         }
-        if($airplaneId!=0){
-            $sql.=" AND A.airplane_id = $airplaneId";
+        if($employmentType!=""){
+            $sql.=" AND A.employmentType = '$employmentType'";
         }
-        if($departureDay!=""){
-            $sql.=" AND A.departure_day LIKE '%$departureDay%'";
+        if($salary!= NULL){
+            $sql.=" AND A.salary >= $salary";
         }
-        if($departureTimeFrom!=""){
-            $sql.=" AND A.departure_time >= '$departureTimeFrom'";
+        if($isPublish!=""){
+            $sql.=" AND A.isPublish = '$isPublish'";
         }
-        if($departureTimeTo!=""){
-            $sql.=" AND A.departure_time <= '$departureTimeTo'";
-        }
-        $sql.=" ORDER BY postDate DESC";
+        $sql.=" ORDER BY publishDate";
 
-        $statement = $this->connection->prepare($sql);
-        $statement->execute();
-        $statement->store_result();
-        $statement->fetch();
-        $total_data = $statement->num_rows;
+        $total_data=0;
+        $statement = $this->connection->query("SELECT count(*) as totalRecord
+                                                FROM job_posting A
+                                                JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
+                                                WHERE employerID='E2300000' AND isDeleted=0");
+        while (($row = $statement->fetch_assoc()) == TRUE) {
+            $total_data = $row['totalRecord'];
+        }
 
         $filter_query = $sql . ' LIMIT ' . $start . ', ' . $limit . '';
         $stat = $this->connection->prepare($filter_query);
@@ -682,42 +742,67 @@ class FlightScheduleOop
     {
         $this->connection->autocommit(false);
 
-        $flightScheduleId = $this->model->getFlightScheduleId();
-        $airplaneId = $this->model->getAirplaneId();
-        $origin = $this->getOrigin();
-        $destination = $this->getDestination();
-        $departureDay =$this->model->getDepartureDay();
-        $departureTime = $this->model->getDepartureTime();
-        $price = $this->model->getPrice();
-        $startingDate = $this->model->getStartingDate();
+        $employerID = $this->model->getEmployerID();
+        $jobPostingID = $this->model->getJobPostingID();
+        $jobCategoryID = $this->model->getJobCategoryID();
+        $jobTitle = $this->model->getJobTitle();
+        $jobDescription = $this->model->getJobDescription();
+        $jobRequirement = $this->model->getJobRequirement();
+        $jobHighlight= $this->model->getJobHighlight();
+        $experienceLevel= $this->model->getExperienceLevel();
+        $locationState = $this->model->getLocationState();
+        $salary = $this->model->getSalary();
+        $employmentType = $this->model->getEmploymentType();
+        $applicationDeadline= $this->model->getApplicationDeadline();
+        $isPublish= $this->model->getIsPublish();
+        $publishDate = $this->model->getPublishDate();
+        $isDeleted=0;
+        $newID = $jobPostingID;
         
-        $findRoute = $this->connection->query("SELECT route_id, time_taken_hour, time_taken_min
-                                                FROM route WHERE origin = '$origin' AND destination = '$destination'");
-        while (($row = $findRoute->fetch_assoc()) == TRUE) {
-            $routeId =  $row['route_id'];
-            $time_taken_hour = $row['time_taken_hour'];
-            $time_taken_min = $row['time_taken_min'];
+        if(substr($jobPostingID, 2, 6)=="000000" && $isPublish == "Published"){
+            //assign new job posting id
+            $year=substr($publishDate, 2,2);
+            $month=substr($publishDate, 5,2);
+            $day = substr($publishDate, 8,2);
+            $tempID = "JP".$year.$month.$day;
+            $currentID = $tempID."0000";
+
+            //get number of records
+            $total_data=0;
+            $stat = $this->connection->query("SELECT count(*) as totalRecord
+                                                    FROM job_posting
+                                                    WHERE employerID='$employerID'");
+            while (($row = $stat->fetch_assoc()) == TRUE) {
+                $total_data = $row['totalRecord'];
+            }
+
+            //employerID
+            if($total_data > 0){
+                $result = $this->connection->query("SELECT jobPostingID
+                                                    FROM job_posting
+                                                    WHERE employerID='$employerID'
+                                                    ORDER BY jobPostingID ASC");
+                while (($row = $result->fetch_assoc()) == TRUE) {
+                    if(substr($row['jobPostingID'], 0, 8)==$tempID){
+                        $currentID = $row['jobPostingID'];
+                    }
+                }
+            }
+            $newNumber = (int)(substr($currentID, 8)) + 1;
+            $newNumber = sprintf('%04d', $newNumber);
+            $newID = $tempID.$newNumber;
         }
 
-        $arrivalTimeHour = (int)(substr($departureTime,0,2)) + $time_taken_hour;
-        $arrivalTimeMin =(int)(substr($departureTime,3,2)) + $time_taken_min;
-        
-        if($arrivalTimeMin>=60){
-            $arrivalTimeMin -= 60;
-            $arrivalTimeHour += 1;
-        }
-        if($arrivalTimeHour>=24){
-            $arrivalTimeHour-=24;
-        }
+        //insert into db
+        if (strlen($jobCategoryID) > 0 &&  strlen($jobTitle) > 0 &&  strlen($jobDescription) > 0 &&  strlen($jobRequirement) > 0 &&  strlen($locationState) > 0 &&  strlen($employmentType) > 0) {
+            $statement = $this->connection->prepare("UPDATE job_posting 
+                                                    SET jobPostingID = ?, jobCategoryID = ?, jobTitle = ?, jobDescription = ?, jobRequirement = ?, jobHighlight = ?, experienceLevel = ?, locationState = ?, salary = ?,
+                                                        employmentType = ?, applicationDeadline = ?, isPublish = ?, publishDate = ?, isDeleted = ?
+                                                    WHERE employerID = ? AND jobPostingID = ?");
 
-        $arrivalTime = $arrivalTimeHour .":".$arrivalTimeMin;
+            $statement->bind_param("ssssssssdssssiss", $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, $salary, $employmentType,
+                                                        $applicationDeadline, $isPublish, $publishDate, $isDeleted, $employerID, $jobPostingID);
 
-        if ($routeId > 0 &&  $airplaneId > 0 &&  strlen($departureTime) > 0 &&  strlen($arrivalTime) > 0 &&  strlen($departureDay) > 0 &&  strlen($startingDate) > 0) {
-            $statement = $this->connection->prepare("UPDATE flight_schedule 
-                                                    SET route_id = ?, airplane_id = ?, departure_time = ?, arrival_time = ?, departure_day = ?, 
-                                                        price = ?, starting_date = ?
-                                                    WHERE flight_schedule_id = ?");
-            $statement->bind_param("iisssdsi", $routeId, $airplaneId, $departureTime, $arrivalTime, $departureDay, $price, $startingDate, $flightScheduleId);
             try {
                 $statement->execute();
             } catch (Exception $exception) {
@@ -744,14 +829,12 @@ class FlightScheduleOop
     {
         $this->connection->autocommit(false);
 
-        $var1 = $this->model->getFlightScheduleId();
+        $jobPostingID = $this->model->getJobPostingID();
 
-        if ($var1 > 0) {
-
-            $statement = $this->connection->prepare("UPDATE flight_schedule SET starting_date = '1900-01-01'
-                WHERE flight_schedule_id = ? ");
-            // s -> string, i -> integer , d -  double , b - blob
-            $statement->bind_param("i", $var1);
+        if ($jobPostingID > 0) {
+            $statement = $this->connection->prepare("UPDATE job_posting SET isDeleted = 1
+                WHERE jobPostingID = ? ");
+            $statement->bind_param("s", $jobPostingID);
             try {
                 $statement->execute();
             } catch (Exception $exception) {
@@ -771,7 +854,6 @@ class FlightScheduleOop
         }
     }   
 
-
     function check_validation(){
         $datas[]['inputName']="";
         $datas[]['errorMessage']="";
@@ -782,11 +864,12 @@ class FlightScheduleOop
         $jobRequirement = $this->model->getJobRequirement();
         $locationState = $this->model->getLocationState();
         $employmentType = $this->model->getEmploymentType();
-
+        $isPublish = $this->model->getIsPublish();
+        $applicationDeadline = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getApplicationDeadline())));
         $i=0;
         
         //null checking
-        if($jobCategoryID==0){
+        if($jobCategoryID==""){
             $datas[$i]['inputName']="jobCategory";
             $datas[$i]['errorMessage']="Job Category is required";
             $i++;
@@ -816,7 +899,11 @@ class FlightScheduleOop
             $datas[$i]['errorMessage']="Employment Type is required";
             $i++;
         }
-
+        if($isPublish == "Published" && $applicationDeadline < date("Y-m-d")){
+            $datas[$i]['inputName']="applicationDeadline";
+            $datas[$i]['errorMessage']="Application Deadline must be larger than today's date";
+            $i++;
+        }
 
         if($i>0){
             echo json_encode(
@@ -841,26 +928,23 @@ header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript 
 
 $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
 
-$flightScheduleOop = new FlightScheduleOop();
+$jobPostingOop = new JobPostingOop();
 try {
     switch ($mode) {
         case  "create":
-            $flightScheduleOop->create();
-            break;
-        case  "read":
-            $flightScheduleOop->read();
+            $jobPostingOop->create();
             break;
         case  "search":
-            $flightScheduleOop->search();
+            $jobPostingOop->search();
             break;
         case  "update":
-            $flightScheduleOop->update();
+            $jobPostingOop->update();
             break;
         case  "delete":
-            $flightScheduleOop->delete();
+            $jobPostingOop->delete();
             break;
         case "check_validation":
-            $flightScheduleOop->check_validation();
+            $jobPostingOop->check_validation();
             break;
         default:
             throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);

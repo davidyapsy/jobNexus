@@ -52,13 +52,25 @@
                                     </button>
                                 </a>
                             </div>
-
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
                     <form id="filterBox" method="post" action="">
                         <h4 style="padding-left:15px;">Filter Box</h4>
-                        <div class="row pb-2">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <select class="form-select" id="jobCategory" name="jobCategory">
+                                        <option value="">All (Job Category)</option>
+                                        <?php $jobCategory_sql = "SELECT jobCategoryID, categoryName
+                                                                FROM job_category";
+                                        $jobCategory_result = $connection->query($jobCategory_sql);
+                                        while (($row = $jobCategory_result->fetch_assoc()) == TRUE) { ?>
+                                                    <option value="<?= base64_encode($row['jobCategoryID']); ?>"><?= $row['categoryName'] ?></option>
+                                        <?php } ?>
+                                    </select>                                
+                                </div>                            
+                            </div>
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <input type="text" class="form-control" name="jobTitle" id="jobTitle" placeholder="Job Title"/>
@@ -95,18 +107,26 @@
                                     </select>
                                 </div>                            
                             </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i>Salary more than or equal to </i>
+                                    </span>
+                                    <input type="number" class="form-control" id="salary" name="salary" value="500">
+                                </div>                          
+                            </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <select class="form-select" id="status" name="status">
-                                        <option value="">All (Status)</option>
-                                        <option value="Posted">Posted</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Closed">Closed</option>
+                                    <select class="form-select" id="isPublish" name="isPublish">
+                                        <option value="">All (Publishment)</option>
+                                        <option value="Published">Published</option>
+                                        <option value="Unpublished">Unpublished</option>
                                     </select>
                                 </div>                            
                             </div>
                         </div>
-
                         <div class="text-center">
                             <button type="button" id="filterBtn"
                                     class="btn btn-round btn-primary btn-sm" id="filterBtn"
@@ -133,12 +153,13 @@
                         <table class="table table-bordered" id="job_post_table">
                             <thead>
                                 <tr>
-                                    <th scope="col" style="width:5%;">No.</th>
-                                    <th scope="col" style="width:25%;">Job Title</th>
-                                    <th scope="col" style="width:15%;">Location (State)</th>
-                                    <th scope="col" style="width:15%;">Employment Type</th>
-                                    <th scope="col" style="width:15%;">Salary</th>
-                                    <th scope="col" style="width:10%;">Status</th>
+                                    <th class="text-center" scope="col" style="width:5%;">No.</th>
+                                    <th class="text-center" scope="col" style="width:20%;">Job Category</th>
+                                    <th class="text-center" scope="col" style="width:25%;">Job Title</th>
+                                    <th class="text-center" scope="col" style="width:12%;">Location (State)</th>
+                                    <th class="text-center" scope="col" style="width:12%;">Employment Type</th>
+                                    <th class="text-center" scope="col" style="width:10%;">Salary</th>
+                                    <th class="text-center" scope="col" style="width:10%;">Publishment</th>
                                     <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
                                 </tr>
                             </thead>
@@ -149,19 +170,19 @@
                     </div>
 
                 </div>
+
             </div>
+            <?php include('../footer.php') ?>
+
         </div>
     </body>
-    <!-- Footer -->
-
-    <!-- Footer -->
 
     <script>
     // at here we try to be native as possible and you can use url to ease change the which one you prefer
     let url = "job_post_controller.php";
     const tbody = $("#filtered_data");
         
-        $(window).on( "load", function() {
+        $(window).on("load", function() {
             $( "#filterBtn" ).trigger( "click" );
         } );
 
@@ -173,10 +194,12 @@
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     mode: "search",
+                    jobCategoryID: $("#jobCategory").val(),
                     jobTitle: $("#jobTitle").val(),
                     locationState: $("#locationState").val(),
                     employmentType: $("#employmentType").val(),
-                    status: $("#status").val(),
+                    salary: $("#salary").val(),
+                    isPublish: $("#isPublish").val(),
                     page: page_number
                 }, success: function (response) {
                     const data = response;
@@ -190,30 +213,23 @@
                                 tableStringBuilder+=
                                 "  <tr>" +
                                 "        <th scope='row' class='text-center'>" + (((i+1)+page_number*5)-5) + ".</th>" +
+                                "        <td>" + records[i].categoryName + "</td>" +
                                 "        <td>" + records[i].jobTitle + "</td>" +
                                 "        <td>" + records[i].locationState + "</td>" +
                                 "        <td>" + records[i].employmentType + "</td>" +
                                 "        <td>" + records[i].salary + "</td>" +
-                                "        <td>" + records[i].status + "</td>" +
+                                "        <td>" + records[i].isPublish + "</td>" +
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
-                                "             <a href=\"job_post_view.php?id="+ encodeURI(btoa(records[i].job_post_id)) + "\">"+
-                                "               <button type=\"button\"  title=\"view\" class=\"btn btn-sm btn-info\">" +
-                                "                 <i class=\"bi bi-eye\"></i>" +
-                                "               </button>"+
-                                "             </a>" +
-                                <?php if($position =="manager"){?>
-                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].job_post_id)) + "\">"+
+                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
                                 "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
                                 "                 <i class=\"bi bi-pencil\"></i>" +
                                 "               </button>"+
                                 "             </a>" +
-                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].job_post_id)) + "')\" class=\"btn btn-sm btn-danger\">" +
+                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].jobPostingID)) + "')\" class=\"btn btn-sm btn-danger\">" +
                                 "              <i class=\"bi bi-trash\"></i>" +
                                 "            </button>" +
-                                <?php }?>
-
                                 "          </div>" +
                                 "        </td>" +
                                 "      </tr>" +
@@ -243,7 +259,7 @@
             load_data();
         }
         
-        function deleteRecord(employerID, jobPostingID) {
+        function deleteRecord(jobPostingID) {
             
             Swal.fire({
                 title: "Are you sure?",
@@ -261,7 +277,6 @@
                         contentType: "application/x-www-form-urlencoded",
                         data: {
                             mode: "delete",
-                            employerID: employerID,
                             jobPostingID: jobPostingID
                         }, success: function (response) {
                             const data = response;
@@ -284,27 +299,27 @@
         }
 
         function export_to_excel(){
-            var origin = $("#origin").val();
-            var destination = $("#destination").val();
-            var airplaneId = $("#planeName").val();
-            var departureDay = $("#departureDay").val();
-            var departureTimeFrom = $("#departureTimeFrom").val();
-            var departureTimeTo = $("#departureTimeTo").val();
+            var jobCategoryID= $("#jobCategory").val();
+            var jobTitle= $("#jobTitle").val();
+            var locationState = $("#locationState").val();
+            var employmentType = $("#employmentType").val();
+            var salary = $("#salary").val();
+            var isPublish = $("#isPublish").val();
 
             $.ajax({
                 type: "post",
                 url: "job_post_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
-                    origin: origin,
-                    destination: destination,
-                    airplaneId: airplaneId,
-                    departureDay: departureDay,
-                    departureTimeFrom: departureTimeFrom,
-                    departureTimeTo: departureTimeTo
+                    jobCategoryID: jobCategoryID,
+                    jobTitle: jobTitle,
+                    locationState: locationState,
+                    employmentType: employmentType,
+                    salary: salary,
+                    isPublish: isPublish
                 },success: function(dataResult){
-                    window.open('job_post_export.php?origin='+origin+'&destination='+destination+'&airplaneId='+airplaneId
-                    +'&departureDay='+departureDay+'&departureTimeFrom='+departureTimeFrom+'&departureTimeTo='+departureTimeTo);
+                    window.open('job_post_export.php?jobCategoryID='+jobCategoryID+'&jobTitle='+jobTitle+'&locationState='+locationState
+                    +'&employmentType='+employmentType+'&salary='+salary+'&isPublish='+isPublish);
                 }, failure: function(xhr){
                     console.log(xhr);
                 }

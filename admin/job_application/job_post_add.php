@@ -180,8 +180,6 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-
-
                         <div class="form-group row">
                             <div class="col-md-12">
                                 <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Submit</button>

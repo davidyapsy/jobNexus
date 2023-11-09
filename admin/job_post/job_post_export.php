@@ -1,41 +1,40 @@
 <?php
     error_reporting(0);
-    $connection = new mysqli("localhost", "root", "", "flight_ticketing");
+    $connection = new mysqli("localhost", "root", "", "db_jobnexus");
 
-    $origin = $_GET['origin'];
-    $destination = $_GET['destination'];
-    $airplaneId = $_GET['airplaneId'];
-    $departureTimeFrom = $_GET['departureTimeFrom'];
-    $departureTimeTo = $_GET['departureTimeTo'];
-    $departureDay = $_GET['departureDay'];
+    $jobCategoryID = $_GET['jobCategoryID'];
+    $jobTitle = $_GET['jobTitle'];
+    $locationState = $_GET['locationState'];
+    $employmentType = $_GET['employmentType'];
+    $salary = $_GET['salary'];
+    $isPublish = $_GET['isPublish'];
 
-    $sql = "SELECT A.flight_schedule_id, B.origin, B.destination, C.name, A.departure_time, A.arrival_time, A.departure_day
-    FROM flight_schedule A
-    JOIN route B ON A.route_id = B.route_id
-    JOIN airplane C ON A.airplane_id = C.airplane_id
-    WHERE starting_date >= '2000-01-01'";
+    //employerID
+    $sql = "SELECT jobPostingID, B.categoryName, jobTitle, locationState, employmentType, salary, isPublish
+    FROM job_posting A
+    JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
+    WHERE employerID = 'E2300000' AND isDeleted=0 ";
 
-    if($origin!=""){
-        $sql.=" AND B.origin = '$origin'";
+    if($jobCategoryID!=""){
+        $sql.=" AND B.jobCategoryID = '$jobCategoryID'";
     }
-    if($destination!=""){
-        $sql.=" AND B.destination = '$destination'";
+    if($jobTitle!=""){
+        $sql.=" AND jobTitle LIKE '%$jobTitle%'";
     }
-    if($airplaneId!=0){
-        $sql.=" AND A.airplane_id = $airplaneId";
+    if($locationState!=""){
+        $sql.=" AND locationState = '$locationState'";
     }
-    if($departureDay!=""){
-        $sql.=" AND A.departure_days LIKE '%$departureDay%'";
+    if($employmentType!=""){
+        $sql.=" AND A.employmentType = '$employmentType'";
     }
-    if($departureTimeFrom!=""){
-        $sql.=" AND A.departure_time >= '$departureTimeFrom'";
+    if($salary!= NULL){
+        $sql.=" AND A.salary >= $salary";
     }
-    if($departureTimeTo!=""){
-        $sql.=" AND A.departure_time <= '$departureTimeTo'";
+    if($isPublish!=""){
+        $sql.=" AND A.isPublish = '$isPublish'";
     }
-    $sql.=" ORDER BY flight_schedule_id ASC";
+    $sql.=" ORDER BY publishDate";
 
-    
     function filterData(&$str){ 
         $str = preg_replace("/\t/", "\\t", $str); 
         $str = preg_replace("/\r?\n/", "\\n", $str); 
@@ -43,10 +42,10 @@
     } 
         
     // Excel file name for download 
-    $fileName = "flight_schedule-data_" . date('Y-m-d') . ".xls"; 
+    $fileName = "job_post-data_" . date('Y-m-d') . ".xls"; 
         
     // Column names 
-    $fields = array('NO.', 'ORIGIN', 'DESTINATION', 'AIRPLANE','DEPARTURE TIME' ,'ARRIVAL TIME', 'DEPARTURE DAYS'); 
+    $fields = array('NO.', 'JOB CATEGORY', 'JOB TITLE', 'LOCATION (STATE)','EMPLOYMENT TYPE' ,'SALARY', 'PUBLISHMENT'); 
         
     // Display column names as first row 
     $excelData = implode("\t", array_values($fields)) . "\n"; 
@@ -57,14 +56,14 @@
         // Output each row of the data 
         $count=1;
         while($row = $query->fetch_assoc()){ 
-            $lineData = array($count, $row['origin'], $row['destination'], $row['name'], $row['departure_time'], $row['arrival_time'], $row['departure_day']); 
+            $lineData = array($count, $row['categoryName'], $row['jobTitle'], $row['locationState'], $row['employmentType'], $row['salary'], $row['isPublish']); 
             array_walk($lineData, 'filterData'); 
             $excelData .= implode("\t", array_values($lineData)) . "\n"; 
             $count++;
         } 
     }else{ 
         $excelData .= 'No records found...'. "\n"; 
-    } 
+    }
 
     // Headers for download 
     header("Content-Disposition: attachment; filename=\"$fileName\""); 
