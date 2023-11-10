@@ -2,9 +2,23 @@
     $serverName = "localhost";
     $userName = "root";
     $password = "";
-    $database = "flight_ticketing";
+    $database = "db_jobnexus";
 
     $connection = new mysqli($serverName, $userName, $password, $database);
+    $jobPostingID = base64_decode($_GET['id']);
+
+    $sql = "SELECT C.jobTitle, B.firstName, B.lastName, B.emailAddress, B.working_experience, A.availableDate, A.replies
+            FROM job_application A 
+            JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
+            JOIN job_posting C ON A.jobPostingID = C.jobPostingID
+            JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
+            WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = 'E2300000'";
+
+    $result = $connection->query($sql);
+    $data =[];
+    while(($row = $result->fetch_assoc())==TRUE){
+        $data = $row;
+    }
 ?>
 <html>
     <head>
@@ -42,17 +56,16 @@
                 <div class="panel-heading p-2">
                     <div class="row">
                         <div class="col-11">
-                            <h3>Job Post</h3>
+                            <h3>Job Application / <?=$data['jobTitle']?></h3>
                         </div>
                             <div class="col">
-                                <a href="flight_schedule_add.php">
+                                <a href="job_post_add.php">
                                     <button type="button" class="btn btn-primary btn-round">
                                         <i class="bi bi-plus-lg" aria-hidden="true"></i>
                                             <span class="text hidden-md-down">Add</span>
                                     </button>
                                 </a>
                             </div>
-
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
@@ -61,77 +74,42 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <select class="form-select" id="origin" name="origin">
-                                        <option value="">All (Origin)</option>
-                                        <?php $route_sql = "SELECT DISTINCT origin
-                                                            FROM route
-                                                            ORDER BY route_id ASC";
-                                        $route_result = $connection->query($route_sql);
-                                        while (($route = $route_result->fetch_assoc()) == TRUE) { ?>
-                                            <option value="<?= $route['origin'] ?>"><?= $route['origin'] ?></option>
-                                         <?php } ?>
-                                    </select>
+                                    <input type="text" class="form-control" name="jobSeekerName" id="jobSeekerName" placeholder="Job Seeker Name"/>
                                 </div>                            
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <select class="form-select" id="destination" name="destination">
-                                        <option value="">All (Destination)</option>
-                                        <?php $route_sql = "SELECT DISTINCT destination 
-                                                            FROM route
-                                                            ORDER BY route_id ASC";
-                                        $route_result = $connection->query($route_sql);
-                                        while (($route = $route_result->fetch_assoc()) == TRUE) { ?>
-                                            <option value="<?= $route['destination'] ?>"><?= $route['destination'] ?></option>
-                                         <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <select class="form-select" id="planeName" name="planeName">
-                                        <option value="0">All (Airplane)</option>
-                                        <?php $airplane_sql = "SELECT airplane_id, name 
-                                                                FROM airplane
-                                                                WHERE status='active'
-                                                                ORDER BY airplane_id ASC";
-                                        $airplane_result = $connection->query($airplane_sql);
-                                        while (($row = $airplane_result->fetch_assoc()) == TRUE) { ?>
-                                                    <option value="<?= $row['airplane_id'] ?>"><?= $row['name'] ?></option>
-                                        <?php } ?>
-                                    </select>
+                                    <input type="text" class="form-control" name="emailAddress" id="emailAddress" placeholder="Email Address"/>
                                 </div>                            
                             </div>
                             <div class="col-md-3">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="workingExperience" name="workingExperience" value="0">
+                                    <span class="input-group-text">
+                                        <i>Years</i>
+                                    </span>
+                                </div>                          
+                            </div>
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <select class="form-select" id="departureDay" name="departureDay">
-                                        <option value="">All (Day)</option>
-                                        <option value="Monday">Monday</option>
-                                        <option value="Tuesday">Tuesday</option>
-                                        <option value="Wednesday">Wednesday</option>
-                                        <option value="Thursday">Thursday</option>
-                                        <option value="Friday">Friday</option>
-                                        <option value="Saturday">Saturday</option>
-                                        <option value="Sunday">Sunday</option>
-                                    </select>
+                                    <input type="text" class="form-control" name="replies" id="replies" placeholder="Replies"/>
                                 </div>                            
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="time" class="form-control time" name="departureTimeFrom" id="departureTimeFrom" title="Departure Time(From)">
-                                    <label for="departure_time_from">Departure Time (From)</label>
+                                    <input type="date" class="form-control date" name="availableDateFrom" id="availableDateFrom" title="Available Date(From)">
+                                    <label for="availableDateFrom">Available Date (From)</label>
                                 </div>                            
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="time" class="form-control time" name="departureTimeTo" id="departureTimeTo" title="Departure Time(To)">
-                                    <label for="departure_time_to">Departure Time (To)</label>
+                                    <input type="date" class="form-control date" name="availableDateTo" id="availableDateTo" title="Available Date(To)">
+                                    <label for="availableDateTo">Available Date (To)</label>
                                 </div>                            
                             </div>
                         </div>
-
                         <div class="text-center">
                             <button type="button" id="filterBtn"
                                     class="btn btn-round btn-primary btn-sm" id="filterBtn"
@@ -153,17 +131,16 @@
                             </button>
                         </div>
                     </form>
-
                     <div class="row" style="padding-left:15px; padding-right:15px;">
-                        <table class="table table-bordered" id="flight_schedule_table">
+                        <table class="table table-bordered" id="job_post_table">
                             <thead>
                                 <tr>
-                                    <th scope="col" style="width:5%;">No.</th>
-                                    <th scope="col" style="width:20%;">Origin</th>
-                                    <th scope="col" style="width:20%;">Destination</th>
-                                    <th scope="col" style="width:10%;">Airplane</th>
-                                    <th scope="col" style="width:25%;">Departure Day</th>
-                                    <th scope="col" style="width:10%;">Departure Time</th>
+                                    <th class="text-center" scope="col" style="width:5%;">No.</th>
+                                    <th class="text-center" scope="col" style="width:20%;">Job Seeker Name</th>
+                                    <th class="text-center" scope="col" style="width:18%;">Email Address</th>
+                                    <th class="text-center" scope="col" style="width:15%;">Working Experience</th>
+                                    <th class="text-center" scope="col" style="width:15%;">Available Date</th>
+                                    <th class="text-center" scope="col" style="width:20%;">Replies</th>
                                     <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
                                 </tr>
                             </thead>
@@ -174,19 +151,19 @@
                     </div>
 
                 </div>
+
             </div>
+            <?php include('../footer.php') ?>
+
         </div>
     </body>
-    <!-- Footer -->
-
-    <!-- Footer -->
 
     <script>
     // at here we try to be native as possible and you can use url to ease change the which one you prefer
-    let url = "flight_schedule_controller.php";
+    let url = "job_post_controller.php";
     const tbody = $("#filtered_data");
         
-        $(window).on( "load", function() {
+        $(window).on("load", function() {
             $( "#filterBtn" ).trigger( "click" );
         } );
 
@@ -198,12 +175,12 @@
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     mode: "search",
-                    origin: $("#origin").val(),
-                    destination: $("#destination").val(),
-                    airplaneId: $("#planeName").val(),
-                    departureDay: $("#departureDay").val(),
-                    departureTimeFrom: $("#departureTimeFrom").val(),
-                    departureTimeTo: $("#departureTimeTo").val(),
+                    jobSeekerName: $("#jobSeekerName").val(),
+                    emailAddress: $("#emailAddress").val(),
+                    workingExperience: $("#workingExperience").val(),
+                    replies: $("#replies").val(),
+                    availabilityDateFrom: $("#availabilityDateFrom").val(),
+                    availabilityDateTo: $("#availabilityDateTo").val(),
                     page: page_number
                 }, success: function (response) {
                     const data = response;
@@ -217,30 +194,22 @@
                                 tableStringBuilder+=
                                 "  <tr>" +
                                 "        <th scope='row' class='text-center'>" + (((i+1)+page_number*5)-5) + ".</th>" +
-                                "        <td>" + records[i].origin + "</td>" +
-                                "        <td>" + records[i].destination + "</td>" +
-                                "        <td>" + records[i].name + "</td>" +
-                                "        <td>" + records[i].departure_day + "</td>" +
-                                "        <td>" + records[i].departure_time + "</td>" +
+                                "        <td>" + records[i].firstName + " " + records[i].lastName + "</td>"
+                                "        <td>" + records[i].emailAddress + "</td>" +
+                                "        <td>" + records[i].workingExperience + " Years" + "</td>"
+                                "        <td>" + records[i].availabilityDate + "</td>" +
+                                "        <td>" + records[i].replies + "</td>" +
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
-                                "             <a href=\"flight_schedule_view.php?id="+ encodeURI(btoa(records[i].flight_schedule_id)) + "\">"+
-                                "               <button type=\"button\"  title=\"view\" class=\"btn btn-sm btn-info\">" +
-                                "                 <i class=\"bi bi-eye\"></i>" +
-                                "               </button>"+
-                                "             </a>" +
-                                <?php if($position =="manager"){?>
-                                "             <a href=\"flight_schedule_edit.php?id="+ encodeURI(btoa(records[i].flight_schedule_id)) + "\">"+
+                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].jobApplicationID)) + "\">"+
                                 "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
                                 "                 <i class=\"bi bi-pencil\"></i>" +
                                 "               </button>"+
                                 "             </a>" +
-                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].flight_schedule_id)) + "')\" class=\"btn btn-sm btn-danger\">" +
+                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].jobApplicationID)) + "')\" class=\"btn btn-sm btn-danger\">" +
                                 "              <i class=\"bi bi-trash\"></i>" +
                                 "            </button>" +
-                                <?php }?>
-
                                 "          </div>" +
                                 "        </td>" +
                                 "      </tr>" +
@@ -270,7 +239,7 @@
             load_data();
         }
         
-        function deleteRecord(flightScheduleId) {
+        function deleteRecord(jobApplicationID) {
             
             Swal.fire({
                 title: "Are you sure?",
@@ -288,7 +257,7 @@
                         contentType: "application/x-www-form-urlencoded",
                         data: {
                             mode: "delete",
-                            flightScheduleId: flightScheduleId
+                            jobApplicationID: jobApplicationID
                         }, success: function (response) {
                             const data = response;
                             if (data.status) {
@@ -310,27 +279,27 @@
         }
 
         function export_to_excel(){
-            var origin = $("#origin").val();
-            var destination = $("#destination").val();
-            var airplaneId = $("#planeName").val();
-            var departureDay = $("#departureDay").val();
-            var departureTimeFrom = $("#departureTimeFrom").val();
-            var departureTimeTo = $("#departureTimeTo").val();
+            var jobCategoryID= $("#jobCategory").val();
+            var jobTitle= $("#jobTitle").val();
+            var locationState = $("#locationState").val();
+            var employmentType = $("#employmentType").val();
+            var salary = $("#salary").val();
+            var isPublish = $("#isPublish").val();
 
             $.ajax({
                 type: "post",
-                url: "flight_schedule_export.php",
+                url: "job_post_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
-                    origin: origin,
-                    destination: destination,
-                    airplaneId: airplaneId,
-                    departureDay: departureDay,
-                    departureTimeFrom: departureTimeFrom,
-                    departureTimeTo: departureTimeTo
+                    jobCategoryID: jobCategoryID,
+                    jobTitle: jobTitle,
+                    locationState: locationState,
+                    employmentType: employmentType,
+                    salary: salary,
+                    isPublish: isPublish
                 },success: function(dataResult){
-                    window.open('flight_schedule_export.php?origin='+origin+'&destination='+destination+'&airplaneId='+airplaneId
-                    +'&departureDay='+departureDay+'&departureTimeFrom='+departureTimeFrom+'&departureTimeTo='+departureTimeTo);
+                    window.open('job_post_export.php?jobCategoryID='+jobCategoryID+'&jobTitle='+jobTitle+'&locationState='+locationState
+                    +'&employmentType='+employmentType+'&salary='+salary+'&isPublish='+isPublish);
                 }, failure: function(xhr){
                     console.log(xhr);
                 }

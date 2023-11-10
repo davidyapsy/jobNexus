@@ -76,7 +76,7 @@
                                     <input type="text" class="form-control" name="jobTitle" id="jobTitle" placeholder="Job Title"/>
                                 </div>                            
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-md-3">
                                 <select class="form-select" id="locationState" name="locationState">
                                     <option value="">All (State)</option>
                                     <option value="Selangor">Selangor</option>
