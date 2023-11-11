@@ -7,7 +7,7 @@
     $connection = new mysqli($serverName, $userName, $password, $database);
     $jobPostingID = base64_decode($_GET['id']);
 
-    $sql = "SELECT C.jobTitle, B.firstName, B.lastName, B.emailAddress, B.working_experience, A.availableDate, A.replies
+    $sql = "SELECT C.jobTitle, B.firstName, B.lastName, B.emailAddress, B.working_experience, A.availableDate, A.status
             FROM job_application A 
             JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
             JOIN job_posting C ON A.jobPostingID = C.jobPostingID
@@ -58,19 +58,12 @@
                         <div class="col-11">
                             <h3>Job Application / <?=$data['jobTitle']?></h3>
                         </div>
-                            <div class="col">
-                                <a href="job_post_add.php">
-                                    <button type="button" class="btn btn-primary btn-round">
-                                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                                            <span class="text hidden-md-down">Add</span>
-                                    </button>
-                                </a>
-                            </div>
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
                     <form id="filterBox" method="post" action="">
                         <h4 style="padding-left:15px;">Filter Box</h4>
+                        <input type="hidden" id="jobPostingID" name="jobPostingID" value=" <?= base64_encode($jobPostingID);?>">
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
@@ -84,7 +77,10 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="input-group">
-                                    <input type="number" class="form-control" id="workingExperience" name="workingExperience" value="0">
+                                    <span class="input-group-text">
+                                        <i>More than or equals to</i>
+                                    </span>
+                                    <input type="number" class="form-control" id="workingExperience" name="workingExperience" value="0" title="Working Experience">
                                     <span class="input-group-text">
                                         <i>Years</i>
                                     </span>
@@ -92,7 +88,13 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="replies" id="replies" placeholder="Replies"/>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="">All (Status)</option>
+                                        <option value="Under Review">Under Review</option>
+                                        <option value="Shortlisted">Shortlisted</option>
+                                        <option value="Interview Scheduled">Interview Scheduled</option>
+                                        <option value="Interviewed">Interviewed</option>
+                                    </select>
                                 </div>                            
                             </div>
                         </div>
@@ -132,15 +134,15 @@
                         </div>
                     </form>
                     <div class="row" style="padding-left:15px; padding-right:15px;">
-                        <table class="table table-bordered" id="job_post_table">
+                        <table class="table table-bordered" id="job_application_table">
                             <thead>
                                 <tr>
                                     <th class="text-center" scope="col" style="width:5%;">No.</th>
-                                    <th class="text-center" scope="col" style="width:20%;">Job Seeker Name</th>
+                                    <th class="text-center" scope="col" style="width:25%;">Job Seeker Name</th>
                                     <th class="text-center" scope="col" style="width:18%;">Email Address</th>
                                     <th class="text-center" scope="col" style="width:15%;">Working Experience</th>
                                     <th class="text-center" scope="col" style="width:15%;">Available Date</th>
-                                    <th class="text-center" scope="col" style="width:20%;">Replies</th>
+                                    <th class="text-center" scope="col" style="width:15%;">Status</th>
                                     <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
                                 </tr>
                             </thead>
@@ -160,7 +162,7 @@
 
     <script>
     // at here we try to be native as possible and you can use url to ease change the which one you prefer
-    let url = "job_post_controller.php";
+    let url = "job_application_controller.php";
     const tbody = $("#filtered_data");
         
         $(window).on("load", function() {
@@ -175,12 +177,13 @@
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     mode: "search",
+                    jobPostingID: $('#jobPostingID').val(),
                     jobSeekerName: $("#jobSeekerName").val(),
                     emailAddress: $("#emailAddress").val(),
                     workingExperience: $("#workingExperience").val(),
-                    replies: $("#replies").val(),
-                    availabilityDateFrom: $("#availabilityDateFrom").val(),
-                    availabilityDateTo: $("#availabilityDateTo").val(),
+                    status: $("#status").val(),
+                    availableDateFrom: $("#availableDateFrom").val(),
+                    availableDateTo: $("#availableDateTo").val(),
                     page: page_number
                 }, success: function (response) {
                     const data = response;
@@ -194,22 +197,19 @@
                                 tableStringBuilder+=
                                 "  <tr>" +
                                 "        <th scope='row' class='text-center'>" + (((i+1)+page_number*5)-5) + ".</th>" +
-                                "        <td>" + records[i].firstName + " " + records[i].lastName + "</td>"
+                                "        <td>" + records[i].jobSeekerName + "</td>" +
                                 "        <td>" + records[i].emailAddress + "</td>" +
-                                "        <td>" + records[i].workingExperience + " Years" + "</td>"
-                                "        <td>" + records[i].availabilityDate + "</td>" +
-                                "        <td>" + records[i].replies + "</td>" +
+                                "        <td>" + records[i].working_experience + " Years" + "</td>" +
+                                "        <td>" + records[i].availableDate + "</td>" +
+                                "        <td>" + records[i].status + "</td>" +
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
-                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].jobApplicationID)) + "\">"+
+                                "             <a href=\"job_application_edit.php?jaID="+ encodeURI(btoa(records[i].applicationID)) +"&jpID="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
                                 "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
                                 "                 <i class=\"bi bi-pencil\"></i>" +
                                 "               </button>"+
                                 "             </a>" +
-                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].jobApplicationID)) + "')\" class=\"btn btn-sm btn-danger\">" +
-                                "              <i class=\"bi bi-trash\"></i>" +
-                                "            </button>" +
                                 "          </div>" +
                                 "        </td>" +
                                 "      </tr>" +
@@ -221,7 +221,6 @@
                             tableStringBuilder += '<tr><td colspan="7" class="text-center">No Data Found</td></tr>';
                         }
                         tbody.html("").html(tableStringBuilder);
-                        // document.getElementById('total_data').innerHTML = response.total_data;
                         $('#pagination_link').html(response.pagination);
                     } else {
                         console.log("something wrong");
@@ -238,68 +237,29 @@
             });
             load_data();
         }
-        
-        function deleteRecord(jobApplicationID) {
-            
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You will not able to recover this record!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#ff0000",
-                confirmButtonText: 'Yes !',
-                cancelButtonText: "Cancel !",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: "post",
-                        url: url,
-                        contentType: "application/x-www-form-urlencoded",
-                        data: {
-                            mode: "delete",
-                            jobApplicationID: jobApplicationID
-                        }, success: function (response) {
-                            const data = response;
-                            if (data.status) {
-                                Swal.fire({
-                                    title: "Deleted!",
-                                    text: "Record has been deleted.",
-                                    icon: "success"
-                                });
-                                clear_form();
-                            } else {
-                                console.log("something wrong");
-                            }
-                        }, failure: function (xhr) {
-                            console.log(xhr.status);
-                        }
-                    })
-                }
-            });
-        }
 
         function export_to_excel(){
-            var jobCategoryID= $("#jobCategory").val();
-            var jobTitle= $("#jobTitle").val();
-            var locationState = $("#locationState").val();
-            var employmentType = $("#employmentType").val();
-            var salary = $("#salary").val();
-            var isPublish = $("#isPublish").val();
+            var jobSeekerName= $("#jobSeekerName").val();
+            var emailAddress= $("#emailAddress").val();
+            var workingExperience = $("#workingExperience").val();
+            var status = $("#status").val();
+            var availableDateFrom = $("#availableDateFrom").val();
+            var availableDateTo = $("#availableDateTo").val();
 
             $.ajax({
                 type: "post",
-                url: "job_post_export.php",
+                url: "job_application_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
-                    jobCategoryID: jobCategoryID,
-                    jobTitle: jobTitle,
-                    locationState: locationState,
-                    employmentType: employmentType,
-                    salary: salary,
-                    isPublish: isPublish
+                    jobSeekerName: jobSeekerName,
+                    emailAddress: emailAddress,
+                    workingExperience: workingExperience,
+                    status: status,
+                    availableDateFrom: availableDateFrom,
+                    availableDateTo: availableDateTo
                 },success: function(dataResult){
-                    window.open('job_post_export.php?jobCategoryID='+jobCategoryID+'&jobTitle='+jobTitle+'&locationState='+locationState
-                    +'&employmentType='+employmentType+'&salary='+salary+'&isPublish='+isPublish);
+                    window.open('job_application_export.php?jobSeekerName='+jobSeekerName+'&emailAddress='+emailAddress+'&workingExperience='+workingExperience
+                    +'&status='+status+'&availableDateFrom='+availableDateFrom+'&availableDateTo='+availableDateTo);
                 }, failure: function(xhr){
                     console.log(xhr);
                 }

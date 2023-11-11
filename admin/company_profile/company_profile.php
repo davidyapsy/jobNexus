@@ -10,7 +10,7 @@
     $sql = "SELECT employerID, companyName, contactPersonName, emailAddress, password, phoneNumber, address, numberOfEmployees, industry, state, aboutUs, logo, backgroundPicture, 
             officePictures, facebookUrl, linkedinUrl, whatsappUrl, status, dateJoined
             FROM employer
-            WHERE employerID = ''";
+            WHERE employerID = 'E2300000'";
 
     $statement = $connection->prepare($sql);
     $statement->execute();

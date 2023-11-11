@@ -573,31 +573,33 @@ class JobPostingOop
         JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
         WHERE employerID = 'E2300000' AND isDeleted=0 ";
 
+        $filter_options ="";
         if($jobCategoryID!=""){
-            $sql.=" AND B.jobCategoryID = '$jobCategoryID'";
+            $filter_options.=" AND B.jobCategoryID = '$jobCategoryID'";
         }
         if($jobTitle!=""){
-            $sql.=" AND jobTitle LIKE '%$jobTitle%'";
+            $filter_options.=" AND jobTitle LIKE '%$jobTitle%'";
         }
         if($locationState!=""){
-            $sql.=" AND locationState = '$locationState'";
+            $filter_options.=" AND locationState = '$locationState'";
         }
         if($employmentType!=""){
-            $sql.=" AND A.employmentType = '$employmentType'";
+            $filter_options.=" AND A.employmentType = '$employmentType'";
         }
         if($salary!= NULL){
-            $sql.=" AND A.salary >= $salary";
+            $filter_options.=" AND A.salary >= $salary";
         }
         if($isPublish!=""){
-            $sql.=" AND A.isPublish = '$isPublish'";
+            $filter_options.=" AND A.isPublish = '$isPublish'";
         }
-        $sql.=" ORDER BY publishDate";
+        $filter_options.=" ORDER BY publishDate";
+        $sql.=$filter_options;
 
         $total_data=0;
         $statement = $this->connection->query("SELECT count(*) as totalRecord
                                                 FROM job_posting A
                                                 JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
-                                                WHERE employerID='E2300000' AND isDeleted=0");
+                                                WHERE employerID='E2300000' AND isDeleted=0". $filter_options);
         while (($row = $statement->fetch_assoc()) == TRUE) {
             $total_data = $row['totalRecord'];
         }

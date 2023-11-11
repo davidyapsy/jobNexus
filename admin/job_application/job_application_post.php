@@ -56,7 +56,7 @@
                     <div class="row g-3">
                         <?php while(($row = $result->fetch_assoc())==TRUE){ ?>
                             <div class="col-4" >
-                                <div class="jobPostingBox p-2 border bg-light rounded shadow" onclick="location.href='job_application_main.php?id=<?=base64_encode($row['jobPostingID'])?>';">
+                                <div class="jobPostingBox p-2 border bg-light rounded shadow" onclick="location.href='job_application_index.php?id=<?=base64_encode($row['jobPostingID'])?>';">
                                     <h2 class="pb-2"><?= $row['jobTitle']?></h2>
                                     <label class="p-1"><b>Job Category: </b><?= $row['categoryName']?></label><br/>
                                     <label class="p-1"><b>Employment Type: </b><?= $row['employmentType']?></label><br/>
@@ -81,16 +81,14 @@
         </div>
         
     </body>
-    <!-- Footer -->
 
-    <!-- Footer -->
     <script>
-        let url = "job_application_controller.php";
-
         $(".jobPostingBox").hover(function(){
             $(".jobPostingBox").removeClass("shadow");
+            $('.jobPostingBox').css('cursor', 'pointer');
         }, function(){
             $(".jobPostingBox").addClass("shadow");
+            $('.jobPostingBox').css('cursor', 'auto');
         });
         
 

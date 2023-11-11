@@ -125,6 +125,15 @@ class JobApplicationModel
         $this->jobSeekerID = $jobSeekerID;
         return $this;
     }
+
+    public function getJobPostingID(): String {
+        return $this->jobPostingID;
+    }
+    
+    public function setJobPostingID(String $jobPostingID): JobApplicationModel {
+        $this->jobPostingID = $jobPostingID;
+        return $this;
+    }
     
     public function getApplicationDate(): String {
         return $this->applicationDate;
@@ -244,12 +253,12 @@ class JobApplicationOop
         return $this;
     }
 
-    public function getWorkingExperience(): String
+    public function getWorkingExperience(): int
     {
         return $this->workingExperience;
     }
 
-    public function setWorkingExperience($workingExperience=""): JobApplicationOop
+    public function setWorkingExperience($workingExperience=0): JobApplicationOop
     {
         $this->workingExperience = $workingExperience;
         return $this;
@@ -348,6 +357,7 @@ class JobApplicationOop
         $employerID =  "E2300000";
         $applicationID = base64_decode(filter_input(INPUT_POST, "applicationID", FILTER_SANITIZE_STRING));
         $jobSeekerID = base64_decode(filter_input(INPUT_POST, "jobSeekerID", FILTER_SANITIZE_STRING));
+        $jobPostingID = base64_decode(filter_input(INPUT_POST, "jobPostingID", FILTER_SANITIZE_STRING));
         $applicationDate = filter_input(INPUT_POST, "applicationDate", FILTER_SANITIZE_STRING);
         $coverLetterSummary = filter_input(INPUT_POST, "coverLetterSummary", FILTER_SANITIZE_STRING);
         $status = filter_input(INPUT_POST, "status", FILTER_SANITIZE_STRING);
@@ -356,28 +366,28 @@ class JobApplicationOop
         $replies = filter_input(INPUT_POST, "replies", FILTER_SANITIZE_STRING);
         $jobTitle = filter_input(INPUT_POST, "jobTitle", FILTER_SANITIZE_STRING);
         $page = filter_input(INPUT_POST, "page", FILTER_SANITIZE_NUMBER_INT);
-        
-        $this->model->setApplicationID($applicationID);
-        $this->model->setJobSeekerID($jobSeekerID);
-        $this->model->setApplicationDate($applicationDate);
-        $this->model->setCoverLetterSummary($coverLetterSummary);
-        $this->model->setStatus($status);
-        $this->model->setSalaryExpectation($salaryExpectation);
-        $this->model->setAvailableDate($availableDate);
-        $this->model->setReplies($replies);
+
+        $jobSeekerName = filter_input(INPUT_POST, "jobSeekerName", FILTER_SANITIZE_STRING);
+        $emailAddress = filter_input(INPUT_POST, "emailAddress", FILTER_SANITIZE_STRING);
+        $workingExperience = filter_input(INPUT_POST, "workingExperience", FILTER_SANITIZE_NUMBER_INT);
+        $replies = filter_input(INPUT_POST, "replies", FILTER_SANITIZE_STRING);
+        $availableDateFrom = filter_input(INPUT_POST, "availableDateFrom", FILTER_SANITIZE_STRING);
+        $availableDateTo = filter_input(INPUT_POST, "availableDateTo", FILTER_SANITIZE_STRING);
         
 
-        if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "create"){
-            
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "delete"){
-
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
-
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
-
+        if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
+            $this->model->setApplicationID($applicationID);
+            $this->model->setStatus($status);
+            $this->model->setReplies($replies);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
             $this->setPage($page);
-
+            $this->model->setJobPostingID($jobPostingID);
+            $this->setJobSeekerName($jobSeekerName);
+            $this->setEmailAddress($emailAddress);
+            $this->setWorkingExperience($workingExperience);
+            $this->model->setStatus($status);
+            $this->setAvailableDateFrom($availableDateFrom);
+            $this->setAvailableDateTo($availableDateTo);
         }       
     }
 
@@ -386,84 +396,7 @@ class JobApplicationOop
      */
     function create()
     {
-        $this->connection->autocommit(false);
-
-        $employerID = $this->model->getEmployerID();
-        $jobCategoryID = $this->model->getJobCategoryID();
-        $jobTitle = $this->model->getJobTitle();
-        $jobDescription = $this->model->getJobDescription();
-        $jobRequirement = $this->model->getJobRequirement();
-        $jobHighlight= $this->model->getJobHighlight();
-        $experienceLevel= $this->model->getExperienceLevel();
-        $locationState = $this->model->getLocationState();
-        $salary = $this->model->getSalary();
-        $employmentType = $this->model->getEmploymentType();
-        $applicationDeadline= $this->model->getApplicationDeadline();
-        $isPublish= $this->model->getIsPublish();
-        $publishDate= $this->model->getPublishDate();
-        $isDeleted = 0;
-
-        //assign new job posting id
-        $year = "00";
-        $month= "00";
-        $day  = "00";
-        if($publishDate!=""){
-            $year=substr($publishDate, 2,2);
-            $month=substr($publishDate, 5,2);
-            $day = substr($publishDate, 8,2);
-        }
-        $tempID = "JP".$year.$month.$day;
-        $currentID = $tempID."0000";
-
-        //get number of records
-        $total_data=0;
-        $stat = $this->connection->query("SELECT count(*) as totalRecord
-                                                FROM job_posting
-                                                WHERE employerID='$employerID'");
-        while (($row = $stat->fetch_assoc()) == TRUE) {
-            $total_data = $row['totalRecord'];
-        }
-
-        //employerID
-        if($total_data > 0){
-            $result = $this->connection->query("SELECT jobPostingID
-                                                FROM job_posting
-                                                WHERE employerID='$employerID'
-                                                ORDER BY jobPostingID ASC");
-            while (($row = $result->fetch_assoc()) == TRUE) {
-                if(substr($row['jobPostingID'], 0, 8)==$tempID){
-                    $currentID = $row['jobPostingID'];
-                }
-            }
-        }
-
-        $newNumber = (int)(substr($currentID, 8)) + 1;
-        $newNumber = sprintf('%04d', $newNumber);
-        $newID = $tempID.$newNumber;
-
-        //insert into db
-        if (strlen($jobCategoryID) > 0 &&  strlen($jobTitle) > 0 &&  strlen($jobDescription) > 0 &&  strlen($jobRequirement) > 0 &&  strlen($locationState) > 0 &&  strlen($employmentType) > 0) {
-            $statement = $this->connection->prepare("INSERT INTO job_posting VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $statement->bind_param("sssssssssdssssi", $employerID, $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, 
-                                                        $salary, $employmentType, $applicationDeadline, $isPublish, $publishDate, $isDeleted);
-            
-            try {
-                $statement->execute();
-            } catch (Exception $exception) {
-                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
-            }
-
-            $this->connection->commit();
-            echo json_encode(
-                [
-                    "status" => true,
-                    "code" => ReturnCode::CREATE_SUCCESS,
-                ]
-            );
-
-        } else {
-            throw new Exception(ReturnCode::ACCESS_DENIED);
-        }
+        //Implement Create method
     }
 
     /**
@@ -482,44 +415,52 @@ class JobApplicationOop
         }
 
         // you don't need to commit work here ya !
+        $jobPostingID = $this->model->getJobPostingID();
         $jobSeekerName = $this->getJobSeekerName();
         $emailAddress = $this->getEmailAddress();
         $workingExperience = $this->getWorkingExperience();
-        $replies = $this->getReplies();
+        $status = $this->model->getStatus();
         $availableDateFrom = $this->getAvailableDateFrom();
         $availableDateTo = $this->getAvailableDateTo();
 
-        //employerID
-        $sql = "SELECT jobPostingID, B.categoryName, jobTitle, locationState, employmentType, salary, isPublish
-        FROM job_posting A
-        JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
-        WHERE employerID = 'E2300000' AND isDeleted=0 ";
+        $sql = "SELECT A.applicationID, CONCAT(B.firstName,' ',B.lastName) AS jobSeekerName, B.emailAddress, B.working_experience, A.availableDate, A.status, C.jobPostingID
+        FROM job_application A 
+        JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
+        JOIN job_posting C ON A.jobPostingID = C.jobPostingID
+        JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
+        WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = 'E2300000'";
 
-        if($jobCategoryID!=""){
-            $sql.=" AND B.jobCategoryID = '$jobCategoryID'";
+        $filter_option = "";
+        if($jobSeekerName!=""){
+            $filter_option.=" AND CONCAT(B.firstName,' ',B.lastName) LIKE '%$jobSeekerName%'";
         }
-        if($jobTitle!=""){
-            $sql.=" AND jobTitle LIKE '%$jobTitle%'";
+        if($emailAddress!=""){
+            $filter_option.=" AND B.emailAddress LIKE '%$emailAddress%'";
         }
-        if($locationState!=""){
-            $sql.=" AND locationState = '$locationState'";
+        if($workingExperience!=""){
+            $filter_option.=" AND B.working_experience >= $workingExperience";
         }
-        if($employmentType!=""){
-            $sql.=" AND A.employmentType = '$employmentType'";
+        if($status!=""){
+            $filter_option.=" AND A.status = '$status'";
         }
-        if($salary!= NULL){
-            $sql.=" AND A.salary >= $salary";
+        if($availableDateFrom!=""){
+            $filter_option.=" AND A.availableDate >= '$availableDateFrom'";
         }
-        if($isPublish!=""){
-            $sql.=" AND A.isPublish = '$isPublish'";
+        if($availableDateTo!=""){
+            $filter_option.=" AND A.availableDate <= '$availableDateTo'";
         }
-        $sql.=" ORDER BY publishDate";
+        //ranking (order by working_experience, education level, field of study, skills, salaryexpectation)
+        $filter_option.=" ORDER BY C.publishDate";
+
+        $sql.=$filter_option;
 
         $total_data=0;
         $statement = $this->connection->query("SELECT count(*) as totalRecord
-                                                FROM job_posting A
-                                                JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
-                                                WHERE employerID='E2300000' AND isDeleted=0");
+                                                FROM job_application A 
+                                                JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
+                                                JOIN job_posting C ON A.jobPostingID = C.jobPostingID
+                                                JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
+                                                WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = 'E2300000'".$filter_option);
         while (($row = $statement->fetch_assoc()) == TRUE) {
             $total_data = $row['totalRecord'];
         }
@@ -664,66 +605,17 @@ class JobApplicationOop
     {
         $this->connection->autocommit(false);
 
-        $employerID = $this->model->getEmployerID();
-        $jobPostingID = $this->model->getJobPostingID();
-        $jobCategoryID = $this->model->getJobCategoryID();
-        $jobTitle = $this->model->getJobTitle();
-        $jobDescription = $this->model->getJobDescription();
-        $jobRequirement = $this->model->getJobRequirement();
-        $jobHighlight= $this->model->getJobHighlight();
-        $experienceLevel= $this->model->getExperienceLevel();
-        $locationState = $this->model->getLocationState();
-        $salary = $this->model->getSalary();
-        $employmentType = $this->model->getEmploymentType();
-        $applicationDeadline= $this->model->getApplicationDeadline();
-        $isPublish= $this->model->getIsPublish();
-        $publishDate = $this->model->getPublishDate();
-        $isDeleted=0;
-        $newID = $jobPostingID;
-        
-        if(substr($jobPostingID, 2, 6)=="000000" && $isPublish == "Published"){
-            //assign new job posting id
-            $year=substr($publishDate, 2,2);
-            $month=substr($publishDate, 5,2);
-            $day = substr($publishDate, 8,2);
-            $tempID = "JP".$year.$month.$day;
-            $currentID = $tempID."0000";
-
-            //get number of records
-            $total_data=0;
-            $stat = $this->connection->query("SELECT count(*) as totalRecord
-                                                    FROM job_posting
-                                                    WHERE employerID='$employerID'");
-            while (($row = $stat->fetch_assoc()) == TRUE) {
-                $total_data = $row['totalRecord'];
-            }
-
-            //employerID
-            if($total_data > 0){
-                $result = $this->connection->query("SELECT jobPostingID
-                                                    FROM job_posting
-                                                    WHERE employerID='$employerID'
-                                                    ORDER BY jobPostingID ASC");
-                while (($row = $result->fetch_assoc()) == TRUE) {
-                    if(substr($row['jobPostingID'], 0, 8)==$tempID){
-                        $currentID = $row['jobPostingID'];
-                    }
-                }
-            }
-            $newNumber = (int)(substr($currentID, 8)) + 1;
-            $newNumber = sprintf('%04d', $newNumber);
-            $newID = $tempID.$newNumber;
-        }
+        $jobApplicationID = $this->model->getApplicationID();
+        $status = $this->model->getStatus();
+        $replies = $this->model->getReplies();
 
         //insert into db
-        if (strlen($jobCategoryID) > 0 &&  strlen($jobTitle) > 0 &&  strlen($jobDescription) > 0 &&  strlen($jobRequirement) > 0 &&  strlen($locationState) > 0 &&  strlen($employmentType) > 0) {
-            $statement = $this->connection->prepare("UPDATE job_posting 
-                                                    SET jobPostingID = ?, jobCategoryID = ?, jobTitle = ?, jobDescription = ?, jobRequirement = ?, jobHighlight = ?, experienceLevel = ?, locationState = ?, salary = ?,
-                                                        employmentType = ?, applicationDeadline = ?, isPublish = ?, publishDate = ?, isDeleted = ?
-                                                    WHERE employerID = ? AND jobPostingID = ?");
+        if (strlen($status) > 0) {
+            $statement = $this->connection->prepare("UPDATE job_application 
+                                                    SET status = ?, replies = ?
+                                                    WHERE applicationID = ?");
 
-            $statement->bind_param("ssssssssdssssiss", $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, $salary, $employmentType,
-                                                        $applicationDeadline, $isPublish, $publishDate, $isDeleted, $employerID, $jobPostingID);
+            $statement->bind_param("sss", $status, $replies, $jobApplicationID);
 
             try {
                 $statement->execute();
@@ -742,107 +634,15 @@ class JobApplicationOop
         } else {
             throw new Exception(ReturnCode::ACCESS_DENIED);
         }
-    }
+    } 
 
     /**
      * @throws Exception
      */
     function delete()
     {
-        $this->connection->autocommit(false);
-
-        $jobPostingID = $this->model->getJobPostingID();
-
-        if ($jobPostingID > 0) {
-            $statement = $this->connection->prepare("UPDATE job_posting SET isDeleted = 1
-                WHERE jobPostingID = ? ");
-            $statement->bind_param("s", $jobPostingID);
-            try {
-                $statement->execute();
-            } catch (Exception $exception) {
-                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
-            }
-
-            $this->connection->commit();
-            echo json_encode(
-                [
-                    "status" => true,
-                    "code" => ReturnCode::DELETE_SUCCESS
-                ]
-            );
-
-        } else {
-            throw new Exception(ReturnCode::ACCESS_DENIED);
-        }
-    }   
-
-    function check_validation(){
-        $datas[]['inputName']="";
-        $datas[]['errorMessage']="";
-
-        $jobCategoryID = $this->model->getJobCategoryID();
-        $jobTitle = $this->model->getJobTitle();
-        $jobDescription = $this->model->getJobDescription();
-        $jobRequirement = $this->model->getJobRequirement();
-        $locationState = $this->model->getLocationState();
-        $employmentType = $this->model->getEmploymentType();
-        $isPublish = $this->model->getIsPublish();
-        $applicationDeadline = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getApplicationDeadline())));
-        $i=0;
-        
-        //null checking
-        if($jobCategoryID==""){
-            $datas[$i]['inputName']="jobCategory";
-            $datas[$i]['errorMessage']="Job Category is required";
-            $i++;
-        }
-        if($jobTitle==""){
-            $datas[$i]['inputName']="jobTitle";
-            $datas[$i]['errorMessage']="Job Title is required";
-            $i++;
-        }
-        if($jobDescription==""){
-            $datas[$i]['inputName']="jobDescription";
-            $datas[$i]['errorMessage']="Job Description is required";
-            $i++;
-        }
-        if($jobRequirement==""){
-            $datas[$i]['inputName']="jobRequirement";
-            $datas[$i]['errorMessage']="Job Requirement is required";
-            $i++;
-        }
-        if($locationState==""){
-            $datas[$i]['inputName']="locationState";
-            $datas[$i]['errorMessage']="State is required";
-            $i++;
-        }
-        if($employmentType==""){
-            $datas[$i]['inputName']="employmentType";
-            $datas[$i]['errorMessage']="Employment Type is required";
-            $i++;
-        }
-        if($isPublish == "Published" && $applicationDeadline < date("Y-m-d")){
-            $datas[$i]['inputName']="applicationDeadline";
-            $datas[$i]['errorMessage']="Application Deadline must be larger than today's date";
-            $i++;
-        }
-
-        if($i>0){
-            echo json_encode(
-                [
-                    "status" => false,
-                    "data" => $datas
-                ]
-            );
-        } else{
-            echo json_encode(
-                [
-                    "status" => true,
-                ]
-            );
-        }
+        //Implement Delete method
     }
-
 }
 
 header('Content-Type: application/json');
@@ -850,23 +650,20 @@ header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript 
 
 $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
 
-$jobPostingOop = new JobApplicationOop();
+$jobApplicationOop = new JobApplicationOop();
 try {
     switch ($mode) {
         case  "create":
-            $jobPostingOop->create();
+            $jobApplicationOop->create();
             break;
         case  "search":
-            $jobPostingOop->search();
+            $jobApplicationOop->search();
             break;
         case  "update":
-            $jobPostingOop->update();
+            $jobApplicationOop->update();
             break;
         case  "delete":
-            $jobPostingOop->delete();
-            break;
-        case "check_validation":
-            $jobPostingOop->check_validation();
+            $jobApplicationOop->delete();
             break;
         default:
             throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
