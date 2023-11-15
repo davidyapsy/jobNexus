@@ -42,16 +42,15 @@
                 <div class="panel-heading p-2">
                     <div class="row">
                         <div class="col-11">
-                            <h3>Job Post</h3>
+                            <h3>Subscription</h3>
                         </div>
-                            <div class="col">
-                                <a href="job_post_add.php">
-                                    <button type="button" class="btn btn-primary btn-round">
-                                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                                            <span class="text hidden-md-down">Add</span>
-                                    </button>
-                                </a>
-                            </div>
+                        <div class="col">
+                            <a href="subscription_add.php">
+                                <button type="button" class="btn btn-primary btn-round">
+                                    <span class="text hidden-md-down">Subscribe</span>
+                                </button>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
@@ -60,71 +59,52 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <select class="form-select" id="jobCategory" name="jobCategory">
-                                        <option value="">All (Job Category)</option>
-                                        <?php $jobCategory_sql = "SELECT jobCategoryID, categoryName
-                                                                FROM job_category";
-                                        $jobCategory_result = $connection->query($jobCategory_sql);
-                                        while (($row = $jobCategory_result->fetch_assoc()) == TRUE) { ?>
-                                                    <option value="<?= base64_encode($row['jobCategoryID']); ?>"><?= $row['categoryName'] ?></option>
+                                    <select class="form-select" id="subscriptionPlan" name="subscriptionPlan">
+                                        <option value="">All (Subscription Plan)</option>
+                                        <?php $subscriptionPlan_sql = "SELECT subscriptionPlanID, planName
+                                                                FROM subscription_plan 
+                                                                WHERE isActive = 1";
+                                        $subscriptionPlan_result = $connection->query($subscriptionPlan_sql);
+                                        while (($row = $subscriptionPlan_result->fetch_assoc()) == TRUE) { ?>
+                                                    <option value="<?= base64_encode($row['subscriptionPlanID']); ?>"><?= $row['planName'] ?></option>
                                         <?php } ?>
                                     </select>                                
                                 </div>                            
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="jobTitle" id="jobTitle" placeholder="Job Title"/>
-                                </div>                            
-                            </div>
-                            <div class="col-md-3">
-                                <select class="form-select" id="locationState" name="locationState">
-                                    <option value="">All (State)</option>
-                                    <option value="Selangor">Selangor</option>
-                                    <option value="Kuala Lumpur">Kuala Lumpur</option>
-                                    <option value="Sabah">Sabah</option>
-                                    <option value="Kelantan">Kelantan</option>
-                                    <option value="Sarawak">Sarawak</option>
-                                    <option value="Pahang">Pahang</option>
-                                    <option value="Kedah">Kedah</option>
-                                    <option value="Terengganu">Terengganu</option>
-                                    <option value="Negeri Sembilan">Negeri Sembilan</option>
-                                    <option value="Perak">Perak</option>
-                                    <option value="Johor">Johor</option>
-                                    <option value="Malacca">Malacca</option>
-                                    <option value="Penang">Penang</option>
-                                    <option value="Perlis">Perlis</option>
-                                </select>
+                                    <input type="date" class="form-control date" name="startDateFrom" id="startDateFrom" title="Start Date (From)">
+                                    <label for="startDateFrom">Start Date (From)</label>
+                                </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <select class="form-select" id="employmentType" name="employmentType">
-                                        <option value="">All (Employment Type)</option>
-                                        <option value="Full-time">Full-time</option>
-                                        <option value="Part-time">Part-time</option>
-                                        <option value="Temporary">Temporary</option>
-                                        <option value="Contract">Contract</option>
-                                        <option value="Internship">Internship</option>
+                                    <input type="date" class="form-control date" name="startDateTo" id="startDateTo" title="Start Date (To)">
+                                    <label for="startDateTo">Start Date (To)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <select class="form-select" id="autoRenewal" name="autoRenewal">
+                                        <option value="">All (Auto Renewal)</option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
                                     </select>
                                 </div>                            
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i>Salary more than or equal to </i>
-                                    </span>
-                                    <input type="number" class="form-control" id="salary" name="salary" value="500">
-                                </div>                          
+                                <div class="form-group">
+                                    <input type="date" class="form-control date" name="endDateFrom" id="endDateFrom" title="Start Date (From)">
+                                    <label for="endDateFrom">End Date (From)</label>
+                                </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <select class="form-select" id="isPublish" name="isPublish">
-                                        <option value="">All (Publishment)</option>
-                                        <option value="Published">Published</option>
-                                        <option value="Unpublished">Unpublished</option>
-                                    </select>
-                                </div>                            
+                                    <input type="date" class="form-control date" name="endDateTo" id="endDateTo" title="End Date (To)">
+                                    <label for="endDateTo">End Date (To)</label>
+                                </div>
                             </div>
                         </div>
                         <div class="text-center">
@@ -154,12 +134,10 @@
                             <thead>
                                 <tr>
                                     <th class="text-center" scope="col" style="width:5%;">No.</th>
-                                    <th class="text-center" scope="col" style="width:20%;">Job Category</th>
-                                    <th class="text-center" scope="col" style="width:25%;">Job Title</th>
-                                    <th class="text-center" scope="col" style="width:12%;">Location (State)</th>
-                                    <th class="text-center" scope="col" style="width:12%;">Employment Type</th>
-                                    <th class="text-center" scope="col" style="width:10%;">Salary</th>
-                                    <th class="text-center" scope="col" style="width:10%;">Publishment</th>
+                                    <th class="text-center" scope="col" style="width:30%;">Subscription Plan</th>
+                                    <th class="text-center" scope="col" style="width:25%;">Start Date</th>
+                                    <th class="text-center" scope="col" style="width:25%;">End Date</th>
+                                    <th class="text-center" scope="col" style="width:10%;">Auto Renewal</th>
                                     <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
                                 </tr>
                             </thead>
@@ -179,7 +157,7 @@
 
     <script>
     // at here we try to be native as possible and you can use url to ease change the which one you prefer
-    let url = "job_post_controller.php";
+    let url = "subscription_controller.php";
     const tbody = $("#filtered_data");
         
         $(window).on("load", function() {
@@ -194,12 +172,12 @@
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     mode: "search",
-                    jobCategoryID: $("#jobCategory").val(),
-                    jobTitle: $("#jobTitle").val(),
-                    locationState: $("#locationState").val(),
-                    employmentType: $("#employmentType").val(),
-                    salary: $("#salary").val(),
-                    isPublish: $("#isPublish").val(),
+                    subscriptionPlanID: $("#subscriptionPlan").val(),
+                    startDateFrom: $("#startDateFrom").val(),
+                    startDateTo: $("#startDateTo").val(),
+                    endDateFrom: $("#endDateFrom").val(),
+                    endDateTo: $("#endDateTo").val(),
+                    autoRenewal: ($("#autoRenewal").val()==""?2:$("#autoRenewal").val()),
                     page: page_number
                 }, success: function (response) {
                     const data = response;
@@ -213,23 +191,18 @@
                                 tableStringBuilder+=
                                 "  <tr>" +
                                 "        <th scope='row' class='text-center'>" + (((i+1)+page_number*5)-5) + ".</th>" +
-                                "        <td>" + records[i].categoryName + "</td>" +
-                                "        <td>" + records[i].jobTitle + "</td>" +
-                                "        <td>" + records[i].locationState + "</td>" +
-                                "        <td>" + records[i].employmentType + "</td>" +
-                                "        <td>" + records[i].salary + "</td>" +
-                                "        <td class='text-center'>" + (records[i].isPublish=="Published"?"<span class='badge bg-success'>Published</span>":"<span class='badge bg-info'>Unpublished</span>") + "</td>" +
+                                "        <td>" + records[i].planName + "</td>" +
+                                "        <td>" + records[i].startDate + "</td>" +
+                                "        <td>" + records[i].endDate + "</td>" +
+                                "        <td class='text-center'>" + (records[i].autoRenewal==1?"<span class='badge bg-success'>Yes</span>":"<span class='badge bg-info'>No</span>") + "</td>" +
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
-                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
+                                "             <a href=\"subscription_edit.php?id="+ encodeURI(btoa(records[i].subscriptionID)) + "\">"+
                                 "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
                                 "                 <i class=\"bi bi-pencil\"></i>" +
                                 "               </button>"+
                                 "             </a>" +
-                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].jobPostingID)) + "')\" class=\"btn btn-sm btn-danger\">" +
-                                "              <i class=\"bi bi-trash\"></i>" +
-                                "            </button>" +
                                 "          </div>" +
                                 "        </td>" +
                                 "      </tr>" +
@@ -238,7 +211,7 @@
                         }
                         else
                         {
-                            tableStringBuilder += '<tr><td colspan="8" class="text-center">No Data Found</td></tr>';
+                            tableStringBuilder += '<tr><td colspan="6" class="text-center">No Data Found</td></tr>';
                         }
                         tbody.html("").html(tableStringBuilder);
                         // document.getElementById('total_data').innerHTML = response.total_data;
@@ -257,45 +230,6 @@
                 this.reset();
             });
             load_data();
-        }
-        
-        function deleteRecord(jobPostingID) {
-            
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You will not able to recover this record!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#ff0000",
-                confirmButtonText: 'Yes !',
-                cancelButtonText: "Cancel !",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: "post",
-                        url: url,
-                        contentType: "application/x-www-form-urlencoded",
-                        data: {
-                            mode: "delete",
-                            jobPostingID: jobPostingID
-                        }, success: function (response) {
-                            const data = response;
-                            if (data.status) {
-                                Swal.fire({
-                                    title: "Deleted!",
-                                    text: "Record has been deleted.",
-                                    icon: "success"
-                                });
-                                clear_form();
-                            } else {
-                                console.log("something wrong");
-                            }
-                        }, failure: function (xhr) {
-                            console.log(xhr.status);
-                        }
-                    })
-                }
-            });
         }
 
         function export_to_excel(){

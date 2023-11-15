@@ -6,11 +6,9 @@
 
     $connection = new mysqli($serverName, $userName, $password, $database);
     //employerID
-    $sql = "SELECT B.jobPostingID, B.jobTitle, C.categoryName, B.employmentType, B.locationState, B.isPublish
-            FROM job_application A
-            JOIN job_posting B ON A.jobPostingID = B.jobPostingID
-            JOIN job_category C ON B.jobCategoryID = C.jobCategoryID
-            WHERE B.employerID = 'E2300000' AND B.isDeleted = 0";
+    $sql = "SELECT *
+            FROM subscription_plan
+            WHERE isActive=1";
 
     $result = $connection->query($sql);
 
@@ -36,6 +34,15 @@
             .required{
                 color:red;
             }
+            .border-purple{
+                border: solid 3px #D1BAFF;
+            }
+            .panel-body{
+                height: 80%;
+            }
+            .bi-check2-circle{
+                color: #D1BAFF;
+            }
         </style>
     </head>
 
@@ -48,49 +55,40 @@
                 <div class="panel-heading pt-2">
                     <div class="row">
                         <div class="col-12">
-                            <h3>Job Application</h3>
+                            <h3>Subscription Plan</h3>
                         </div>
                     </div>
                 </div>
                 <div class="panel-body">
-                    <div class="row g-3">
+                    <div class="row g-3 h-100">
                         <?php while(($row = $result->fetch_assoc())==TRUE){ ?>
-                            <div class="col-4" >
-                                <div class="jobPostingBox p-2 border bg-light rounded shadow" onclick="location.href='job_application_index.php?id=<?=base64_encode($row['jobPostingID'])?>';">
-                                    <h2 class="pb-2"><?= $row['jobTitle']?></h2>
-                                    <label class="p-1"><b>Job Category: </b><?= $row['categoryName']?></label><br/>
-                                    <label class="p-1"><b>Employment Type: </b><?= $row['employmentType']?></label><br/>
-                                    <label class="p-1"><b>State: </b><?= $row['locationState']?></label><br/>
-                                    <h4 class="px-2 pt-2 text-end text-success"><?= $row['isPublish']?></h4>
+                            <div class="col-4" onclick="location.href='subscription_order_summary.php?id=<?=base64_encode($row['subscriptionPlanID'])?>';">
+                                <div class="subscriptionPlanBox p-2 h-100 rounded bg-white text-center">        
+                                    <label class="p-1"><?= $row['planName']?></label><br/>
+                                    <h2 class="pb-2">RM <?= number_format($row['price'])?></h2>
+                                    <label class="p-1"></i><?= $row['description']?></label><br/><br/>
+                                    <label class="p-1"><i class="bi bi-check2-circle"></i> Flexible to post, report & edit <?= $row['maxJobPosting']?> jobs for <?= $row['validityPeriod']?></label><br/>
+                                    <label class="p-1"><i class="bi bi-check2-circle"></i> Flexible to manage <?= $row['maxJobApplication']?> applications</label><br/>
+                                    <label class="p-1"><i class="bi bi-check2-circle"></i> Job application ranking availability</label><br/>
                                 </div>
                             </div>
                         <?php } ?>
-                        
-                        <div class="col-4">
-                            <div class="p-2 border bg-light">Custom column padding</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="p-2 border bg-light">Custom column padding</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="p-2 border bg-light">Custom column padding</div>
-                        </div>
                     </div>
                 </div>
+
             </div>
+            <?php require('../../admin/footer.php') ?>
+
         </div>
-        
     </body>
 
     <script>
-        $(".jobPostingBox").hover(function(){
-            $(this).removeClass("shadow");
+        $(".subscriptionPlanBox").hover(function(){
+            $(this).addClass("border-purple");
             $(this).css('cursor', 'pointer');
         }, function(){
-            $(this).addClass("shadow");
+            $(this).removeClass("border-purple");
             $(this).css('cursor', 'auto');
         });
-        
-
     </script>
 </html>
