@@ -5,18 +5,21 @@
     $database = "db_jobnexus";
 
     $connection = new mysqli($serverName, $userName, $password, $database);
-    $subscriptionPlanID = base64_decode($_GET['id']);
+    $subscriptionID = base64_decode($_GET['id']);
 
     //employerID
-    $sql = "SELECT *
-            FROM subscription_plan
-            WHERE subscriptionPlanID = '$subscriptionPlanID'";
-
+    $sql = "SELECT A.saleID, B.companyName, B.address, B.phoneNumber, C.planName, C.price, C.validityPeriod, C.maxJobPosting, C.maxJobApplication, C.applicationRankingAvailability, C.maxFeatureJobListing, A.startDate, A.endDate
+            FROM subscription A
+            JOIN employer B ON A.employerID = B.employerID
+            JOIN subscription_plan C ON A.subscriptionPlanID = C.subscriptionPlanID
+            WHERE subscriptionID = '$subscriptionID'";
+    
     $result = $connection->query($sql);
     $data =[];
     while(($row = $result->fetch_assoc())==TRUE){
         $data = $row;
     }
+    $data['startDate']
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,33 +53,64 @@
                 <div class="panel-heading p-2">
                     <div class="data">
                         <div class="col-12">
-                            <h3>Subscription / Order Summary</h3>
+                            <h3>Subscription / Sales Invoice</h3>
                         </div>
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
-                    <form id="form_details" action="" method="post">
-                        <h4 style="padding:10px;"><i class="bi bi-person-fill px-2"></i>Subscription Details</h4>
-                        <hr>
-                        <input type="hidden" class="form-control" name="subscriptionPlanID" id="subscriptionPlanID" value="<?=base64_encode($subscriptionPlanID)?>"/>
-                        <input type="hidden" class="form-control" name="endDate" id="endDate"  min="<?= date('Y-m-d'); ?>"/>
-                        <div class="form-group row">
-                            <label for="startDate" class="col-sm-3 col-form-label">Start Date: <span class="required">*</span></label>
-                            <div class="col-sm-9">
-                                <input type="date" class="form-control" name="startDate" id="startDate"  min="<?= date('Y-m-d'); ?>"/>
-                                <div class="invalid-feedback"></div>
-                            </div>
+                    <div class="row">
+                        <div class="table-responsive col-md-6">
+                            <table class="table text-start table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <td>1.png  <b>Job Nexus</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            4, JALAN DA 1/1, <br>
+                                            TAMAN DANAU ATAS,<br>
+                                            63100 BATU PAQI, <br>
+                                            SELANGOR <br>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            E-mail: example@company.com <br>
+                                            Phone : 123-4560000
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="form-group row">
-                            <label for="autoRenewal" class="col-sm-3 col-form-label">Auto Renewal: </label>
-                            <div class="col-sm-9">
-                                <div class="form-control form-check form-switch border-0">
-                                    <input class="form-check-input" type="checkbox" id="chkAutoRenewal" name="chkAutoRenewal" value="">
-                                </div>
-                                <div class="invalid-feedback"></div>
-                            </div>
+                        <div class="table-responsive col-md-6">
+                            <table class="table text-end table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <b>Invoice Info</b> <br>
+                                            <?=$data['saleID']?>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <b>To:</b> <br>
+                                            <?=$data['companyName']?>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <?=$data['address']?>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Phone : <?=$data['phoneNumber']?>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                    </form>
+                    </div>
 
                     <hr class="pb-3">
                     <table class="table table-bordered">
@@ -100,7 +134,7 @@
                                         <?php if($data['maxFeatureJobListing']>=1){ ?>
                                             <li>Total <?=$data['maxFeatureJobListing']?> modifiable feature job listing</li>
                                         <?php } ?>
-                                        <li id="validDateRange">Valid From dd/mm/yyyy To dd/mm/yyyy.</li>
+                                        <li id="validDateRange">Valid From <?=date('d/m/Y', strtotime($data['startDate']))?> To <?=date('d/m/Y', strtotime($data['endDate']))?></li>
                                     </ul>
                                 </td>
                                 <td class="align-middle text-center">
@@ -123,8 +157,7 @@
                     </table>
                     <div class="row">
                         <div class="col-12">
-                            <button type="button" onclick ="submitConfirmation()" class="btn btn-primary float-end">Pay</button>
-                            <button type="button" onclick ="backConfirmation()" class="btn btn-danger float-start">Back</button>
+                            <button type="button" onclick ="submitConfirmation()" class="btn btn-primary w-100">Print</button>
                         </div>
                     </div>
                 </div>
@@ -154,10 +187,7 @@
 
                 var formattedStartDate = convertDateFormat(oriStartDate);
                 var formattedEndDate = convertDateFormat(oriEndDate);
-
                 $("#validDateRange").text('Valid From '+formattedStartDate+' To '+formattedEndDate);
-                var endDate = formattedEndDate.split("/").reverse().join("-");
-                $("#endDate").val(endDate);
             }else{
                 $("#validDateRange").text('Valid From dd/mm/yyyy To dd/mm/yyyy.');
             }
@@ -181,7 +211,7 @@
                 cancelButtonText: "Stay",
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "subscription_plan.php"
+                    window.location.href = "subscription_index.php"
                 }
                 
             });
@@ -196,75 +226,40 @@
                 cancelButtonText: 'Cancel',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    submitValidate();
+                    updateRecord();
                 }
             });
         }
 
-        function submitValidate(){
-            $('.is-invalid').removeClass('is-invalid');
+        function updateRecord() {
             $.ajax({
                 type: "post",
                 url: url,
                 contentType:"application/x-www-form-urlencoded",
                 data: {
-                    mode: "check_validation",
-                    startDate: $("#startDate").val()
-                }, success: function (response) {
-                    const data = response;
-                    if (data.status==false) {
-                        for(let i=0;i<data.data.length;i++){
-                            let eachData = data.data[i];
-                            var el = $('[name="' + eachData['inputName'] + '"]');
-                            el.addClass("is-invalid");
-                            el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
-                        }
-                    } else {
-                        createRecord();
-                    }
-                }, failure: function (xhr) {
-                    console.log(xhr.status);
-                }
-            })
-        }
-
-        function createRecord() {
-            $.ajax({
-                type: "post",
-                url: url,
-                contentType:"application/x-www-form-urlencoded",
-                data: {
-                    mode: "create",
-                    subscriptionPlanID: $("#subscriptionPlanID").val(),
-                    startDate : $("#startDate").val(),
-                    endDate: $("#endDate").val(),
-                    subtotalAmount: <?=$data['price']?>,
-                    sstAmount: <?=$data['price']*0.1?>,
-                    totalAmount: <?=$data['price']*1.1?>,
+                    mode: "update",
+                    subscriptionID: $("#subscriptionID").val(),
                     autoRenewal: ($("#chkAutoRenewal").is(':checked') ? 1 : 0)
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
                         Swal.fire({
                             title: 'Success!',
-                            text: 'Record successfully created! ',
+                            text: 'Record successfully updated! ',
                             icon: 'success',
                             confirmButtonText: 'Cool'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = "subscription_sales_invoice.php?id="+encodeURI(btoa(data.subscriptionID));
+                                window.location.href = "subscription_index.php"
                             }
                         });
-                        
                     } else {
-                
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);
                 }
             })
         }
-
 
     </script>
 </html>

@@ -45,7 +45,7 @@
                             <h3>Subscription</h3>
                         </div>
                         <div class="col">
-                            <a href="subscription_add.php">
+                            <a href="subscription_plan.php">
                                 <button type="button" class="btn btn-primary btn-round">
                                     <span class="text hidden-md-down">Subscribe</span>
                                 </button>
@@ -233,27 +233,27 @@
         }
 
         function export_to_excel(){
-            var jobCategoryID= $("#jobCategory").val();
-            var jobTitle= $("#jobTitle").val();
-            var locationState = $("#locationState").val();
-            var employmentType = $("#employmentType").val();
-            var salary = $("#salary").val();
-            var isPublish = $("#isPublish").val();
+            var subscriptionPlanID= $("#subscriptionPlan").val();
+            var startDateFrom= $("#startDateFrom").val();
+            var startDateTo = $("#startDateTo").val();
+            var autoRenewal = ($("#autoRenewal").val()==""?2:$("#autoRenewal").val());
+            var endDateFrom= $("#endDateFrom").val();
+            var endDateTo = $("#endDateTo").val();
 
             $.ajax({
                 type: "post",
-                url: "job_post_export.php",
+                url: "subscription_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
-                    jobCategoryID: jobCategoryID,
-                    jobTitle: jobTitle,
-                    locationState: locationState,
-                    employmentType: employmentType,
-                    salary: salary,
-                    isPublish: isPublish
+                    subscriptionPlanID: subscriptionPlanID,
+                    startDateFrom: startDateFrom,
+                    startDateTo: startDateTo,
+                    autoRenewal: autoRenewal,
+                    endDateFrom: endDateFrom,
+                    endDateTo: endDateTo
                 },success: function(dataResult){
-                    window.open('job_post_export.php?jobCategoryID='+jobCategoryID+'&jobTitle='+jobTitle+'&locationState='+locationState
-                    +'&employmentType='+employmentType+'&salary='+salary+'&isPublish='+isPublish);
+                    window.open('subscription_export.php?subscriptionPlanID='+subscriptionPlanID+'&startDateFrom='+startDateFrom+'&startDateTo='+startDateTo
+                    +'&autoRenewal='+autoRenewal+'&endDateFrom='+endDateFrom+'&endDateTo='+endDateTo);
                 }, failure: function(xhr){
                     console.log(xhr);
                 }

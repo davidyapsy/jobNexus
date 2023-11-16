@@ -40,9 +40,13 @@
             .panel-body{
                 height: 80%;
             }
-            .bi-check2-circle{
+            .bi-check-circle-fill{
                 color: #D1BAFF;
             }
+            table{
+                font-size:20px;
+            }
+
         </style>
     </head>
 
@@ -60,16 +64,38 @@
                     </div>
                 </div>
                 <div class="panel-body">
-                    <div class="row g-3 h-100">
+                    <div class="row g-4 h-100">
                         <?php while(($row = $result->fetch_assoc())==TRUE){ ?>
-                            <div class="col-4" onclick="location.href='subscription_order_summary.php?id=<?=base64_encode($row['subscriptionPlanID'])?>';">
-                                <div class="subscriptionPlanBox p-2 h-100 rounded bg-white text-center">        
+                            <div class="col-4">
+                                <div class="subscriptionPlanBox p-2 h-100 rounded bg-white text-center" onclick="location.href='subscription_order_summary.php?id=<?=base64_encode($row['subscriptionPlanID'])?>';">        
                                     <label class="p-1"><?= $row['planName']?></label><br/>
                                     <h2 class="pb-2">RM <?= number_format($row['price'])?></h2>
                                     <label class="p-1"></i><?= $row['description']?></label><br/><br/>
-                                    <label class="p-1"><i class="bi bi-check2-circle"></i> Flexible to post, report & edit <?= $row['maxJobPosting']?> jobs for <?= $row['validityPeriod']?></label><br/>
-                                    <label class="p-1"><i class="bi bi-check2-circle"></i> Flexible to manage <?= $row['maxJobApplication']?> applications</label><br/>
-                                    <label class="p-1"><i class="bi bi-check2-circle"></i> Job application ranking availability</label><br/>
+                                    <table class="table table-borderless w-100 text-center align-middle">
+                                        <tbody>
+                                            <tr>
+                                                <td><i class="bi bi-check-circle-fill"></td>
+                                                <td>Flexible to post, report & edit <?= $row['maxJobPosting']?> jobs for <?= $row['validityPeriod']?></td>
+                                            </tr>
+                                            <tr>
+                                                <td><i class="bi bi-check-circle-fill"></td>
+                                                <td>Flexible to manage <?= $row['maxJobApplication']?> applications for each job</td>
+                                            </tr>
+                                            <?php if($row['applicationRankingAvailability']==1){ ?>
+                                                <tr>
+                                                    <td><i class="bi bi-check-circle-fill"></td>
+                                                    <td>Job application ranking availability</td>
+                                                </tr>
+                                            <?php } ?>
+                                            <?php if($row['maxFeatureJobListing']>=1){ ?>
+                                                <tr>
+                                                    <td><i class="bi bi-check-circle-fill"></td>
+                                                    <td>Total <?=$row['maxFeatureJobListing']?> modifiable feature job listing</td>
+                                                </tr>
+                                            <?php } ?>
+
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         <?php } ?>

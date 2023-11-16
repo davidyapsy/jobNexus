@@ -322,16 +322,21 @@ class SubscriptionOop
         $startDateTo = filter_input(INPUT_POST, "startDateTo", FILTER_SANITIZE_STRING);
         $endDateFrom = filter_input(INPUT_POST, "endDateFrom", FILTER_SANITIZE_STRING);
         $endDateTo = filter_input(INPUT_POST, "endDateTo", FILTER_SANITIZE_STRING);
+        $subtotalAmount = filter_input(INPUT_POST, "subtotalAmount", FILTER_SANITIZE_STRING);
 
         $page = filter_input(INPUT_POST, "page", FILTER_SANITIZE_NUMBER_INT);
 
         if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "create"){
-
+            $this->model->setEmployerID($employerID);
+            $this->model->setSubscriptionPlanID($subscriptionPlanID);
+            $this->model->setStartDate($startDate);
+            $this->model->setEndDate($endDate);
+            $this->model->setAutoRenewal($autoRenewal);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
             $this->model->setSubscriptionID($subscriptionID);
             $this->model->setAutoRenewal($autoRenewal);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
-
+            $this->model->setStartDate($startDate);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
             $this->setPage($page);
             $this->model->setSubscriptionPlanID($subscriptionPlanID);
@@ -352,63 +357,101 @@ class SubscriptionOop
         $this->connection->autocommit(false);
 
         $employerID = $this->model->getEmployerID();
-        $jobCategoryID = $this->model->getJobCategoryID();
-        $jobTitle = $this->model->getJobTitle();
-        $jobDescription = $this->model->getJobDescription();
-        $jobRequirement = $this->model->getJobRequirement();
-        $jobHighlight= $this->model->getJobHighlight();
-        $experienceLevel= $this->model->getExperienceLevel();
-        $locationState = $this->model->getLocationState();
-        $salary = $this->model->getSalary();
-        $employmentType = $this->model->getEmploymentType();
-        $applicationDeadline= $this->model->getApplicationDeadline();
-        $isPublish= $this->model->getIsPublish();
-        $publishDate= $this->model->getPublishDate();
-        $isDeleted = 0;
+        $subscriptionPlanID = $this->model->getSubscriptionPlanID();
+        $startDate = $this->model->getStartDate();
+        $endDate = $this->model->getEndDate();
+        $autoRenewal = $this->model->getAutoRenewal();
 
-        //assign new job posting id
-        $year = "00";
-        $month= "00";
-        $day  = "00";
-        if($publishDate!=""){
-            $year=substr($publishDate, 2,2);
-            $month=substr($publishDate, 5,2);
-            $day = substr($publishDate, 8,2);
-        }
-        $tempID = "JP".$year.$month.$day;
-        $currentID = $tempID."0000";
+        $tempSubscriptionID = "SB".date('y', strtotime($startDate)).date('y', strtotime($endDate));
 
         //get number of records
         $total_data=0;
-        $stat = $this->connection->query("SELECT count(*) as totalRecord
-                                                FROM job_posting
-                                                WHERE employerID='$employerID'");
-        while (($row = $stat->fetch_assoc()) == TRUE) {
+        $subscriptionStat = $this->connection->query("SELECT count(*) as totalRecord
+                                                FROM subscription
+                                                WHERE YEAR(startDate) = '".date('Y', strtotime($startDate))."'");
+        while (($row = $subscriptionStat->fetch_assoc()) == TRUE) {
             $total_data = $row['totalRecord'];
         }
-
-        //employerID
+        
+        //new subscriptionID
+        $subscriptionID=$tempSubscriptionID."00000";
         if($total_data > 0){
-            $result = $this->connection->query("SELECT jobPostingID
-                                                FROM job_posting
-                                                WHERE employerID='$employerID'
-                                                ORDER BY jobPostingID ASC");
+            $result = $this->connection->query("SELECT subscriptionID
+                                                FROM subscription
+                                                ORDER BY subscriptionID ASC");
             while (($row = $result->fetch_assoc()) == TRUE) {
-                if(substr($row['jobPostingID'], 0, 8)==$tempID){
-                    $currentID = $row['jobPostingID'];
+                if(substr($row['subscriptionID'], 0, 6)==$tempSubscriptionID){
+                    $subscriptionID = $row['subscriptionID'];
                 }
             }
+            $newNumber = (int)(substr($subscriptionID, 8)) + 1;
+            $newNumber = sprintf('%05d', $newNumber);
+            $subscriptionID = $tempSubscriptionID.$newNumber;
         }
 
-        $newNumber = (int)(substr($currentID, 8)) + 1;
-        $newNumber = sprintf('%04d', $newNumber);
-        $newID = $tempID.$newNumber;
+        //payment
+        $tempPaymentID = "P".date('y').date('m').date('d');
+
+        $total_data=0;
+        $paymentStat = $this->connection->query("SELECT count(*) as totalRecord
+                                                FROM payment
+                                                WHERE paymentID LIKE '$tempPaymentID%'");
+        while (($row = $paymentStat->fetch_assoc()) == TRUE) {
+            $total_data = $row['totalRecord'];
+        }
+        
+        //new paymentID
+        $paymentID=$tempPaymentID."000";
+        if($total_data > 0){
+            $result = $this->connection->query("SELECT paymentID
+                                                FROM payment
+                                                ORDER BY paymentID ASC");
+            while (($row = $result->fetch_assoc()) == TRUE) {
+                if(substr($row['paymentID'], 0, 7)==$tempPaymentID){
+                    $paymentID = $row['paymentID'];
+                }
+            }
+            $newNumber = (int)(substr($paymentID, 7)) + 1;
+            $newNumber = sprintf('%03d', $newNumber);
+            $paymentID = $tempPaymentID.$newNumber;
+        }
+
+        $paymentMethod = "PayPal";
+        $amount = 52.49;
+        $paymentStatus = "Completed";
+        $paymentDateTime = date("Y-m-d H:i:s");
+
+        //sales
+        $saleID=str_replace('P', 'S', $paymentID);
+        $salesDateTime = date("Y-m-d H:i:s");
+        $subtotalAmount = 49.99;
+        $taxAmount = 2.5;
+        $totalAmount = 52.49;
 
         //insert into db
-        if (strlen($jobCategoryID) > 0 &&  strlen($jobTitle) > 0 &&  strlen($jobDescription) > 0 &&  strlen($jobRequirement) > 0 &&  strlen($locationState) > 0 &&  strlen($employmentType) > 0) {
-            $statement = $this->connection->prepare("INSERT INTO job_posting VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $statement->bind_param("sssssssssdssssi", $employerID, $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, 
-                                                        $salary, $employmentType, $applicationDeadline, $isPublish, $publishDate, $isDeleted);
+        if (strlen($paymentID) > 0 &&  strlen($saleID) > 0 &&  strlen($subscriptionID) > 0 &&  strlen($startDate) > 0) {
+            $statement = $this->connection->prepare("INSERT INTO payment VALUES (?, ?, ?, ?, ?)");
+            $statement->bind_param("ssdss", $paymentID, $paymentMethod, $amount, $paymentStatus, $paymentDateTime);
+            
+            try {
+                $statement->execute();
+            } catch (Exception $exception) {
+                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
+            }
+            $this->connection->commit();
+
+            $statement = $this->connection->prepare("INSERT INTO sales VALUES(?, ?, ?, ?, ?, ?)");
+            $statement->bind_param("sssddd", $saleID, $paymentID, $salesDateTime, $subtotalAmount, $taxAmount, $totalAmount);
+            
+            try {
+                $statement->execute();
+            } catch (Exception $exception) {
+                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
+            }
+            $this->connection->commit();
+
+            $statement = $this->connection->prepare("INSERT INTO subscription VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $statement->bind_param("ssssssi", $subscriptionID, $saleID, $subscriptionPlanID, $employerID, $startDate, $endDate, $autoRenewal);
             
             try {
                 $statement->execute();
@@ -421,6 +464,7 @@ class SubscriptionOop
                 [
                     "status" => true,
                     "code" => ReturnCode::CREATE_SUCCESS,
+                    "subscriptionID" => $subscriptionID,
                 ]
             );
 
@@ -476,6 +520,7 @@ class SubscriptionOop
             $filter_options.=" AND A.autoRenewal = '$autoRenewal'";
         }
         $sql.=$filter_options;
+
 
         $total_data=0;
         $statement = $this->connection->query("SELECT count(*) as totalRecord
@@ -692,50 +737,13 @@ class SubscriptionOop
         $datas[]['inputName']="";
         $datas[]['errorMessage']="";
 
-        $jobCategoryID = $this->model->getJobCategoryID();
-        $jobTitle = $this->model->getJobTitle();
-        $jobDescription = $this->model->getJobDescription();
-        $jobRequirement = $this->model->getJobRequirement();
-        $locationState = $this->model->getLocationState();
-        $employmentType = $this->model->getEmploymentType();
-        $isPublish = $this->model->getIsPublish();
-        $applicationDeadline = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getApplicationDeadline())));
+        $startDate = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getStartDate())));
         $i=0;
         
         //null checking
-        if($jobCategoryID==""){
-            $datas[$i]['inputName']="jobCategory";
-            $datas[$i]['errorMessage']="Job Category is required";
-            $i++;
-        }
-        if($jobTitle==""){
-            $datas[$i]['inputName']="jobTitle";
-            $datas[$i]['errorMessage']="Job Title is required";
-            $i++;
-        }
-        if($jobDescription==""){
-            $datas[$i]['inputName']="jobDescription";
-            $datas[$i]['errorMessage']="Job Description is required";
-            $i++;
-        }
-        if($jobRequirement==""){
-            $datas[$i]['inputName']="jobRequirement";
-            $datas[$i]['errorMessage']="Job Requirement is required";
-            $i++;
-        }
-        if($locationState==""){
-            $datas[$i]['inputName']="locationState";
-            $datas[$i]['errorMessage']="State is required";
-            $i++;
-        }
-        if($employmentType==""){
-            $datas[$i]['inputName']="employmentType";
-            $datas[$i]['errorMessage']="Employment Type is required";
-            $i++;
-        }
-        if($isPublish == "Published" && $applicationDeadline < date("Y-m-d")){
-            $datas[$i]['inputName']="applicationDeadline";
-            $datas[$i]['errorMessage']="Application Deadline must be larger than today's date";
+        if($startDate == "1970-01-01"){
+            $datas[$i]['inputName']="startDate";
+            $datas[$i]['errorMessage']="Please select a start date";
             $i++;
         }
 
