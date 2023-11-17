@@ -103,9 +103,10 @@
                 </div>
 
             </div>
-            <?php require('../../admin/footer.php') ?>
 
         </div>
+        <?php require('../../admin/footer.php') ?>
+
     </body>
 
     <script>

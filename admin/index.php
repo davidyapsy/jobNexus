@@ -25,6 +25,7 @@
                 position: absolute;
                 font-size:70px;
             }
+            
         </style>
     </head>
 
@@ -39,9 +40,8 @@
                 </h1>
             </div>
             
-            <?php include('footer.php') ?>
-
         </div>
+        <?php include('footer.php') ?>
 
 
     </body>

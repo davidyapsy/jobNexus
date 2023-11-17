@@ -57,28 +57,37 @@
                         <?php while(($row = $result->fetch_assoc())==TRUE){ ?>
                             <div class="col-4" >
                                 <div class="jobPostingBox p-2 border bg-light rounded shadow" onclick="location.href='job_application_index.php?id=<?=base64_encode($row['jobPostingID'])?>';">
-                                    <h2 class="pb-2"><?= $row['jobTitle']?></h2>
-                                    <label class="p-1"><b>Job Category: </b><?= $row['categoryName']?></label><br/>
-                                    <label class="p-1"><b>Employment Type: </b><?= $row['employmentType']?></label><br/>
-                                    <label class="p-1"><b>State: </b><?= $row['locationState']?></label><br/>
-                                    <h4 class="px-2 pt-2 text-end text-success"><?= $row['isPublish']?></h4>
+                                    <table class="table table-borderless">
+                                        <thead class="text-start">
+                                            <tr>
+                                                <th><h2><?= $row['jobTitle']?></h2></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-start">
+                                            <tr>
+                                                <td><b>Job Category: </b><?= $row['categoryName']?></td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Employment Type: </b><?= $row['employmentType']?></td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>State: </b><?= $row['locationState']?></td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot class="text-end">
+                                            <tr>
+                                                <td><h4 class="<?= $row['isPublish']=="Published"?"text-success":"text-secondary"?>"><?= $row['isPublish']?></h4></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>    
                                 </div>
                             </div>
                         <?php } ?>
-                        
-                        <div class="col-4">
-                            <div class="p-2 border bg-light">Custom column padding</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="p-2 border bg-light">Custom column padding</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="p-2 border bg-light">Custom column padding</div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <?php include('../footer.php') ?>
         
     </body>
 

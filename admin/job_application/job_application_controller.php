@@ -224,12 +224,23 @@ class JobApplicationOop
     private JobApplicationModel $model;
     private mysqli $connection;
 
+    private $employerID;
     private $jobSeekerName;
-    private $emailAddress;
+    private $address;
     private $workingExperience;
-    private $replies;
-    private $availableDateFrom;
+    private $skills;
     private $page;
+
+    public function getEmployerID(): String
+    {
+        return $this->employerID;
+    }
+
+    public function setEmployerID($employerID=""): JobApplicationOop
+    {
+        $this->employerID = $employerID;
+        return $this;
+    }
 
     public function getJobSeekerName(): String
     {
@@ -242,14 +253,14 @@ class JobApplicationOop
         return $this;
     }
 
-    public function getEmailAddress(): String
+    public function getAddress(): String
     {
-        return $this->emailAddress;
+        return $this->address;
     }
 
-    public function setEmailAddress($emailAddress=""): JobApplicationOop
+    public function setAddress($address=""): JobApplicationOop
     {
-        $this->emailAddress = $emailAddress;
+        $this->address = $address;
         return $this;
     }
 
@@ -264,36 +275,14 @@ class JobApplicationOop
         return $this;
     }
 
-    public function getReplies(): String
+    public function getSkills(): String
     {
-        return $this->replies;
+        return $this->skills;
     }
 
-    public function setReplies($replies=""): JobApplicationOop
+    public function setSkills($skills=""): JobApplicationOop
     {
-        $this->replies = $replies;
-        return $this;
-    }
-
-    public function getAvailableDateFrom(): String
-    {
-        return $this->availableDateFrom;
-    }
-
-    public function setAvailableDateFrom($availableDateFrom=""): JobApplicationOop
-    {
-        $this->availableDateFrom = $availableDateFrom;
-        return $this;
-    }
-
-    public function getAvailableDateTo(): String
-    {
-        return $this->availableDateTo;
-    }
-
-    public function setAvailableDateTo($availableDateTo=""): JobApplicationOop
-    {
-        $this->availableDateTo = $availableDateTo;
+        $this->skills = $skills;
         return $this;
     }
 
@@ -368,12 +357,9 @@ class JobApplicationOop
         $page = filter_input(INPUT_POST, "page", FILTER_SANITIZE_NUMBER_INT);
 
         $jobSeekerName = filter_input(INPUT_POST, "jobSeekerName", FILTER_SANITIZE_STRING);
-        $emailAddress = filter_input(INPUT_POST, "emailAddress", FILTER_SANITIZE_STRING);
+        $address = filter_input(INPUT_POST, "address", FILTER_SANITIZE_STRING);
         $workingExperience = filter_input(INPUT_POST, "workingExperience", FILTER_SANITIZE_NUMBER_INT);
-        $replies = filter_input(INPUT_POST, "replies", FILTER_SANITIZE_STRING);
-        $availableDateFrom = filter_input(INPUT_POST, "availableDateFrom", FILTER_SANITIZE_STRING);
-        $availableDateTo = filter_input(INPUT_POST, "availableDateTo", FILTER_SANITIZE_STRING);
-        
+        $skills = filter_input(INPUT_POST, "skills", FILTER_SANITIZE_STRING);
 
         if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
             $this->model->setApplicationID($applicationID);
@@ -381,13 +367,14 @@ class JobApplicationOop
             $this->model->setReplies($replies);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
             $this->setPage($page);
+            $this->setEmployerID($employerID);
             $this->model->setJobPostingID($jobPostingID);
             $this->setJobSeekerName($jobSeekerName);
-            $this->setEmailAddress($emailAddress);
+            $this->setAddress($address);
             $this->setWorkingExperience($workingExperience);
+            $this->setSkills($skills);
+            $this->model->setSalaryExpectation($salaryExpectation);
             $this->model->setStatus($status);
-            $this->setAvailableDateFrom($availableDateFrom);
-            $this->setAvailableDateTo($availableDateTo);
         }       
     }
 
@@ -415,42 +402,89 @@ class JobApplicationOop
         }
 
         // you don't need to commit work here ya !
+        $employerID = $this->getEmployerID();
         $jobPostingID = $this->model->getJobPostingID();
         $jobSeekerName = $this->getJobSeekerName();
-        $emailAddress = $this->getEmailAddress();
+        $address = $this->getAddress();
         $workingExperience = $this->getWorkingExperience();
+        $skills = $this->getSkills();
+        $salaryExpectation = $this->model->getSalaryExpectation();
         $status = $this->model->getStatus();
-        $availableDateFrom = $this->getAvailableDateFrom();
-        $availableDateTo = $this->getAvailableDateTo();
 
-        $sql = "SELECT A.applicationID, CONCAT(B.firstName,' ',B.lastName) AS jobSeekerName, B.emailAddress, B.working_experience, A.availableDate, A.status, C.jobPostingID
+        // // salarySQL
+        // $salarySQL = "SELECT salaryExpectation
+        // FROM job_application A
+        // JOIN job_posting B ON A.jobPostingID = B.jobPostingID
+        // WHERE B.jobPostingID = '$jobPostingID' AND employerID = '$employerID'
+        // ORDER BY salaryExpectation";
+        // $salaryData =[];
+        // $statement = $this->connection->query($salarySQL);
+        // while (($row = $statement->fetch_assoc()) == TRUE) {
+        //     $salaryData = $row['salaryExpectation'];
+        // }
+
+        // // jobSeekerSQL
+        // $jobSeekerSQL = "SELECT B.applicationID, working_experience, field_of_study, skills, education_level, address
+        // FROM job_seeker A
+        // JOIN job_application B ON A.jobSeekerID = B.jobSeekerID
+        // JOIN job_posting C ON B.jobPostingID = C.jobPostingID
+        // WHERE C.jobPostingID = '$jobPostingID' AND C.employerID = '$employerID'";
+        // $jobSeekerData =[];
+        // $statement = $this->connection->query($jobSeekerSQL);
+        // while (($row = $statement->fetch_assoc()) == TRUE) {
+        //     $jobSeekerData = $row;
+        // }
+
+        // // jobPostingSQL
+        // $jobPostingSQL = "SELECT salary, experienceLevel, jobRequirement
+        // FROM job_posting
+        // WHERE jobPostingID = '$jobPostingID' AND employerID = '$employerID'";
+        // $jobPostingData =[];
+        // $statement = $this->connection->query($jobPostingSQL);
+        // while (($row = $statement->fetch_assoc()) == TRUE) {
+        //     $jobPostingData = $row;
+        // }
+
+        // // employerSQL
+        // $employerSQL = "SELECT postcode, city, state 
+        // FROM employer A
+        // JOIN job_posting B ON A.employerID = B.employerID 
+        // WHERE B.jobPostingID = '$jobPostingID' AND B.employerID = '$employerID'";
+        // $employerData =[];
+        // $statement = $this->connection->query($employerSQL);
+        // while (($row = $statement->fetch_assoc()) == TRUE) {
+        //     $employerData = $row;
+        // }
+
+
+        //table data
+        $sql = "SELECT A.applicationID, CONCAT(B.firstName,' ',B.lastName) AS jobSeekerName, B.address, B.working_experience, B.skills, A.salaryExpectation, A.status, C.jobPostingID
         FROM job_application A 
         JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
         JOIN job_posting C ON A.jobPostingID = C.jobPostingID
-        JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
-        WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = 'E2300000'";
+        WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = '$employerID'";
 
         $filter_option = "";
         if($jobSeekerName!=""){
             $filter_option.=" AND CONCAT(B.firstName,' ',B.lastName) LIKE '%$jobSeekerName%'";
         }
-        if($emailAddress!=""){
-            $filter_option.=" AND B.emailAddress LIKE '%$emailAddress%'";
+        if($address!=""){
+            $filter_option.=" AND B.address LIKE '%$address%'";
         }
-        if($workingExperience!=""){
+        if($workingExperience!=0){
             $filter_option.=" AND B.working_experience >= $workingExperience";
+        }
+        if($skills!=""){
+            $filter_option.=" AND B.skills LIKE '%$skills%'";
+        }
+        if($salaryExpectation!=""){
+            $filter_option.=" AND A.salaryExpectation >= $salaryExpectation";
         }
         if($status!=""){
             $filter_option.=" AND A.status = '$status'";
         }
-        if($availableDateFrom!=""){
-            $filter_option.=" AND A.availableDate >= '$availableDateFrom'";
-        }
-        if($availableDateTo!=""){
-            $filter_option.=" AND A.availableDate <= '$availableDateTo'";
-        }
         //ranking (order by working_experience, education level, field of study, skills, salaryexpectation)
-        $filter_option.=" ORDER BY C.publishDate";
+        $filter_option.=" ORDER BY B.working_experience";
 
         $sql.=$filter_option;
 
@@ -474,6 +508,7 @@ class JobApplicationOop
                 $data[] = $row;
             }
 
+        //pagination
         $pagination_html = '
         <div align="center">
             <ul class="pagination justify-content-center">

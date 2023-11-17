@@ -63,7 +63,7 @@
                         <div class="form-group row">
                             <label for="startDate" class="col-sm-3 col-form-label">Start Date: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <input type="date" class="form-control" name="startDate" id="startDate"  min="<?= date('Y-m-d'); ?>"/>
+                                <input type="date" class="form-control" name="startDate" id="startDate" min="<?= date('Y-m-d'); ?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -257,7 +257,12 @@
                         });
                         
                     } else {
-                
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Please contact technical staff! ',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        })
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);

@@ -104,10 +104,14 @@ class EmployerModel
     private String $emailAddress;
     private String $password;
     private String $phoneNumber;
-    private String $address;
+    private String $addressLineOne;
+    private String $addressLineTwo;
+    private String $addressLineThree;
+    private int $postcode;
+    private String $city;
+    private String $state;
     private String $numberOfEmployees;
     private String $industry;
-    private String $state;
     private String $aboutUs;
     private String $logo;
     private String $backgroundPicture;
@@ -184,14 +188,69 @@ class EmployerModel
         return $this;
     }
 
-    public function getAddress(): String
+    public function getAddressLineOne(): String
     {
-        return $this->address;
+        return $this->addressLineOne;
     }
 
-    public function setAddress(String $address): EmployerModel
+    public function setAddressLineOne(String $addressLineOne): EmployerModel
     {
-        $this->address = $address;
+        $this->addressLineOne = $addressLineOne;
+        return $this;
+    }
+
+    public function getAddressLineTwo(): String
+    {
+        return $this->addressLineTwo;
+    }
+
+    public function setAddressLineTwo(String $addressLineTwo): EmployerModel
+    {
+        $this->addressLineTwo = $addressLineTwo;
+        return $this;
+    }
+
+    public function getAddressLineThree(): String
+    {
+        return $this->addressLineThree;
+    }
+
+    public function setAddressLineThree(String $addressLineThree): EmployerModel
+    {
+        $this->addressLineThree = $addressLineThree;
+        return $this;
+    }
+
+    public function getPostcode(): int
+    {
+        return $this->postcode;
+    }
+
+    public function setPostcode(int $postcode): EmployerModel
+    {
+        $this->postcode = $postcode;
+        return $this;
+    }
+
+    public function getCity(): String
+    {
+        return $this->city;
+    }
+
+    public function setCity(String $city): EmployerModel
+    {
+        $this->city = $city;
+        return $this;
+    }
+
+    public function getState(): String
+    {
+        return $this->state;
+    }
+
+    public function setState(String $state): EmployerModel
+    {
+        $this->state = $state;
         return $this;
     }
 
@@ -214,17 +273,6 @@ class EmployerModel
     public function setIndustry(String $industry): EmployerModel
     {
         $this->industry = $industry;
-        return $this;
-    }
-
-    public function getState(): String
-    {
-        return $this->state;
-    }
-
-    public function setState(String $state): EmployerModel
-    {
-        $this->state = $state;
         return $this;
     }
 
@@ -426,10 +474,14 @@ class EmployerOop
         $emailAddress = filter_input(INPUT_POST, "emailAddress", FILTER_SANITIZE_EMAIL);
         $password = filter_input(INPUT_POST, "password", FILTER_SANITIZE_STRING);
         $phoneNumber = filter_input(INPUT_POST, "phoneNumber", FILTER_SANITIZE_STRING);
-        $address = filter_input(INPUT_POST, "address", FILTER_SANITIZE_STRING);
+        $addressLineOne = filter_input(INPUT_POST, "addressLineOne", FILTER_SANITIZE_STRING);
+        $addressLineTwo = filter_input(INPUT_POST, "addressLineTwo", FILTER_SANITIZE_STRING);
+        $addressLineThree = filter_input(INPUT_POST, "addressLineThree", FILTER_SANITIZE_STRING);
+        $postcode = filter_input(INPUT_POST, "postcode", FILTER_SANITIZE_NUMBER_INT);
+        $city = filter_input(INPUT_POST, "city", FILTER_SANITIZE_STRING);
+        $state = filter_input(INPUT_POST, "state", FILTER_SANITIZE_STRING);
         $numberOfEmployees = filter_input(INPUT_POST, "numberOfEmployees", FILTER_SANITIZE_STRING);
         $industry = filter_input(INPUT_POST, "industry", FILTER_SANITIZE_STRING);
-        $state = filter_input(INPUT_POST, "state", FILTER_SANITIZE_STRING);
         $aboutUs = filter_input(INPUT_POST, "aboutUs");
         $logo = filter_input(INPUT_POST, "logo", FILTER_SANITIZE_STRING);
         $backgroundPicture = filter_input(INPUT_POST, "backgroundPicture", FILTER_SANITIZE_STRING);
@@ -449,10 +501,14 @@ class EmployerOop
         $this->model->setEmailAddress($emailAddress);
         $this->model->setPassword($password);
         $this->model->setPhoneNumber($phoneNumber);
-        $this->model->setAddress($address);
+        $this->model->setAddressLineOne($addressLineOne);
+        $this->model->setAddressLineTwo($addressLineTwo);
+        $this->model->setAddressLineThree($addressLineThree);
+        $this->model->setPostcode($postcode);
+        $this->model->setCity($city);
+        $this->model->setState($state);
         $this->model->setNumberOfEmployees($numberOfEmployees);
         $this->model->setIndustry($industry);
-        $this->model->setState($state);
         $this->model->setAboutUs($aboutUs);
         $this->model->setLogo($logo);
         $this->model->setBackgroundPicture($backgroundPicture);
@@ -478,10 +534,14 @@ class EmployerOop
         $emailAddress = $this->model->getEmailAddress();
         $password = $this->model->getPassword();
         $phoneNumber = $this->model->getPhoneNumber();
-        $address = $this->model->getAddress();
+        $addressLineOne = $this->model->getAddressLineOne();
+        $addressLineTwo = $this->model->getAddressLineTwo();
+        $addressLineThree = $this->model->getAddressLineThree();
+        $postcode = $this->model->getPostcode();
+        $city = $this->model->getCity();
+        $state = $this->model->getState();
         $numberOfEmployees = $this->model->getNumberOfEmployees();
         $industry = $this->model->getIndustry();
-        $state = $this->model->getState();
         $aboutUs = $this->model->getAboutUs();
         $logo = $this->model->getLogo();
         $backgroundPicture = $this->model->getBackgroundPicture();
@@ -493,23 +553,32 @@ class EmployerOop
         $dateJoined = $this->model->getDateJoined();
 
 
-        // if (strlen($name) > 0 &&  strlen($phoneNumber) > 0 &&  strlen($emailAddress) > 0 &&  strlen($status) > 0 &&  strlen($position) > 0) {
+        if (strlen($companyName) > 0 &&  strlen($contactPersonName) > 0 &&  strlen($emailAddress) > 0 &&  strlen($addressLineOne) > 0 &&  strlen($addressLineTwo) > 0 && strlen($city) > 0 &&  strlen($numberOfEmployees) > 0 &&  strlen($industry) > 0 &&  strlen($state) > 0) {
             if($password!=""){
                 $password = md5($password);
                 $statement = $this->connection->prepare("UPDATE employer 
-                SET companyName = ?, contactPersonName = ?, emailAddress = ?, password = ?, phoneNumber = ?, address = ?, numberOfEmployees = ?, industry = ?, 
-                    state = ?, aboutUs = ?, logo = ?, backgroundPicture = ?, officePictures = ?, facebookUrl = ?, linkedinUrl = ?, whatsappUrl = ?, status = ?, dateJoined = ?
+                SET companyName = ?, contactPersonName = ?, emailAddress = ?, password = ?, phoneNumber = ?, addressLineOne = ?, addressLineTwo = ?, addressLineThree = ?,
+                     postcode = ?, city = ?, state = ?, numberOfEmployees = ?, industry = ?, aboutUs = ?, logo = ?, backgroundPicture = ?, officePictures = ?, facebookUrl = ?, 
+                     linkedinUrl = ?, whatsappUrl = ?, status = ?, dateJoined = ?
                 WHERE employerID = ?");
-                $statement->bind_param("sssssssssssssssssss", $companyName, $contactPersonName, $emailAddress, $password, $phoneNumber, $address, $numberOfEmployees, $industry, $state, 
-                    $aboutUs, $logo, $backgroundPicture, $officePictures, $facebookUrl, $linkedinUrl, $whatsappUrl, $status, $dateJoined, $employerID);
+                $statement->bind_param("ssssssssissssssssssssss", $companyName, $contactPersonName, $emailAddress, $password, $phoneNumber, $addressLineOne, $addressLineTwo, $addressLineThree,
+                    $postcode, $city, $state, $numberOfEmployees, $industry, $aboutUs, $logo, $backgroundPicture, $officePictures, $facebookUrl, 
+                    $linkedinUrl, $whatsappUrl, $status, $dateJoined, $employerID);
             }else{
                 $statement = $this->connection->prepare("UPDATE employer 
-                SET companyName = ?, contactPersonName = ?, emailAddress = ?, phoneNumber = ?, address = ?, numberOfEmployees = ?, industry = ?, 
-                    state = ?, aboutUs = ?, logo = ?, backgroundPicture = ?, officePictures = ?, facebookUrl = ?, linkedinUrl = ?, whatsappUrl = ?, status = ?, dateJoined = ?
+                SET companyName = ?, contactPersonName = ?, emailAddress = ?, phoneNumber = ?, addressLineOne = ?, addressLineTwo = ?, addressLineThree = ?,
+                     postcode = ?, city = ?, state = ?, numberOfEmployees = ?, industry = ?, aboutUs = ?, logo = ?, backgroundPicture = ?, officePictures = ?, facebookUrl = ?, 
+                     linkedinUrl = ?, whatsappUrl = ?, status = ?, dateJoined = ?
                 WHERE employerID = ?");
-                $statement->bind_param("ssssssssssssssssss", $companyName, $contactPersonName, $emailAddress, $phoneNumber, $address, $numberOfEmployees, $industry, $state, 
-                    $aboutUs, $logo, $backgroundPicture, $officePictures, $facebookUrl, $linkedinUrl, $whatsappUrl, $status, $dateJoined, $employerID);
+                $statement->bind_param("sssssssissssssssssssss", $companyName, $contactPersonName, $emailAddress, $phoneNumber, $$addressLineOne, $addressLineTwo, $addressLineThree,
+                    $postcode, $city, $state, $numberOfEmployees, $industry, $aboutUs, $logo, $backgroundPicture, $officePictures, $facebookUrl, 
+                    $linkedinUrl, $whatsappUrl, $status, $dateJoined, $employerID);
             }
+
+            $this->uploadImages("logo");
+            // uploadImages("backgroundPicture");
+            // uploadImages("officePictures");
+
             try {
                 $statement->execute();
             } catch (Exception $exception) {
@@ -524,9 +593,9 @@ class EmployerOop
                 ]
             );
 
-        // } else {
-        //     throw new Exception(ReturnCode::ACCESS_DENIED);
-        // }
+        } else {
+            throw new Exception(ReturnCode::ACCESS_DENIED);
+        }
     }
 
     function check_validation(){
@@ -539,10 +608,13 @@ class EmployerOop
         $password = $this->model->getPassword();
         $confirmPassword = $this->getConfirmPassword();
         $phoneNumber = $this->model->getPhoneNumber();
-        $address = $this->model->getAddress();
+        $addressLineOne = $this->model->getAddressLineOne();
+        $addressLineTwo = $this->model->getAddressLineTwo();
+        $postcode = $this->model->getPostcode();
+        $city = $this->model->getCity();
+        $state = $this->model->getState();
         $numberOfEmployees = $this->model->getNumberOfEmployees();
         $industry = $this->model->getIndustry();
-        $state = $this->model->getState();
         $aboutUs = $this->model->getAboutUs();
         $logo = $this->model->getLogo();
         $backgroundPicture = $this->model->getBackgroundPicture();
@@ -578,10 +650,14 @@ class EmployerOop
             $datas[$i]['errorMessage'] = "Contact Person Name is required";
             $i++;
         }
-    
+
         if ($emailAddress == "") {
             $datas[$i]['inputName'] = "emailAddress";
             $datas[$i]['errorMessage'] = "Email Address is required";
+            $i++;
+        }else if (filter_var($emailAddress, FILTER_VALIDATE_EMAIL)==false) {
+            $datas[$i]['inputName'] = "emailAddress";
+            $datas[$i]['errorMessage'] = "Invalid email address";
             $i++;
         }
         
@@ -605,20 +681,43 @@ class EmployerOop
                 $i++;
             }
         }
-        
+
     
         if ($phoneNumber == "") {
             $datas[$i]['inputName'] = "phoneNumber";
             $datas[$i]['errorMessage'] = "Phone Number is required";
             $i++;
-        }
-    
-        if ($address == "") {
-            $datas[$i]['inputName'] = "address";
-            $datas[$i]['errorMessage'] = "Address is required";
+        }else if(!preg_match('/^[0-9]{9,10}+$/', $phoneNumber) || substr_count($phoneNumber, '-')>1){
+            $datas[$i]['inputName'] = "phoneNumber";
+            $datas[$i]['errorMessage'] = "Invalid phone number";
             $i++;
         }
     
+        if ($addressLineOne == "") {
+            $datas[$i]['inputName'] = "addressLineOne";
+            $datas[$i]['errorMessage'] = "Address Line One is required";
+            $i++;
+        }
+        if ($addressLineTwo == "") {
+            $datas[$i]['inputName'] = "addressLineTwo";
+            $datas[$i]['errorMessage'] = "Address Line Two is required";
+            $i++;
+        }
+        if ($postcode == 0) {
+            $datas[$i]['inputName'] = "postcode";
+            $datas[$i]['errorMessage'] = "Postcode is required";
+            $i++;
+        }
+        if ($city == "") {
+            $datas[$i]['inputName'] = "city";
+            $datas[$i]['errorMessage'] = "City is required";
+            $i++;
+        }
+        if ($state == "") {
+            $datas[$i]['inputName'] = "state";
+            $datas[$i]['errorMessage'] = "State is required";
+            $i++;
+        }
         if ($numberOfEmployees == "") {
             $datas[$i]['inputName'] = "numberOfEmployees";
             $datas[$i]['errorMessage'] = "Number of Employees is required";
@@ -630,21 +729,15 @@ class EmployerOop
             $datas[$i]['errorMessage'] = "Industry is required";
             $i++;
         }
-
-        if ($state == "") {
-            $datas[$i]['inputName'] = "state";
-            $datas[$i]['errorMessage'] = "State is required";
-            $i++;
-        }
         
-        if($logo != ""){
-            $ext = strtolower(pathinfo($logo, PATHINFO_EXTENSION));
-            if ($ext !== 'gif' && $ext !== 'png' && $ext !== 'jpg') {
-                $datas[$i]['inputName'] = "logo";
-                $datas[$i]['errorMessage'] = "File should only in .gif | .png | .jpg format";
-                $i++;
-            }
-        }
+        // if($logo != ""){
+        //     $ext = strtolower(pathinfo($logo, PATHINFO_EXTENSION));
+        //     if ($ext !== 'gif' && $ext !== 'png' && $ext !== 'jpg') {
+        //         $datas[$i]['inputName'] = "logo";
+        //         $datas[$i]['errorMessage'] = "File should only in .gif | .png | .jpg format";
+        //         $i++;
+        //     }
+        // }
 
         if($i>0){
             echo json_encode(
@@ -663,18 +756,48 @@ class EmployerOop
     }
 
     private function uploadImages($inputFieldName){
-        $file = $this->request->getFile($inputFieldName);
-		if ($file!="") {
-            $uniqueName = $file->getRandomName();
-			if ($file->isValid() && !$file->hasMoved()) {
-                $file->move('../assets/images/company_profile/', $uniqueName);
-            }
-		}
-        else{
-            $uniqueName = "";
+        $target_dir = "/jobnexus/admin/assets/images/company_profile/";
+        $target_file = $target_dir . basename($_FILES[$inputFieldName]["name"]);
+        $uploadOk = 1;
+        $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+        // Check if image file is a actual image or fake image
+        // if(isset($_POST["submit"])) {
+        //     $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+        //     if($check !== false) {
+        //         echo "File is an image - " . $check["mime"] . ".";
+        //         $uploadOk = 1;
+        //     } else {
+        //         echo "File is not an image.";
+        //         $uploadOk = 0;
+        //     }
+        // }
+
+        // Check if file already exists
+        // if (file_exists($target_file)) {
+        //     echo "Sorry, file already exists.";
+        //     $uploadOk = 0;
+        // }
+
+        // Check file size
+        // if ($_FILES["fileToUpload"]["size"] > 500000) {
+        //     echo "Sorry, your file is too large.";
+        //     $uploadOk = 0;
+        // }
+
+        // Allow certain file formats
+        // if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
+        //     echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+        //     $uploadOk = 0;
+        // }
+
+        if (move_uploaded_file($_FILES[$inputFieldName]["tmp_name"], $target_file)) {
+            echo "The file ". htmlspecialchars( basename( $_FILES[$inputFieldName]["name"])). " has been uploaded.";
+        } else {
+            echo "Sorry, there was an error uploading your file.";
+            die();
         }
-        
-		return $uniqueName;
+
 
     }
 }

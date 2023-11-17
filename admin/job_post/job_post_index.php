@@ -5,6 +5,7 @@
     $database = "db_jobnexus";
 
     $connection = new mysqli($serverName, $userName, $password, $database);
+
 ?>
 <html>
     <head>
@@ -44,14 +45,9 @@
                         <div class="col-11">
                             <h3>Job Post</h3>
                         </div>
-                            <div class="col">
-                                <a href="job_post_add.php">
-                                    <button type="button" class="btn btn-primary btn-round">
-                                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                                            <span class="text hidden-md-down">Add</span>
-                                    </button>
-                                </a>
-                            </div>
+                        <div class="col" id="addable">
+
+                        </div>
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
@@ -172,9 +168,9 @@
                 </div>
 
             </div>
-            <?php include('../footer.php') ?>
-
         </div>
+        <?php include('../footer.php') ?>
+
     </body>
 
     <script>
@@ -240,8 +236,17 @@
                         {
                             tableStringBuilder += '<tr><td colspan="8" class="text-center">No Data Found</td></tr>';
                         }
+
+                        if(data.allowToAdd==true){
+                            addable = "<a href='job_post_add.php'> "+
+                                            "<button type='button' class='btn btn-primary btn-round'>"+
+                                                "<i class='bi bi-plus-lg' aria-hidden='true'></i>"+
+                                                    "<span class='text hidden-md-down'> Add </span>"+
+                                            "</button>"+
+                                        "</a>";
+                            $('#addable').html(addable);
+                        }
                         tbody.html("").html(tableStringBuilder);
-                        // document.getElementById('total_data').innerHTML = response.total_data;
                         $('#pagination_link').html(response.pagination);
                     } else {
                         console.log("something wrong");

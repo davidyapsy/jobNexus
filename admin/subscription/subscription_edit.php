@@ -230,6 +230,12 @@
                             }
                         });
                     } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Please contact technical staff! ',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        })
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);

@@ -3,13 +3,13 @@
     $connection = new mysqli("localhost", "root", "", "db_jobnexus");
 
     $jobSeekerName = $_GET['jobSeekerName'];
-    $emailAddress = $_GET['emailAddress'];
+    $address = $_GET['address'];
     $workingExperiece = $_GET['workingExperience'];
+    $skills = $_GET['skills'];
+    $salaryExpectation = $_GET['salaryExpectation'];
     $status = $_GET['status'];
-    $availableDateFrom = $_GET['availableDateFrom'];
-    $availableDateTo = $_GET['availableDateTo'];
 
-    $sql = "SELECT CONCAT(B.firstName,' ',B.lastName) AS jobSeekerName, B.emailAddress, B.working_experience, A.availableDate, A.status
+    $sql = "SELECT A.applicationID, CONCAT(B.firstName,' ',B.lastName) AS jobSeekerName, B.address, B.working_experience, B.skills, A.salaryExpectation, A.status, C.jobPostingID
     FROM job_application A 
     JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
     JOIN job_posting C ON A.jobPostingID = C.jobPostingID
@@ -36,7 +36,7 @@
         $filter_option.=" AND A.availableDate <= '$availableDateTo'";
     }
     //ranking (order by working_experience, education level, field of study, skills, salaryexpectation)
-    $filter_option.=" ORDER BY C.publishDate";
+    $filter_option.=" ORDER BY B.working_experience";
 
     $sql.=$filter_option;
 
@@ -51,7 +51,7 @@
     $fileName = "job_application-data_" . date('Y-m-d') . ".xls"; 
         
     // Column names 
-    $fields = array('NO.', 'JOB SEEKER NAME', 'EMAIL ADDRESS', 'WORKING EXPERIENCE','AVAILABLE DATE' ,'STATUS'); 
+    $fields = array('NO.', 'JOB SEEKER NAME', 'ADDRESS', 'WORKING YEAR(S)','SKILLS', 'SALARY EXPECTATION' ,'STATUS'); 
         
     // Display column names as first row 
     $excelData = implode("\t", array_values($fields)) . "\n"; 
@@ -62,7 +62,7 @@
         // Output each row of the data 
         $count=1;
         while($row = $query->fetch_assoc()){ 
-            $lineData = array($count, $row['jobSeekerName'], $row['emailAddress'], $row['working_experience'], $row['availableDate'], $row['status']); 
+            $lineData = array($count, $row['jobSeekerName'], $row['address'], $row['working_experience'], $row['skills'], $row['salaryExpectation'], $row['status']); 
             array_walk($lineData, 'filterData'); 
             $excelData .= implode("\t", array_values($lineData)) . "\n"; 
             $count++;

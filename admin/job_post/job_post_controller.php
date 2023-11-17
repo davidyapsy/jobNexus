@@ -443,13 +443,13 @@ class JobPostingOop
             $this->model->setJobTitle($jobTitle);
             $this->model->setJobDescription($jobDescription);
             $this->model->setJobRequirement($jobRequirement);
-            $this->model->setExperienceLevel($experienceLevel);
             $this->model->setLocationState($locationState);
             $this->model->setEmploymentType($employmentType);
             $this->model->setIsPublish($isPublish);
             $this->model->setApplicationDeadline($applicationDeadline);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
             $this->setPage($page);
+            $this->model->setEmployerID($employerID);
             $this->model->setJobCategoryID($jobCategoryID);
             $this->model->setJobTitle($jobTitle);
             $this->model->setLocationState($locationState);
@@ -559,7 +559,8 @@ class JobPostingOop
             $start = 0;
         }
 
-        // you don't need to commit work here ya !
+        // table data !
+        $employerID = $this->model->getEmployerID();
         $jobCategoryID = $this->model->getJobCategoryID();
         $jobTitle = $this->model->getJobTitle();
         $locationState = $this->model->getLocationState();
@@ -567,11 +568,10 @@ class JobPostingOop
         $salary = $this->model->getSalary();
         $isPublish = $this->model->getIsPublish();
 
-        //employerID
         $sql = "SELECT jobPostingID, B.categoryName, jobTitle, locationState, employmentType, salary, isPublish
         FROM job_posting A
         JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
-        WHERE employerID = 'E2300000' AND isDeleted=0 ";
+        WHERE employerID = '$employerID' AND isDeleted=0 ";
 
         $filter_options ="";
         if($jobCategoryID!=""){
@@ -727,10 +727,29 @@ class JobPostingOop
         </div>
         ';
 
+        //subscription details
+        $todaysDate = date('Y-m-d');
+        $allowToAdd = true;
+        $maxJobPosting = 0;
+        
+        $statement = $this->connection->query("SELECT maxJobPosting
+                                                FROM subscription A
+                                                JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID
+                                                JOIN employer C ON A.employerID = C.employerID
+                                                JOIN job_posting D ON C.employerID = D.employerID
+                                                WHERE A.employerID = '$employerID' AND '$todaysDate' >= startDate AND '$todaysDate' <= endDate AND D.isDeleted=0");
+                                                
+        while (($row = $statement->fetch_assoc()) == TRUE) {
+            $maxJobPosting = $row['maxJobPosting'];
+        }
+        if($maxJobPosting==$total_data){
+            $allowToAdd=false;
+        }
+
         $output = array(
             'data'				=>	$data,
+            'allowToAdd'	    =>	$allowToAdd,
             'pagination'		=>	$pagination_html,
-            'total_data'		=>	$total_data,
             'status'            =>  true
         );
 

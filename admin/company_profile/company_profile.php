@@ -7,8 +7,7 @@
     $connection = new mysqli($serverName, $userName, $password, $database);
     // $employerID = base64_decode($_GET['id']);
 
-    $sql = "SELECT employerID, companyName, contactPersonName, emailAddress, password, phoneNumber, address, numberOfEmployees, industry, state, aboutUs, logo, backgroundPicture, 
-            officePictures, facebookUrl, linkedinUrl, whatsappUrl, status, dateJoined
+    $sql = "SELECT *
             FROM employer
             WHERE employerID = 'E2300000'";
 
@@ -62,7 +61,7 @@
                 <div class="panel-body bg-white p-2 rounded">
                     <h4 style="padding:10px;"><i class="bi bi-person-fill px-2"></i>Profile Details</h4>
                     <hr>
-                    <form id="form_details" action="" method="post" >
+                    <form id="form_details" action="" method="post" enctype="multipart/form-data">
                         <input type="hidden" id="employerID" name="employerID" value="<?= base64_encode('E2300000');?>">
                         <div class="form-group row">
                             <label for="companyName" class="col-sm-3 col-form-label">Company Name: <span class="required">*</span></label>
@@ -79,9 +78,9 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="emailAddress" class="col-sm-3 col-form-label">Email: <span class="required">*</span></label>
+                            <label for="emailAddress" class="col-sm-3 col-form-label">Email Address: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="emailAddress" id="emailAddress" value="<?= $data['emailAddress'];?>"/>
+                                <input type="input" class="form-control" name="emailAddress" id="emailAddress" value="<?= $data['emailAddress'];?>" placeholder="jobnexus@jobnexus.com"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -117,47 +116,43 @@
                                     <span class="input-group-text">
                                         +60
                                     </span>
-                                    <input type="input" class="form-control" name="phoneNumber" id="phoneNumber" value="<?= $data['phoneNumber'];?>"/>
+                                    <input type="input" class="form-control" name="phoneNumber" id="phoneNumber" value="<?= $data['phoneNumber'];?>" placeholder="Do not include '-'"/>
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="address" class="col-sm-3 col-form-label">Address: <span class="required">*</span></label>
+                            <label for="address" class="col-sm-3 col-form-label">Address Line 1: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <textarea class="form-control" name="address" id="address" rows="3"><?= $data['address'];?></textarea>
+                                <input type="input" class="form-control" name="addressLineOne" id="addressLineOne" value="<?= $data['addressLineOne'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="price" class="col-sm-3 col-form-label">Number Of Employees: <span class="required">*</span> </label>
+                            <label for="address" class="col-sm-3 col-form-label">Address Line 2: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <select class="form-select" id="numberOfEmployees" name="numberOfEmployees">
-                                    <option value=""> -- Please select number of employees. -- </option>
-                                    <option value="10-50" <?= $data['numberOfEmployees']=='10-50'? 'selected':'';?>>10-50</option>
-                                    <option value="50-100" <?= $data['numberOfEmployees']=='50-100'? 'selected':'';?>>50-100</option>
-                                    <option value="100-500" <?= $data['numberOfEmployees']=='100-500'? 'selected':'';?>>100-500</option>
-                                    <option value="> 500" <?= $data['numberOfEmployees']=='> 500'? 'selected':'';?>>> 500</option>
-                                </select>
+                                <input type="input" class="form-control" name="addressLineTwo" id="addressLineTwo" value="<?= $data['addressLineTwo'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="price" class="col-sm-3 col-form-label">Industry: <span class="required">*</span> </label>
+                            <label for="address" class="col-sm-3 col-form-label">Address Line 3: </label>
+                            <div class="col-sm-9">
+                                <input type="input" class="form-control" name="addressLineThree" id="addressLineThree" value="<?= $data['addressLineThree'];?>"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="address" class="col-sm-3 col-form-label">Postcode: <span class="required">*</span></label>
                             <div class="col-sm-3">
-                                <select class="form-select" id="industry" name="industry">
-                                    <option value=""> -- Please select an industry. -- </option>
-                                    <option value="Technology" <?= $data['industry']=='Technology'? 'selected':'';?>>Technology</option>
-                                    <option value="Healthcare" <?= $data['industry']=='Healthcare'? 'selected':'';?>>Healthcare</option>
-                                    <option value="Finance" <?= $data['industry']=='Finance'? 'selected':'';?>>Finance</option>
-                                    <option value="Manufacturing" <?= $data['industry']=='Manufacturing'? 'selected':'';?>>Manufacturing</option>
-                                    <option value="Retail" <?= $data['industry']=='Retail'? 'selected':'';?>>Retail</option>
-                                    <option value="Agriculture" <?= $data['industry']=='Agriculture'? 'selected':'';?>>Agriculture</option>
-                                    <option value="Energy" <?= $data['industry']=='Energy'? 'selected':'';?>>Energy</option>
-                                    <option value="Entertainment" <?= $data['industry']=='Entertainment'? 'selected':'';?>>Entertainment</option>
-                                    <option value="Transportation" <?= $data['industry']=='Transportation'? 'selected':'';?>>Transportation</option>
-                                    <option value="Hospitality and Tourism" <?= $data['industry']=='Hospitality and Tourism'? 'selected':'';?>>Hospitality and Tourism</option>
-                                </select>
+                                <input type="number" class="form-control" name="postcode" id="postcode" value="<?= $data['postcode'];?>"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="address" class="col-sm-3 col-form-label">City: <span class="required">*</span></label>
+                            <div class="col-sm-3">
+                                <input type="input" class="form-control" name="city" id="city" value="<?= $data['city'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -184,6 +179,38 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div> 
+                        <div class="form-group row">
+                            <label for="price" class="col-sm-3 col-form-label">Number Of Employees: <span class="required">*</span> </label>
+                            <div class="col-sm-9">
+                                <select class="form-select" id="numberOfEmployees" name="numberOfEmployees">
+                                    <option value=""> -- Please select number of employees. -- </option>
+                                    <option value="10-50" <?= $data['numberOfEmployees']=='10-50'? 'selected':'';?>>10-50</option>
+                                    <option value="50-100" <?= $data['numberOfEmployees']=='50-100'? 'selected':'';?>>50-100</option>
+                                    <option value="100-500" <?= $data['numberOfEmployees']=='100-500'? 'selected':'';?>>100-500</option>
+                                    <option value="> 500" <?= $data['numberOfEmployees']=='> 500'? 'selected':'';?>>> 500</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="price" class="col-sm-3 col-form-label">Industry: <span class="required">*</span> </label>
+                            <div class="col-sm-9">
+                                <select class="form-select" id="industry" name="industry">
+                                    <option value=""> -- Please select an industry. -- </option>
+                                    <option value="Technology" <?= $data['industry']=='Technology'? 'selected':'';?>>Technology</option>
+                                    <option value="Healthcare" <?= $data['industry']=='Healthcare'? 'selected':'';?>>Healthcare</option>
+                                    <option value="Finance" <?= $data['industry']=='Finance'? 'selected':'';?>>Finance</option>
+                                    <option value="Manufacturing" <?= $data['industry']=='Manufacturing'? 'selected':'';?>>Manufacturing</option>
+                                    <option value="Retail" <?= $data['industry']=='Retail'? 'selected':'';?>>Retail</option>
+                                    <option value="Agriculture" <?= $data['industry']=='Agriculture'? 'selected':'';?>>Agriculture</option>
+                                    <option value="Energy" <?= $data['industry']=='Energy'? 'selected':'';?>>Energy</option>
+                                    <option value="Entertainment" <?= $data['industry']=='Entertainment'? 'selected':'';?>>Entertainment</option>
+                                    <option value="Transportation" <?= $data['industry']=='Transportation'? 'selected':'';?>>Transportation</option>
+                                    <option value="Hospitality and Tourism" <?= $data['industry']=='Hospitality and Tourism'? 'selected':'';?>>Hospitality and Tourism</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label for="price" class="col-sm-3 col-form-label">About Us: </label>
                             <div class="col-sm-9">
@@ -213,7 +240,6 @@
                             <label for="backgroundPicture" class="col-sm-3 col-form-label">Background Picture: </label>
                             <div class="col-sm-9">
                                 <?php if($data['backgroundPicture']!="") { ?>
-
                                     <div class="body-background">
                                         <a href="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>">
                                             <img src="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>"
@@ -354,10 +380,14 @@
                     password: $("#password").val(),
                     confirmPassword: $("#confirmPassword").val(),
                     phoneNumber: $("#phoneNumber").val(),
-                    address: $("#address").val(),
+                    addressLineOne: $("#addressLineOne").val(),
+                    addressLineTwo: $("#addressLineTwo").val(),
+                    addressLineThree: $("#addressLineThree").val(),
+                    postcode: $("#postcode").val(),
+                    city: $("#city").val(),
+                    state: $("#state").val(),
                     numberOfEmployees: $("#numberOfEmployees").val(),
                     industry: $("#industry").val(),
-                    state: $("#state").val(),
                     aboutUs: $('#aboutUs').summernote('code'),
                     logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
                     backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
@@ -368,6 +398,8 @@
                     status: $("#status").val(),
                     dateJoined: $("#dateJoined").val()
                 }, success: function (response) {
+                    window.scrollTo(0, 0);
+
                     const data = response;
                     if (data.status==false) {
                         for(let i=0;i<data.data.length;i++){
@@ -398,7 +430,12 @@
                     emailAddress: $("#emailAddress").val(),
                     password: $("#password").val(),
                     phoneNumber: $("#phoneNumber").val(),
-                    address: $("#address").val(),
+                    addressLineOne: $("#addressLineOne").val(),
+                    addressLineTwo: $("#addressLineTwo").val(),
+                    addressLineThree: $("#addressLineThree").val(),
+                    postcode: $("#postcode").val(),
+                    city: $("#city").val(),
+                    state: $("#state").val(),
                     numberOfEmployees: $("#numberOfEmployees").val(),
                     industry: $("#industry").val(),
                     state: $("#state").val(),
@@ -421,6 +458,12 @@
                             confirmButtonText: 'Cool'
                         })
                     } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Please contact technical staff! ',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        })
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);
@@ -446,3 +489,5 @@
         }
     </script>
 </html>
+
+<?php

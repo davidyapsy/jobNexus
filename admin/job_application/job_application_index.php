@@ -72,7 +72,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="emailAddress" id="emailAddress" placeholder="Email Address"/>
+                                    <input type="text" class="form-control" name="address" id="address" placeholder="Address"/>
                                 </div>                            
                             </div>
                             <div class="col-md-3">
@@ -80,10 +80,25 @@
                                     <span class="input-group-text">
                                         <i>More than or equals to</i>
                                     </span>
-                                    <input type="number" class="form-control" id="workingExperience" name="workingExperience" value="0" title="Working Experience">
+                                    <input type="number" class="form-control" id="workingExperience" name="workingExperience" value="0" min="0" title="Working Experience">
                                     <span class="input-group-text">
                                         <i>Years</i>
                                     </span>
+                                </div>                          
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="skills" name="skills" placeholder="Skills">
+                                </div>                          
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i>More than or equals to (RM)</i>
+                                    </span>
+                                    <input type="number" class="form-control" id="salaryExpectation" name="salaryExpectation" value="0" title="SalaryExpectation" min="0">
                                 </div>                          
                             </div>
                             <div class="col-md-3">
@@ -95,20 +110,6 @@
                                         <option value="Interview Scheduled">Interview Scheduled</option>
                                         <option value="Interviewed">Interviewed</option>
                                     </select>
-                                </div>                            
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="date" class="form-control date" name="availableDateFrom" id="availableDateFrom" title="Available Date(From)">
-                                    <label for="availableDateFrom">Available Date (From)</label>
-                                </div>                            
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="date" class="form-control date" name="availableDateTo" id="availableDateTo" title="Available Date(To)">
-                                    <label for="availableDateTo">Available Date (To)</label>
                                 </div>                            
                             </div>
                         </div>
@@ -138,11 +139,12 @@
                             <thead>
                                 <tr>
                                     <th class="text-center" scope="col" style="width:5%;">No.</th>
-                                    <th class="text-center" scope="col" style="width:25%;">Job Seeker Name</th>
-                                    <th class="text-center" scope="col" style="width:18%;">Email Address</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Working Experience</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Available Date</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Status</th>
+                                    <th class="text-center" scope="col" style="width:20%;">Job Seeker Name</th>
+                                    <th class="text-center" scope="col" style="width:15%;">Address</th>
+                                    <th class="text-center" scope="col" style="width:15%;">Working Year(s)</th>
+                                    <th class="text-center" scope="col" style="width:15%;">Skills</th>
+                                    <th class="text-center" scope="col" style="width:15%;">Salary Expectation</th>
+                                    <th class="text-center" scope="col" style="width:10%;">Status</th>
                                     <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
                                 </tr>
                             </thead>
@@ -155,9 +157,10 @@
                 </div>
 
             </div>
-            <?php include('../footer.php') ?>
 
         </div>
+        <?php include('../footer.php') ?>
+
     </body>
 
     <script>
@@ -179,11 +182,11 @@
                     mode: "search",
                     jobPostingID: $('#jobPostingID').val(),
                     jobSeekerName: $("#jobSeekerName").val(),
-                    emailAddress: $("#emailAddress").val(),
+                    address: $("#address").val(),
                     workingExperience: $("#workingExperience").val(),
+                    skills: $("#skills").val(),
+                    salaryExpectation: $("#salaryExpectation").val(),
                     status: $("#status").val(),
-                    availableDateFrom: $("#availableDateFrom").val(),
-                    availableDateTo: $("#availableDateTo").val(),
                     page: page_number
                 }, success: function (response) {
                     const data = response;
@@ -192,16 +195,28 @@
                         var tableStringBuilder = '';
                         if(response.data.length > 0)
                         {
-                            for(var i = 0; i < records.length; i++)
-                            {
+                            for(var i = 0; i < records.length; i++){
+                                var statusLine="";
+                                if(records[i].status=="Under Review"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-light text-dark'>Under Review</span>" + "</td>" 
+                                }else if(records[i].status=="Shortlisted"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-secondary'>Shortlisted</span>" + "</td>" 
+                                }
+                                else if(records[i].status=="Interview Scheduled"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-info text-dark'>Interview Scheduled</span>" + "</td>" 
+                                }
+                                else if(records[i].status=="Interviewed"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Interview Scheduled</span>" + "</td>" 
+                                }
                                 tableStringBuilder+=
                                 "  <tr>" +
                                 "        <th scope='row' class='text-center'>" + (((i+1)+page_number*5)-5) + ".</th>" +
                                 "        <td>" + records[i].jobSeekerName + "</td>" +
-                                "        <td>" + records[i].emailAddress + "</td>" +
-                                "        <td>" + records[i].working_experience + " Years" + "</td>" +
-                                "        <td>" + records[i].availableDate + "</td>" +
-                                "        <td>" + records[i].status + "</td>" +
+                                "        <td>" + records[i].address + "</td>" +
+                                "        <td>" + records[i].working_experience + " Year(s)" + "</td>" +
+                                "        <td>" + records[i].skills + "</td>" +
+                                "        <td>" + records[i].salaryExpectation + "</td>" +
+                                statusLine +
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
@@ -240,26 +255,25 @@
 
         function export_to_excel(){
             var jobSeekerName= $("#jobSeekerName").val();
-            var emailAddress= $("#emailAddress").val();
-            var workingExperience = $("#workingExperience").val();
-            var status = $("#status").val();
-            var availableDateFrom = $("#availableDateFrom").val();
-            var availableDateTo = $("#availableDateTo").val();
-
+            var address= $("#address").val();
+            var workingExperience= $("#workingExperience").val();
+            var skills= $("#skills").val();
+            var salaryExpectation= $("#salaryExpectation").val();
+            var status= $("#status").val();
             $.ajax({
                 type: "post",
                 url: "job_application_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     jobSeekerName: jobSeekerName,
-                    emailAddress: emailAddress,
+                    address: address,
                     workingExperience: workingExperience,
-                    status: status,
-                    availableDateFrom: availableDateFrom,
-                    availableDateTo: availableDateTo
+                    skills: skills,
+                    availableDateTo: availableDateTo,
+                    status: status
                 },success: function(dataResult){
-                    window.open('job_application_export.php?jobSeekerName='+jobSeekerName+'&emailAddress='+emailAddress+'&workingExperience='+workingExperience
-                    +'&status='+status+'&availableDateFrom='+availableDateFrom+'&availableDateTo='+availableDateTo);
+                    window.open('job_application_export.php?jobSeekerName='+jobSeekerName+'&address='+address+'&workingExperience='+workingExperience
+                    +'&skills='+skills+'&salaryExpectation='+salaryExpectation+'&status='+status);
                 }, failure: function(xhr){
                     console.log(xhr);
                 }

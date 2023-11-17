@@ -145,7 +145,7 @@
                             <label for="applicationDeadline" class="col-sm-3 col-form-label">Application Deadline: </label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline"> 
+                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline"  min="<?= date('Y-m-d'); ?>"> 
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
@@ -242,6 +242,7 @@
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "check_validation",
+                    jobCategoryID : $("#jobCategory").val(),
                     jobTitle: $("#jobTitle").val(),
                     jobDescription: $('#jobDescription').summernote('code'),
                     jobRequirement: $('#jobRequirement').summernote('code'),
@@ -301,7 +302,12 @@
                         });
                         
                     } else {
-                
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Please contact technical staff! ',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        })
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);
