@@ -492,6 +492,15 @@ class EmployerOop
         $status = filter_input(INPUT_POST, "status", FILTER_SANITIZE_STRING);
         $dateJoined = filter_input(INPUT_POST, "dateJoined", FILTER_SANITIZE_STRING);
 
+
+        if ( 0 < $_FILES['file']['error'] ) {
+            echo 'Error: ' . $_FILES['file']['error'] . '<br>';
+        }
+        else {
+            move_uploaded_file($_FILES['file']['tmp_name'], 'uploads/' . $_FILES['file']['name']);
+        }
+
+
         $confirmPassword = filter_input(INPUT_POST, "confirmPassword", FILTER_SANITIZE_STRING);
 
         

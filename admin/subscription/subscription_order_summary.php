@@ -108,15 +108,15 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-end">Subtotal</td>
+                                <td class="text-end">Subtotal: </td>
                                 <td class="align-middle text-center"><?=number_format($data['price'])?></td>
                             </tr>
                             <tr>
-                                <td class="text-end">SST</td>
+                                <td class="text-end">SST: </td>
                                 <td class="align-middle text-center"><?=number_format($data['price']*0.1)?></td>
                             </tr>
                             <tr>
-                                <td class="text-end"><b>Grant Total</b></td>
+                                <td class="text-end"><b>Grant Total: </b></td>
                                 <td class="align-middle text-center"><?=number_format($data['price']*1.1)?></td>
                             </tr>
                         </tbody>

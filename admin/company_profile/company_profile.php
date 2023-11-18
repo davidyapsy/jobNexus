@@ -223,8 +223,8 @@
                             <div class="col-sm-9">
                                 <?php if($data['logo']!="") { ?>
                                     <div class="body-background">
-                                        <a href="../assets/images/company_profile/<?= $data['logo']; ?>">
-                                            <img src="../assets/images/company_profile/<?= $data['logo']; ?>"
+                                        <a href="uploads/<?= $data['logo']; ?>">
+                                            <img src="uploads/<?= $data['logo']; ?>"
                                                 style="width:250px;">
                                         </a>
                                         <button type="button" data-name="deleteLogo" class="btn btn-danger"
@@ -241,8 +241,8 @@
                             <div class="col-sm-9">
                                 <?php if($data['backgroundPicture']!="") { ?>
                                     <div class="body-background">
-                                        <a href="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>">
-                                            <img src="../assets/images/company_profile/<?= $data['backgroundPicture']; ?>"
+                                        <a href="uploads/<?= $data['backgroundPicture']; ?>">
+                                            <img src="uploads/<?= $data['backgroundPicture']; ?>"
                                                 style="width:250px;">
                                         </a>
                                         <button type="button" data-name="deleteBackgroundPicture" class="btn btn-danger"
@@ -260,8 +260,8 @@
                                 <?php if($data['officePictures']!="") { ?>
                                     <?php foreach($officePicture_arr as $officePicture) { ?>
                                         <div class="body-background">
-                                            <a href="../assets/images/company_profile/<?= $officePicture ?>">
-                                                <img src="../assets/images/company_profile/<?= $officePicture ?>"
+                                            <a href="uploads/<?= $officePicture ?>">
+                                                <img src="uploads/<?= $officePicture ?>"
                                                     style="width:250px;">
                                             </a>
                                             <button type="button" data-name="deleteOfficePicture" class="btn btn-danger"
@@ -364,58 +364,78 @@
             });
         }
 
-        function submitValidate(){
-            $('.is-invalid').removeClass('is-invalid');
-            $.ajax({
-                type: "post",
-                url: url,
-                contentType:"application/x-www-form-urlencoded",
-                data: {
-                    mode: "check_validation",
-                    type: "edit",
-                    employerID : $("#employerID").val(),
-                    companyName: $("#companyName").val(),
-                    contactPersonName: $("#contactPersonName").val(),
-                    emailAddress: $("#emailAddress").val(),
-                    password: $("#password").val(),
-                    confirmPassword: $("#confirmPassword").val(),
-                    phoneNumber: $("#phoneNumber").val(),
-                    addressLineOne: $("#addressLineOne").val(),
-                    addressLineTwo: $("#addressLineTwo").val(),
-                    addressLineThree: $("#addressLineThree").val(),
-                    postcode: $("#postcode").val(),
-                    city: $("#city").val(),
-                    state: $("#state").val(),
-                    numberOfEmployees: $("#numberOfEmployees").val(),
-                    industry: $("#industry").val(),
-                    aboutUs: $('#aboutUs').summernote('code'),
-                    logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
-                    backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
-                    officePictures: $('#officePictures').val().split('\\').pop() =="" ? "" : $('#officePictures').val().split('\\').pop(),
-                    facebookUrl: $("#facebookUrl").val(),
-                    linkedinUrl: $("#linkedinUrl").val(),
-                    whatsappUrl: $("#whatsappUrl").val(),
-                    status: $("#status").val(),
-                    dateJoined: $("#dateJoined").val()
-                }, success: function (response) {
-                    window.scrollTo(0, 0);
+        // function submitValidate(){
+        //     $('.is-invalid').removeClass('is-invalid');
+        //     $.ajax({
+        //         type: "post",
+        //         url: url,
+        //         contentType:"application/x-www-form-urlencoded",
+        //         data: {
+        //             mode: "check_validation",
+        //             employerID : $("#employerID").val(),
+        //             companyName: $("#companyName").val(),
+        //             contactPersonName: $("#contactPersonName").val(),
+        //             emailAddress: $("#emailAddress").val(),
+        //             password: $("#password").val(),
+        //             confirmPassword: $("#confirmPassword").val(),
+        //             phoneNumber: $("#phoneNumber").val(),
+        //             addressLineOne: $("#addressLineOne").val(),
+        //             addressLineTwo: $("#addressLineTwo").val(),
+        //             addressLineThree: $("#addressLineThree").val(),
+        //             postcode: $("#postcode").val(),
+        //             city: $("#city").val(),
+        //             state: $("#state").val(),
+        //             numberOfEmployees: $("#numberOfEmployees").val(),
+        //             industry: $("#industry").val(),
+        //             aboutUs: $('#aboutUs').summernote('code'),
+        //             logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
+        //             backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
+        //             officePictures: $('#officePictures').val().split('\\').pop() =="" ? "" : $('#officePictures').val().split('\\').pop(),
+        //             facebookUrl: $("#facebookUrl").val(),
+        //             linkedinUrl: $("#linkedinUrl").val(),
+        //             whatsappUrl: $("#whatsappUrl").val(),
+        //             status: $("#status").val(),
+        //             dateJoined: $("#dateJoined").val()
+        //         }, success: function (response) {
+        //             window.scrollTo(0, 0);
 
-                    const data = response;
-                    if (data.status==false) {
-                        for(let i=0;i<data.data.length;i++){
-                            let eachData = data.data[i];
-                            var el = $('[name="' + eachData['inputName'] + '"]');
-                            el.addClass("is-invalid");
-                            el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
-                        }
-                    } else {
-                        updateRecord();
-                    }
-                }, failure: function (xhr) {
-                    console.log(xhr.status);
-                }
-            })
-        }
+        //             const data = response;
+        //             if (data.status==false) {
+        //                 for(let i=0;i<data.data.length;i++){
+        //                     let eachData = data.data[i];
+        //                     var el = $('[name="' + eachData['inputName'] + '"]');
+        //                     el.addClass("is-invalid");
+        //                     el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
+        //                 }
+        //             } else {
+        //                 updateRecord();
+        //             }
+        //         }, failure: function (xhr) {
+        //             console.log(xhr.status);
+        //         }
+        //     })
+        // }
+
+        function submitValidate() {
+            var file_data1 = $('#logo').prop('files')[0];   
+            var file_data2 = $('#backgroundPicture').prop('files')[0];   
+            var form_data = new FormData();                  
+            form_data.append('file1', file_data1);
+            form_data.append('file2', file_data2);
+        
+            // $.ajax({
+            //     url: "test.php", // <-- point to server-side PHP script 
+            //     dataType: 'text',  // <-- what to expect back from the PHP script, if anything
+            //     cache: false,
+            //     contentType: false,
+            //     processData: false,
+            //     data: form_data,                    
+            //     type: 'post',
+            //     success: function(php_script_response){
+            //         console.log(php_script_response); // <-- display response from the PHP script, if any
+            //     }
+            // });
+        };
 
         function updateRecord() {
             $.ajax({
