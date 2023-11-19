@@ -20,10 +20,8 @@
         $data = $row;
     }
 ?>
-<!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
-        <title>Job Nexus</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- Bootstrap 5 CSS -->
@@ -34,36 +32,28 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
         <!-- Summernote CSS -->
         <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-        <link href="../assets/css/content.css" type="text/css" rel="stylesheet">
 
         <style>
-            .required{
-                color:red;
-            }
+            
         </style>
     </head>
-
-    <body>
-        <?php require('../topBar.php') ?>
-        <?php require('../sideNav.php') ?>
-
-         <div class="main">
+    <body onload="window.print()">
+    <div class="main">
             <div class="panel panel-bordered p-2">
                 <div class="panel-heading p-2">
                     <div class="data">
                         <div class="col-12">
-                            <h3>Subscription / Sales Invoice</h3>
+                            <h3><b>Invoice Info</b><br> <?=$data['saleID']?></h3>
                         </div>
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded" id="printable">
-                    <input type="hidden" name="subscriptionID" id="subscriptionID" value="<?=base64_encode($subscriptionID)?>">
                     <div class="row">
                         <div class="table-responsive col-md-6">
-                            <table class="table text-start table-borderless">
+                            <table class="table text-start table-bordered">
                                 <tbody>
                                     <tr>
-                                        <td>1.png  <b>Job Nexus</b></td>
+                                        <td>Authorized by:  <b>Job Nexus</b></td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -83,19 +73,10 @@
                             </table>
                         </div>
                         <div class="table-responsive col-md-6">
-                            <table class="table text-end table-borderless">
+                            <table class="table text-start table-bordered">
                                 <tbody>
                                     <tr>
-                                        <td>
-                                            <b>Invoice Info</b> <br>
-                                            <?=$data['saleID']?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <b>To:</b> <br>
-                                            <?=$data['companyName']?>
-                                        </td>
+                                        <td>To: <b><?=$data['companyName']?></b></td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -159,14 +140,8 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div class="row">
-                        <div class="col-12">
-                            <button type="button" onclick ="printExternal()" class="btn btn-primary w-100">Print</button>
-                        </div>
-                    </div>
                 </div>
             </div>
-            
         </div> 
 
         <!-- Bootstrap JS -->
@@ -177,26 +152,5 @@
         <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
         <!-- Sweet Alert -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
-
     </body>
-
-    <script>
-        function printExternal() {
-            var subscriptionID = $('#subscriptionID').val();
-            var printWindow = window.open('subscription_print.php?id='+subscriptionID, 'Print', 'left=200, top=200, width=950, height=500, toolbar=0, resizable=0');
-
-            printWindow.addEventListener('load', function() {
-                if (Boolean(printWindow.chrome)) {
-                    printWindow.print();
-                    setTimeout(function(){
-                        printWindow.close();
-                    }, 500);
-                } else {
-                    printWindow.print();
-                    printWindow.close();
-                }
-            }, true);
-        }
-
-    </script>
 </html>

@@ -269,7 +269,7 @@
                                         </div>
                                     <?php } ?>
                                 <?php } ?>
-                                <input type="file" class="form-control custom-file-input" id="officePictures" name="officePictures" value="" multiple/>
+                                <input type="file" class="form-control custom-file-input" id="officePictures" name="officePictures" value="" multiple=multiple/>
                                 <input type="hidden" id="deleteOfficePicture" name="deleteOfficePicture" value=""> 
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -338,12 +338,6 @@
 
     <script>
         let url = "company_profile_controller.php";
-        
-        $(".custom-file-input").on("change", function() {
-            var files = Array.from(this.files)
-            var fileName = files.map(f =>{return f.name}).join(",")
-            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-        });
 
         $('#aboutUs').summernote({
             tabsize: 2,
@@ -365,79 +359,109 @@
         }
 
         // function submitValidate(){
-        //     $('.is-invalid').removeClass('is-invalid');
+        //     var form = $("#form_details");
+        //     // you can't pass Jquery form it has to be javascript form object
+        //     var formData = new FormData(form[0]);
+        //     formData.append('mode', 'check_validation');
         //     $.ajax({
-        //         type: "post",
         //         url: url,
-        //         contentType:"application/x-www-form-urlencoded",
-        //         data: {
-        //             mode: "check_validation",
-        //             employerID : $("#employerID").val(),
-        //             companyName: $("#companyName").val(),
-        //             contactPersonName: $("#contactPersonName").val(),
-        //             emailAddress: $("#emailAddress").val(),
-        //             password: $("#password").val(),
-        //             confirmPassword: $("#confirmPassword").val(),
-        //             phoneNumber: $("#phoneNumber").val(),
-        //             addressLineOne: $("#addressLineOne").val(),
-        //             addressLineTwo: $("#addressLineTwo").val(),
-        //             addressLineThree: $("#addressLineThree").val(),
-        //             postcode: $("#postcode").val(),
-        //             city: $("#city").val(),
-        //             state: $("#state").val(),
-        //             numberOfEmployees: $("#numberOfEmployees").val(),
-        //             industry: $("#industry").val(),
-        //             aboutUs: $('#aboutUs').summernote('code'),
-        //             logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
-        //             backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
-        //             officePictures: $('#officePictures').val().split('\\').pop() =="" ? "" : $('#officePictures').val().split('\\').pop(),
-        //             facebookUrl: $("#facebookUrl").val(),
-        //             linkedinUrl: $("#linkedinUrl").val(),
-        //             whatsappUrl: $("#whatsappUrl").val(),
-        //             status: $("#status").val(),
-        //             dateJoined: $("#dateJoined").val()
-        //         }, success: function (response) {
-        //             window.scrollTo(0, 0);
-
-        //             const data = response;
-        //             if (data.status==false) {
-        //                 for(let i=0;i<data.data.length;i++){
-        //                     let eachData = data.data[i];
-        //                     var el = $('[name="' + eachData['inputName'] + '"]');
-        //                     el.addClass("is-invalid");
-        //                     el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
-        //                 }
+        //         type: "POST",
+        //         data: formData,
+        //         contentType: false, 
+        //         processData: false,
+        //         success: function(result) {
+        //             if (result.status) {
+        //                 $("#form_details").submit();
         //             } else {
-        //                 updateRecord();
+        //                 card_el.close();
+        //                 var errors = result.errors;
+        //                 $.each(errors, function(i, item) {
+        //                     // Add class for invalid field
+        //                     var el = $('[name="' + i + '"]');
+        //                     if (i == "logo" || i == "bodyBackground" || i == "shopImage") {
+        //                         el.next().addClass("is-invalid");
+        //                     } else {
+        //                         el.addClass("is-invalid");
+        //                     }
+
+        //                     // Distribute message
+        //                     el.parent().closest('div').find('.invalid-feedback').text(item);
+        //                 });
+        //                 window.scrollTo(0, 0);
         //             }
-        //         }, failure: function (xhr) {
-        //             console.log(xhr.status);
-        //         }
-        //     })
+        //         },
+        //     });
         // }
 
-        function submitValidate() {
-            var file_data1 = $('#logo').prop('files')[0];   
-            var file_data2 = $('#backgroundPicture').prop('files')[0];   
-            var form_data = new FormData();                  
-            form_data.append('file1', file_data1);
-            form_data.append('file2', file_data2);
-        
-            // $.ajax({
-            //     url: "test.php", // <-- point to server-side PHP script 
-            //     dataType: 'text',  // <-- what to expect back from the PHP script, if anything
-            //     cache: false,
-            //     contentType: false,
-            //     processData: false,
-            //     data: form_data,                    
-            //     type: 'post',
-            //     success: function(php_script_response){
-            //         console.log(php_script_response); // <-- display response from the PHP script, if any
-            //     }
-            // });
-        };
+        function getFileNames(inputName){
+            var files = $('#'+inputName)[0].files;
+            var filesArr = "";
+            for (j=0; j < files.length; j++) {
+                if(j>0){
+                    filesArr+=","+files[j].name;
+
+                }else{
+                    filesArr+=files[j].name;
+                }
+            }  
+            return filesArr;
+        }
+
+        function submitValidate(){
+            $('.is-invalid').removeClass('is-invalid');
+            var officePicturesArr = getFileNames('officePictures');
+            $.ajax({
+                type: "post",
+                url: url,
+                contentType:"application/x-www-form-urlencoded",
+                data: {
+                    mode: "check_validation",
+                    employerID : $("#employerID").val(),
+                    companyName: $("#companyName").val(),
+                    contactPersonName: $("#contactPersonName").val(),
+                    emailAddress: $("#emailAddress").val(),
+                    password: $("#password").val(),
+                    confirmPassword: $("#confirmPassword").val(),
+                    phoneNumber: $("#phoneNumber").val(),
+                    addressLineOne: $("#addressLineOne").val(),
+                    addressLineTwo: $("#addressLineTwo").val(),
+                    addressLineThree: $("#addressLineThree").val(),
+                    postcode: $("#postcode").val(),
+                    city: $("#city").val(),
+                    state: $("#state").val(),
+                    numberOfEmployees: $("#numberOfEmployees").val(),
+                    industry: $("#industry").val(),
+                    aboutUs: $('#aboutUs').summernote('code'),
+                    logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
+                    backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
+                    officePictures: officePicturesArr,
+                    facebookUrl: $("#facebookUrl").val(),
+                    linkedinUrl: $("#linkedinUrl").val(),
+                    whatsappUrl: $("#whatsappUrl").val(),
+                    status: $("#status").val(),
+                    dateJoined: $("#dateJoined").val()
+                }, success: function (response) {
+                    window.scrollTo(0, 0);
+
+                    const data = response;
+                    if (data.status==false) {
+                        for(let i=0;i<data.data.length;i++){
+                            let eachData = data.data[i];
+                            var el = $('[name="' + eachData['inputName'] + '"]');
+                            el.addClass("is-invalid");
+                            el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
+                        }
+                    } else {
+                        updateRecord();
+                    }
+                }, failure: function (xhr) {
+                    console.log(xhr.status);
+                }
+            })
+        }
 
         function updateRecord() {
+            var officePicturesArr = getFileNames('officePictures');
             $.ajax({
                 type: "post",
                 url: url,
@@ -462,7 +486,7 @@
                     aboutUs: $('#aboutUs').summernote('code'),
                     logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
                     backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
-                    officePictures: $('#officePictures').val().split('\\').pop() =="" ? "" : $('#officePictures').val().split('\\').pop(),
+                    officePictures: officePicturesArr,
                     facebookUrl: $("#facebookUrl").val(),
                     linkedinUrl: $("#linkedinUrl").val(),
                     whatsappUrl: $("#whatsappUrl").val(),
@@ -470,13 +494,18 @@
                     dateJoined: $("#dateJoined").val()
                 }, success: function (response) {
                     const data = response;
+                    uploadFiles();
                     if (data.status) {
                         Swal.fire({
                             title: 'Success!',
                             text: 'Record successfully updated! ',
                             icon: 'success',
                             confirmButtonText: 'Cool'
-                        })
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href="company_profile.php";
+                            }
+                        });
                     } else {
                         Swal.fire({
                             title: 'Error!',
@@ -490,6 +519,41 @@
                 }
             })
         }
+        
+        function uploadFiles() {
+            var i=0;
+            var form_data = new FormData();   
+            var file_data1 = $('#logo').prop('files')[0];   
+            var file_data2 = $('#backgroundPicture').prop('files')[0];   
+            
+            if(file_data1){
+                form_data.append('file'+i, file_data1);
+                i++;
+            }
+            if(file_data2){
+                form_data.append('file'+i, file_data2);
+                i++;
+            }
+
+            var officePictures = $('#officePictures').prop('files');
+            if(officePictures.length>0){
+                for (j=0; j < officePictures.length; j++) {
+                    form_data.append('file' + (i++), officePictures[j]);
+                }   
+            }
+
+            $.ajax({
+                url: "company_profile_filesUpload.php", // <-- point to server-side PHP script 
+                dataType: 'text',  // <-- what to expect back from the PHP script, if anything
+                cache: false,
+                contentType: false,
+                processData: false,
+                data: form_data,                    
+                type: 'post',
+                success: function(php_script_response){
+                }
+            });
+        };
 
         function removeImage(e) {
             var cSelect = $(e).data("name");

@@ -468,6 +468,7 @@ class EmployerOop
      */
     function setParameter()
     {
+
         $employerID =  base64_decode(filter_input(INPUT_POST, "employerID", FILTER_SANITIZE_STRING));
         $companyName = filter_input(INPUT_POST, "companyName", FILTER_SANITIZE_STRING);
         $contactPersonName = filter_input(INPUT_POST, "contactPersonName", FILTER_SANITIZE_STRING);
@@ -492,18 +493,8 @@ class EmployerOop
         $status = filter_input(INPUT_POST, "status", FILTER_SANITIZE_STRING);
         $dateJoined = filter_input(INPUT_POST, "dateJoined", FILTER_SANITIZE_STRING);
 
-
-        if ( 0 < $_FILES['file']['error'] ) {
-            echo 'Error: ' . $_FILES['file']['error'] . '<br>';
-        }
-        else {
-            move_uploaded_file($_FILES['file']['tmp_name'], 'uploads/' . $_FILES['file']['name']);
-        }
-
-
         $confirmPassword = filter_input(INPUT_POST, "confirmPassword", FILTER_SANITIZE_STRING);
 
-        
         $this->model->setEmployerID($employerID);
         $this->model->setCompanyName($companyName);
         $this->model->setContactPersonName($contactPersonName);
@@ -563,35 +554,30 @@ class EmployerOop
 
 
         if (strlen($companyName) > 0 &&  strlen($contactPersonName) > 0 &&  strlen($emailAddress) > 0 &&  strlen($addressLineOne) > 0 &&  strlen($addressLineTwo) > 0 && strlen($city) > 0 &&  strlen($numberOfEmployees) > 0 &&  strlen($industry) > 0 &&  strlen($state) > 0) {
+            $sql = "UPDATE employer 
+            SET companyName = '$companyName', contactPersonName = '$contactPersonName', emailAddress = '$emailAddress', phoneNumber = '$phoneNumber', addressLineOne = '$addressLineOne', addressLineTwo = '$addressLineTwo', addressLineThree = '$addressLineThree',
+                 postcode = $postcode, city = '$city', state = '$state', numberOfEmployees = '$numberOfEmployees', industry = '$industry', aboutUs = '$aboutUs', facebookUrl = '$facebookUrl', 
+                 linkedinUrl = '$linkedinUrl', whatsappUrl = '$whatsappUrl', status = '$status', dateJoined = '$dateJoined' ";
+
             if($password!=""){
                 $password = md5($password);
-                $statement = $this->connection->prepare("UPDATE employer 
-                SET companyName = ?, contactPersonName = ?, emailAddress = ?, password = ?, phoneNumber = ?, addressLineOne = ?, addressLineTwo = ?, addressLineThree = ?,
-                     postcode = ?, city = ?, state = ?, numberOfEmployees = ?, industry = ?, aboutUs = ?, logo = ?, backgroundPicture = ?, officePictures = ?, facebookUrl = ?, 
-                     linkedinUrl = ?, whatsappUrl = ?, status = ?, dateJoined = ?
-                WHERE employerID = ?");
-                $statement->bind_param("ssssssssissssssssssssss", $companyName, $contactPersonName, $emailAddress, $password, $phoneNumber, $addressLineOne, $addressLineTwo, $addressLineThree,
-                    $postcode, $city, $state, $numberOfEmployees, $industry, $aboutUs, $logo, $backgroundPicture, $officePictures, $facebookUrl, 
-                    $linkedinUrl, $whatsappUrl, $status, $dateJoined, $employerID);
-            }else{
-                $statement = $this->connection->prepare("UPDATE employer 
-                SET companyName = ?, contactPersonName = ?, emailAddress = ?, phoneNumber = ?, addressLineOne = ?, addressLineTwo = ?, addressLineThree = ?,
-                     postcode = ?, city = ?, state = ?, numberOfEmployees = ?, industry = ?, aboutUs = ?, logo = ?, backgroundPicture = ?, officePictures = ?, facebookUrl = ?, 
-                     linkedinUrl = ?, whatsappUrl = ?, status = ?, dateJoined = ?
-                WHERE employerID = ?");
-                $statement->bind_param("sssssssissssssssssssss", $companyName, $contactPersonName, $emailAddress, $phoneNumber, $$addressLineOne, $addressLineTwo, $addressLineThree,
-                    $postcode, $city, $state, $numberOfEmployees, $industry, $aboutUs, $logo, $backgroundPicture, $officePictures, $facebookUrl, 
-                    $linkedinUrl, $whatsappUrl, $status, $dateJoined, $employerID);
+                $sql.=", password = '$password'";
             }
+            if($logo!=""){
+                $sql.=", logo = '$logo'";
+            }
+            if($backgroundPicture!=""){
+                $sql.=", backgroundPicture = '$backgroundPicture'";
+            }
+            if($officePictures!=""){
+                $sql.=", officePictures = '$officePictures'";
+            }
+            $sql.=" WHERE employerID = '$employerID'";
 
-            $this->uploadImages("logo");
-            // uploadImages("backgroundPicture");
-            // uploadImages("officePictures");
-
-            try {
-                $statement->execute();
-            } catch (Exception $exception) {
-                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
+            if ($this->connection->query($sql) === TRUE) {
+                // echo "Record updated successfully";
+            } else {
+                // echo "Error updating record: " . $this->connection->error;
             }
 
             $this->connection->commit();
@@ -739,14 +725,35 @@ class EmployerOop
             $i++;
         }
         
-        // if($logo != ""){
-        //     $ext = strtolower(pathinfo($logo, PATHINFO_EXTENSION));
-        //     if ($ext !== 'gif' && $ext !== 'png' && $ext !== 'jpg') {
-        //         $datas[$i]['inputName'] = "logo";
-        //         $datas[$i]['errorMessage'] = "File should only in .gif | .png | .jpg format";
-        //         $i++;
-        //     }
-        // }
+        if($logo != ""){
+            $ext = strtolower(pathinfo($logo, PATHINFO_EXTENSION));
+            if ($ext !== 'gif' && $ext !== 'png' && $ext !== 'jpg') {
+                $datas[$i]['inputName'] = "logo";
+                $datas[$i]['errorMessage'] = "Logo should only in .gif | .png | .jpg format";
+                $i++;
+            }
+        }
+
+        if($backgroundPicture != ""){
+            $ext = strtolower(pathinfo($backgroundPicture, PATHINFO_EXTENSION));
+            if ($ext !== 'gif' && $ext !== 'png' && $ext !== 'jpg') {
+                $datas[$i]['inputName'] = "backgroundPicture";
+                $datas[$i]['errorMessage'] = "Background Picture should only in .gif | .png | .jpg format";
+                $i++;
+            }
+        }
+
+        if($officePictures!=""){
+            $officePictureArr = explode(',', $officePictures);
+            foreach($officePictureArr as $officePicture){
+                $ext = strtolower(pathinfo($officePicture, PATHINFO_EXTENSION));
+                if ($ext !== 'gif' && $ext !== 'png' && $ext !== 'jpg') {
+                    $datas[$i]['inputName'] = "officePictures";
+                    $datas[$i]['errorMessage'] = "Office Pictures should only in .gif | .png | .jpg format";
+                    $i++;
+                }
+            }
+        }
 
         if($i>0){
             echo json_encode(
@@ -764,57 +771,16 @@ class EmployerOop
         }
     }
 
-    private function uploadImages($inputFieldName){
-        $target_dir = "/jobnexus/admin/assets/images/company_profile/";
-        $target_file = $target_dir . basename($_FILES[$inputFieldName]["name"]);
-        $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 
-        // Check if image file is a actual image or fake image
-        // if(isset($_POST["submit"])) {
-        //     $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
-        //     if($check !== false) {
-        //         echo "File is an image - " . $check["mime"] . ".";
-        //         $uploadOk = 1;
-        //     } else {
-        //         echo "File is not an image.";
-        //         $uploadOk = 0;
-        //     }
-        // }
-
-        // Check if file already exists
-        // if (file_exists($target_file)) {
-        //     echo "Sorry, file already exists.";
-        //     $uploadOk = 0;
-        // }
-
-        // Check file size
-        // if ($_FILES["fileToUpload"]["size"] > 500000) {
-        //     echo "Sorry, your file is too large.";
-        //     $uploadOk = 0;
-        // }
-
-        // Allow certain file formats
-        // if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
-        //     echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-        //     $uploadOk = 0;
-        // }
-
-        if (move_uploaded_file($_FILES[$inputFieldName]["tmp_name"], $target_file)) {
-            echo "The file ". htmlspecialchars( basename( $_FILES[$inputFieldName]["name"])). " has been uploaded.";
-        } else {
-            echo "Sorry, there was an error uploading your file.";
-            die();
-        }
-
-
-    }
 }
 
 header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript given cors error
 
 $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
+// $formData = $_POST['employerID'];
+// echo $formData;
+// die();
 
 $employerOop = new EmployerOop();
 try {

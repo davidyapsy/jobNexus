@@ -1,5 +1,5 @@
 <?php
-    for($i=1;$i<=sizeof($_FILES);$i++){
+    for($i=0;$i<sizeof($_FILES);$i++){
         $fileName = 'file'.$i;
         if ( 0 < $_FILES[$fileName]['error'] ) {
             echo 'Error: ' . $_FILES[$fileName]['error'] . '<br>';
