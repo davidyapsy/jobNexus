@@ -1,4 +1,4 @@
-
+<!-- Top Bar -->
 <nav class="navbar navbar-expand-sm bg-white navbar-white fixed-top w-100 shadow-sm">
     <div class="container-fluid w-100">
         <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/admin"><h3>Job Nexus</h3></a>

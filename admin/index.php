@@ -1,4 +1,7 @@
-
+<?php
+session_start();
+echo ($_SESSION['employerID']);
+?>
 <html>
     <head>
         <title>Job Nexus Employers</title>

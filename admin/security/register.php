@@ -28,7 +28,7 @@
         <nav class="navbar navbar-expand-sm bg-white navbar-white fixed-top w-100 shadow-sm">
             <div class="container-fluid w-100">
                 <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/admin"><h3>Job Nexus</h3></a>
-                <a href="register.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right text-white"> Register</i></a>
+                <a href="login.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right text-white"> Login</i></a>
             </div>
         </nav>
         <!--End Top Bar-->
@@ -37,52 +37,77 @@
             <div class="p-3 border bg-white rounded">
                 <form method="post">
                     <div class="row pb-2 text-center">
-                        <div class="col-sm-12">
+                        <div class="w-100">
                             <img class="rounded" width="70" height="70" src="/jobnexus/admin/assets/pictures/logo.jpg" alt="">
                         </div>
                     </div>
                     <div class="form-group row">
-                        <div class="col-sm-12">
+                        <div class="w-100">
                             <input type="input" class="form-control" name="emailAddress" id="emailAddress" placeholder="Email Address"/>
                             <div class="invalid-feedback"></div>
                         </div>
                     </div>
-                    <div class="form-group row pb-5">
-                        <div class="col-sm-12">
+                    <div class="form-group row">
+                        <div class="w-100">
+                            <input type="input" class="form-control" name="contactPersonName" id="contactPersonName" placeholder="Contact Person Name"/>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="w-100">
                             <div class="input-group">
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Password"/>
+                                <span class="input-group-text">
+                                    +60
+                                </span>
+                                <input type="text" class="form-control" name="phoneNumber" id="phoneNumber" placeholder="Phone Number"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="w-100">
+                            <input type="input" class="form-control" name="companyName" id="companyName" placeholder="Registered Business Name"/>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="w-100">
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" title="Password 
+                                    should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character"/>
                                 <span class="input-group-text" onclick="toggleVisibility('password', 'passwordVisibility')">
                                     <i id="passwordVisibility" class='bi bi-eye-slash'></i>
                                 </span>
                                 <div class="invalid-feedback"></div>
                             </div>
-                            <a href="" id="forgotPassword" name="forgotPassword">Forgot Password?</a>
+                        </div>
+                    </div>
+                    <div class="form-group row pb-4">
+                        <div class="w-100">
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password"/>
+                                <span class="input-group-text" onclick="toggleVisibility('confirmPassword', 'confirmPasswordVisibility')">
+                                    <i id="confirmPasswordVisibility" class='bi bi-eye-slash'></i>
+                                </span>
+                                <div class="invalid-feedback"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <div class="col-sm-12">
-                            <button type="button" onclick ="login()" class="w-100 btn btn-primary" >Login</button>
+                        <div class="w-100">
+                            <button type="button" onclick ="registerValidate()" class="w-100 btn btn-primary" >Register</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-        <div class="position-absolute bottom-0 start-50 translate-middle-x text-center pb-5">
-            <p>WEBSITE BY JobNexus</p>
-            <p class="pb-2">© 2023. ALL RIGHT RESERVED.</p>
-            <p>
-                <h4>
-                    <a href="https://www.instagram.com/tarumt.official/"><i class="bi bi-instagram px-3"></a></i> 
-                    <a href="https://www.facebook.com/tarumtkl"><i class="bi bi-facebook px-3"></a></i> 
-                    <a href="https://wa.me/0162462609"><i class="bi bi-whatsapp px-3"></a></i>
-                </h4>
-            </p>
-        </div>
+
         <div class="position-absolute bottom-0 end-0 bg-white w-100" style="height:4%;">
             <p class="px-2">© 2023 Copyright
                 <span class="float-end px-2"><a href="https://mdbootstrap.com/">Need help?</a></span>
             </p>
         </div>
+
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
         <!-- jQuery -->
@@ -108,16 +133,20 @@
             }
         }
 
-        function login(){
+        function registerValidate(){
             $('.is-invalid').removeClass('is-invalid');
             $.ajax({
                 type: "post",
                 url: url,
                 contentType:"application/x-www-form-urlencoded",
                 data: {
-                    mode: "login_validation",
+                    mode: "register_validation",
                     emailAddress: $("#emailAddress").val(),
-                    password: $("#password").val()
+                    contactPersonName: $("#contactPersonName").val(),
+                    phoneNumber: $("#phoneNumber").val(),
+                    companyName: $("#companyName").val(),
+                    password: $("#password").val(),
+                    confirmPassword: $("#confirmPassword").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status==false) {
@@ -128,13 +157,53 @@
                             el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
                         }
                     } else {
-                        window.location.href="/jobnexus/admin";
+                        createRecord();
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);
                 }
             })
         }
+
+        function createRecord(){
+            $.ajax({
+                type: "post",
+                url: url,
+                contentType:"application/x-www-form-urlencoded",
+                data: {
+                    mode: "create",
+                    emailAddress: $("#emailAddress").val(),
+                    contactPersonName: $("#contactPersonName").val(),
+                    phoneNumber: $("#phoneNumber").val(),
+                    companyName: $("#companyName").val(),
+                    password: $("#password").val()
+                }, success: function (response) {
+                    const data = response;
+                    if (data.status) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Company successfully registered! ',
+                            icon: 'success',
+                            confirmButtonText: 'Cool'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "documentation_form.php?id="+encodeURI(btoa(data.employerID));
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Please contact technical staff! ',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        })
+                    }
+                }, failure: function (xhr) {
+                    console.log(xhr.status);
+                }
+            })
+        }
+
 
     </script>
 </html>

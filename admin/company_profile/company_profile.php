@@ -66,21 +66,21 @@
                         <div class="form-group row">
                             <label for="companyName" class="col-sm-3 col-form-label">Company Name: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="companyName" id="companyName" value="<?= $data['companyName'];?>"/>
+                                <input type="text" class="form-control" name="companyName" id="companyName" value="<?= $data['companyName'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="contactPersonName" class="col-sm-3 col-form-label">Contact Person Name: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="contactPersonName" id="contactPersonName" value="<?= $data['contactPersonName'];?>"/>
+                                <input type="text" class="form-control" name="contactPersonName" id="contactPersonName" value="<?= $data['contactPersonName'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="emailAddress" class="col-sm-3 col-form-label">Email Address: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="emailAddress" id="emailAddress" value="<?= $data['emailAddress'];?>" placeholder="jobnexus@jobnexus.com"/>
+                                <input type="text" class="form-control" name="emailAddress" id="emailAddress" value="<?= $data['emailAddress'];?>" placeholder="jobnexus@jobnexus.com"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -116,7 +116,7 @@
                                     <span class="input-group-text">
                                         +60
                                     </span>
-                                    <input type="input" class="form-control" name="phoneNumber" id="phoneNumber" value="<?= $data['phoneNumber'];?>" placeholder="Do not include '-'"/>
+                                    <input type="text" class="form-control" name="phoneNumber" id="phoneNumber" value="<?= $data['phoneNumber'];?>"/>
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
@@ -124,21 +124,21 @@
                         <div class="form-group row">
                             <label for="address" class="col-sm-3 col-form-label">Address Line 1: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="addressLineOne" id="addressLineOne" value="<?= $data['addressLineOne'];?>"/>
+                                <input type="text" class="form-control" name="addressLineOne" id="addressLineOne" value="<?= $data['addressLineOne'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="address" class="col-sm-3 col-form-label">Address Line 2: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="addressLineTwo" id="addressLineTwo" value="<?= $data['addressLineTwo'];?>"/>
+                                <input type="text" class="form-control" name="addressLineTwo" id="addressLineTwo" value="<?= $data['addressLineTwo'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="address" class="col-sm-3 col-form-label">Address Line 3: </label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="addressLineThree" id="addressLineThree" value="<?= $data['addressLineThree'];?>"/>
+                                <input type="text" class="form-control" name="addressLineThree" id="addressLineThree" value="<?= $data['addressLineThree'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -152,7 +152,7 @@
                         <div class="form-group row">
                             <label for="address" class="col-sm-3 col-form-label">City: <span class="required">*</span></label>
                             <div class="col-sm-3">
-                                <input type="input" class="form-control" name="city" id="city" value="<?= $data['city'];?>"/>
+                                <input type="text" class="form-control" name="city" id="city" value="<?= $data['city'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -275,23 +275,30 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label for="websiteUrl" class="col-sm-3 col-form-label">Website Url: </label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="websiteUrl" id="websiteUrl"  value="<?= $data['websiteUrl'];?>"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label for="facebookUrl" class="col-sm-3 col-form-label">Facebook Url: </label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="facebookUrl" id="facebookUrl" rows="3" value="<?= $data['facebookUrl'];?>"/>
+                                <input type="text" class="form-control" name="facebookUrl" id="facebookUrl"  value="<?= $data['facebookUrl'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="linkedinUrl" class="col-sm-3 col-form-label">LinkedIn Url: </label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="linkedinUrl" id="linkedinUrl" rows="3" value="<?= $data['linkedinUrl'];?>"/>
+                                <input type="text" class="form-control" name="linkedinUrl" id="linkedinUrl"  value="<?= $data['linkedinUrl'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="whatsappUrl" class="col-sm-3 col-form-label">Whatsapp Url: </label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="whatsappUrl" id="whatsappUrl" rows="3" value="<?= $data['whatsappUrl'];?>"/>
+                                <input type="text" class="form-control" name="whatsappUrl" id="whatsappUrl"  value="<?= $data['whatsappUrl'];?>"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -310,7 +317,7 @@
                         <div class="form-group row">
                             <label for="dateJoined" class="col-sm-3 col-form-label">Date Joined: </label>
                             <div class="col-sm-3">
-                                <input type="input" class="form-control" name="dateJoined" id="dateJoined" value="<?= $data['dateJoined'];?>" disabled/>
+                                <input type="text" class="form-control" name="dateJoined" id="dateJoined" value="<?= $data['dateJoined'];?>" disabled/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -416,7 +423,6 @@
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "check_validation",
-                    employerID : $("#employerID").val(),
                     companyName: $("#companyName").val(),
                     contactPersonName: $("#contactPersonName").val(),
                     emailAddress: $("#emailAddress").val(),
@@ -425,21 +431,14 @@
                     phoneNumber: $("#phoneNumber").val(),
                     addressLineOne: $("#addressLineOne").val(),
                     addressLineTwo: $("#addressLineTwo").val(),
-                    addressLineThree: $("#addressLineThree").val(),
                     postcode: $("#postcode").val(),
                     city: $("#city").val(),
                     state: $("#state").val(),
                     numberOfEmployees: $("#numberOfEmployees").val(),
                     industry: $("#industry").val(),
-                    aboutUs: $('#aboutUs').summernote('code'),
                     logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
                     backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
-                    officePictures: officePicturesArr,
-                    facebookUrl: $("#facebookUrl").val(),
-                    linkedinUrl: $("#linkedinUrl").val(),
-                    whatsappUrl: $("#whatsappUrl").val(),
-                    status: $("#status").val(),
-                    dateJoined: $("#dateJoined").val()
+                    officePictures: officePicturesArr
                 }, success: function (response) {
                     window.scrollTo(0, 0);
 
@@ -487,6 +486,7 @@
                     logo: $('#logo').val().split('\\').pop() =="" ? "" : $('#logo').val().split('\\').pop(),
                     backgroundPicture: $('#backgroundPicture').val().split('\\').pop() =="" ? "" : $('#backgroundPicture').val().split('\\').pop(),
                     officePictures: officePicturesArr,
+                    websiteUrl: $("#websiteUrl").val(),
                     facebookUrl: $("#facebookUrl").val(),
                     linkedinUrl: $("#linkedinUrl").val(),
                     whatsappUrl: $("#whatsappUrl").val(),

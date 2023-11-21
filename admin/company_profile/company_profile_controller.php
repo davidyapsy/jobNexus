@@ -1,6 +1,5 @@
 <?php
 
-
 class ConnectionString
 {
 
@@ -116,6 +115,7 @@ class EmployerModel
     private String $logo;
     private String $backgroundPicture;
     private String $officePictures;
+    private String $websiteUrl;
     private String $facebookUrl;
     private String $linkedinUrl;
     private String $whatsappUrl;
@@ -320,6 +320,17 @@ class EmployerModel
         return $this;
     }
 
+    public function getWebsiteUrl(): String
+    {
+        return $this->websiteUrl;
+    }
+    
+    public function setWebsiteUrl(String $websiteUrl): EmployerModel
+    {
+        $this->websiteUrl = $websiteUrl;
+        return $this;
+    }
+
     public function getFacebookUrl(): String
     {
         return $this->facebookUrl;
@@ -385,7 +396,7 @@ class EmployerModel
  */
 interface  ReturnCode
 {
-    // const ACCESS_GRANTED = "200";
+    const ACCESS_GRANTED = "200";
 
     const CONNECTION_ERROR = "001";
 
@@ -487,6 +498,7 @@ class EmployerOop
         $logo = filter_input(INPUT_POST, "logo", FILTER_SANITIZE_STRING);
         $backgroundPicture = filter_input(INPUT_POST, "backgroundPicture", FILTER_SANITIZE_STRING);
         $officePictures = filter_input(INPUT_POST, "officePictures", FILTER_SANITIZE_STRING);
+        $websiteUrl = filter_input(INPUT_POST, "websiteUrl", FILTER_SANITIZE_URL);
         $facebookUrl = filter_input(INPUT_POST, "facebookUrl", FILTER_SANITIZE_URL);
         $linkedinUrl = filter_input(INPUT_POST, "linkedinUrl", FILTER_SANITIZE_URL);
         $whatsappUrl = filter_input(INPUT_POST, "whatsappUrl", FILTER_SANITIZE_URL);
@@ -495,30 +507,133 @@ class EmployerOop
 
         $confirmPassword = filter_input(INPUT_POST, "confirmPassword", FILTER_SANITIZE_STRING);
 
-        $this->model->setEmployerID($employerID);
-        $this->model->setCompanyName($companyName);
-        $this->model->setContactPersonName($contactPersonName);
-        $this->model->setEmailAddress($emailAddress);
-        $this->model->setPassword($password);
-        $this->model->setPhoneNumber($phoneNumber);
-        $this->model->setAddressLineOne($addressLineOne);
-        $this->model->setAddressLineTwo($addressLineTwo);
-        $this->model->setAddressLineThree($addressLineThree);
-        $this->model->setPostcode($postcode);
-        $this->model->setCity($city);
-        $this->model->setState($state);
-        $this->model->setNumberOfEmployees($numberOfEmployees);
-        $this->model->setIndustry($industry);
-        $this->model->setAboutUs($aboutUs);
-        $this->model->setLogo($logo);
-        $this->model->setBackgroundPicture($backgroundPicture);
-        $this->model->setOfficePictures($officePictures);
-        $this->model->setFacebookUrl($facebookUrl);
-        $this->model->setLinkedinUrl($linkedinUrl);
-        $this->model->setWhatsappUrl($whatsappUrl);
-        $this->model->setStatus($status);
-        $this->model->setDateJoined($dateJoined);
-        $this->setConfirmPassword($confirmPassword);
+        if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "create"){
+            $this->model->setEmailAddress($emailAddress);
+            $this->model->setContactPersonName($contactPersonName);
+            $this->model->setPhoneNumber($phoneNumber);
+            $this->model->setCompanyName($companyName);
+            $this->model->setPassword($password);
+            $this->model->setStatus("Under Review");
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
+            $this->model->setEmployerID($employerID);
+            $this->model->setCompanyName($companyName);
+            $this->model->setContactPersonName($contactPersonName);
+            $this->model->setEmailAddress($emailAddress);
+            $this->model->setPassword($password);
+            $this->model->setPhoneNumber($phoneNumber);
+            $this->model->setAddressLineOne($addressLineOne);
+            $this->model->setAddressLineTwo($addressLineTwo);
+            $this->model->setAddressLineThree($addressLineThree);
+            $this->model->setPostcode($postcode);
+            $this->model->setCity($city);
+            $this->model->setState($state);
+            $this->model->setNumberOfEmployees($numberOfEmployees);
+            $this->model->setIndustry($industry);
+            $this->model->setAboutUs($aboutUs);
+            $this->model->setLogo($logo);
+            $this->model->setBackgroundPicture($backgroundPicture);
+            $this->model->setOfficePictures($officePictures);
+            $this->model->setWebsiteUrl($websiteUrl);
+            $this->model->setFacebookUrl($facebookUrl);
+            $this->model->setLinkedinUrl($linkedinUrl);
+            $this->model->setWhatsappUrl($whatsappUrl);
+            $this->model->setStatus($status);
+            $this->model->setDateJoined($dateJoined);
+            $this->setConfirmPassword($confirmPassword);
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "login_validation"){
+            $this->model->setEmailAddress($emailAddress);
+            $this->model->setPassword($password);
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
+            $this->model->setCompanyName($companyName);
+            $this->model->setContactPersonName($contactPersonName);
+            $this->model->setEmailAddress($emailAddress);
+            $this->model->setPassword($password);
+            $this->model->setPhoneNumber($phoneNumber);
+            $this->model->setAddressLineOne($addressLineOne);
+            $this->model->setAddressLineTwo($addressLineTwo);
+            $this->model->setPostcode($postcode);
+            $this->model->setCity($city);
+            $this->model->setState($state);
+            $this->model->setNumberOfEmployees($numberOfEmployees);
+            $this->model->setIndustry($industry);
+            $this->model->setLogo($logo);
+            $this->model->setBackgroundPicture($backgroundPicture);
+            $this->model->setOfficePictures($officePictures);
+            $this->setConfirmPassword($confirmPassword);
+        
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "register_validation"){
+            $this->model->setEmailAddress($emailAddress);
+            $this->model->setContactPersonName($contactPersonName);
+            $this->model->setPhoneNumber($phoneNumber);
+            $this->model->setCompanyName($companyName);
+            $this->model->setPassword($password);
+            $this->setConfirmPassword($confirmPassword);
+        }
+    }
+
+    function create()
+    {
+        $this->connection->autocommit(false);
+
+        $tempID = "E".date('y');
+        $currentID = $tempID."00000";
+
+        // Generate new employerID
+        //get number of records
+        $total_data=0;
+        $stat = $this->connection->query("SELECT count(*) as totalRecord
+                                                FROM employer");
+        while (($row = $stat->fetch_assoc()) == TRUE) {
+            $total_data = $row['totalRecord'];
+        }
+
+        if($total_data > 0){
+            $result = $this->connection->query("SELECT employerID
+                                                FROM employer
+                                                ORDER BY employerID ASC");
+            while (($row = $result->fetch_assoc()) == TRUE) {
+                if(substr($row['employerID'], 0, 3)==$tempID){
+                    $currentID = $row['employerID'];
+                }
+            }
+        }
+
+        $newNumber = (int)(substr($currentID, 3)) + 1;
+        $newNumber = sprintf('%05d', $newNumber);
+        
+        $newID = $tempID.$newNumber;
+
+        $companyName = $this->model->getCompanyName();
+        $contactPersonName = $this->model->getContactPersonName();
+        $emailAddress = $this->model->getEmailAddress();
+        $password = md5($this->model->getPassword());
+        $phoneNumber = $this->model->getPhoneNumber();
+        $status = $this->model->getStatus();
+
+        if (strlen($companyName) > 0 &&  strlen($contactPersonName) > 0 &&  strlen($emailAddress) > 0 &&  strlen($phoneNumber) > 0 &&  strlen($password) > 0) {
+            $statement = $this->connection->prepare("INSERT INTO employer (employerID, companyName, contactPersonName, emailAddress, password, phoneNumber, status) 
+                                                    VALUES(?, ?, ?, ?, ?, ?, ?)");
+
+            $statement->bind_param("sssssss", $newID, $companyName, $contactPersonName, $emailAddress, $password, $phoneNumber, $status);
+
+            try {
+                $statement->execute();
+            } catch (Exception $exception) {
+                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
+            }
+
+            $this->connection->commit();
+            echo json_encode(
+                [
+                    "status" => true,
+                    "employerID" => $newID,
+                    "code" => ReturnCode::UPDATE_SUCCESS,
+                ]
+            );
+
+        } else {
+            throw new Exception(ReturnCode::ACCESS_DENIED);
+        }
     }
 
     /**
@@ -546,6 +661,7 @@ class EmployerOop
         $logo = $this->model->getLogo();
         $backgroundPicture = $this->model->getBackgroundPicture();
         $officePictures = $this->model->getOfficePictures();
+        $websiteUrl = $this->model->getWebsiteUrl();
         $facebookUrl = $this->model->getFacebookUrl();
         $linkedinUrl = $this->model->getLinkedinUrl();
         $whatsappUrl = $this->model->getWhatsappUrl();
@@ -556,8 +672,8 @@ class EmployerOop
         if (strlen($companyName) > 0 &&  strlen($contactPersonName) > 0 &&  strlen($emailAddress) > 0 &&  strlen($addressLineOne) > 0 &&  strlen($addressLineTwo) > 0 && strlen($city) > 0 &&  strlen($numberOfEmployees) > 0 &&  strlen($industry) > 0 &&  strlen($state) > 0) {
             $sql = "UPDATE employer 
             SET companyName = '$companyName', contactPersonName = '$contactPersonName', emailAddress = '$emailAddress', phoneNumber = '$phoneNumber', addressLineOne = '$addressLineOne', addressLineTwo = '$addressLineTwo', addressLineThree = '$addressLineThree',
-                 postcode = $postcode, city = '$city', state = '$state', numberOfEmployees = '$numberOfEmployees', industry = '$industry', aboutUs = '$aboutUs', facebookUrl = '$facebookUrl', 
-                 linkedinUrl = '$linkedinUrl', whatsappUrl = '$whatsappUrl', status = '$status', dateJoined = '$dateJoined' ";
+                 postcode = $postcode, city = '$city', state = '$state', numberOfEmployees = '$numberOfEmployees', industry = '$industry', aboutUs = '$aboutUs', websiteUrl = '$websiteUrl',
+                 facebookUrl = '$facebookUrl', linkedinUrl = '$linkedinUrl', whatsappUrl = '$whatsappUrl', status = '$status', dateJoined = '$dateJoined' ";
 
             if($password!=""){
                 $password = md5($password);
@@ -593,6 +709,97 @@ class EmployerOop
         }
     }
 
+    function login_validation(){
+        $datas[]['inputName']="";
+        $datas[]['errorMessage']="";
+
+        $emailAddress = $this->model->getEmailAddress();
+        $password = $this->model->getPassword();
+
+        $i=0;
+        $accountFound = false;
+        $employerID="";
+        $status="";
+
+        //null checking
+        if ($emailAddress == "") {
+            $datas[$i]['inputName'] = "emailAddress";
+            $datas[$i]['errorMessage'] = "Email Address is required";
+            $i++;
+        }elseif (filter_var($emailAddress, FILTER_VALIDATE_EMAIL)==false) {
+            $datas[$i]['inputName'] = "emailAddress";
+            $datas[$i]['errorMessage'] = "Invalid email address";
+            $i++;
+        }
+        
+        if ($password == "") {
+            $datas[$i]['inputName'] = "password";
+            $datas[$i]['errorMessage'] = "Password is required";
+            $i++;
+        }
+
+        if($emailAddress!="" && $password!="" && $i==0){
+            $foundEmail=false;
+            $emailSql = "SELECT count(*) as totalRecord
+                    FROM employer
+                    WHERE emailAddress = '$emailAddress'";
+            
+            $statement = $this->connection->query($emailSql);
+            while(($row = $statement->fetch_assoc())==TRUE){
+                $row['totalRecord'] > 0?($foundEmail=true):($foundEmail=false);
+            }
+            if($foundEmail){
+                $password = md5($password);
+                
+                $sql = "SELECT count(*) as totalRecord, employerID, status
+                FROM employer
+                WHERE emailAddress = '$emailAddress' AND password = '$password'";
+        
+                $statement = $this->connection->query($sql);
+                while(($row = $statement->fetch_assoc())==TRUE){
+                    $row['totalRecord'] > 0?($accountFound=true):($accountFound=false);
+                    $employerID = $row['employerID'];
+                    $status = $row['status'];
+                }
+                
+                if($status == "Under Review"){
+                    $datas[$i]['inputName']="emailAddress";
+                    $datas[$i]['errorMessage']="Your application is under review. Please wait... ";
+                    $i++;
+                }elseif($status == "Rejected"){
+                    $datas[$i]['inputName']="emailAddress";
+                    $datas[$i]['errorMessage']="Your application has been rejected";
+                    $i++;
+                }else if($accountFound==false){
+                    $datas[$i]['inputName']="password";
+                    $datas[$i]['errorMessage']="Incorrect password";
+                    $i++;
+                }
+            }else{
+                $datas[$i]['inputName']="emailAddress";
+                $datas[$i]['errorMessage']="Account not found";
+                $i++;
+            }
+        }
+
+        if($i>0){
+            echo json_encode(
+                [
+                    "status" => false,
+                    "data" => $datas,
+                ]
+            );
+        } else{
+            session_start();
+            $_SESSION['employerID']=base64_encode($employerID);
+            echo json_encode(
+                [
+                    "status" => true,
+                ]
+            );
+        }
+    }
+
     function check_validation(){
         $datas[]['inputName']="";
         $datas[]['errorMessage']="";
@@ -610,28 +817,11 @@ class EmployerOop
         $state = $this->model->getState();
         $numberOfEmployees = $this->model->getNumberOfEmployees();
         $industry = $this->model->getIndustry();
-        $aboutUs = $this->model->getAboutUs();
         $logo = $this->model->getLogo();
         $backgroundPicture = $this->model->getBackgroundPicture();
         $officePictures = $this->model->getOfficePictures();
-        $facebookUrl = $this->model->getFacebookUrl();
-        $linkedinUrl = $this->model->getLinkedinUrl();
-        $whatsappUrl = $this->model->getWhatsappUrl();
-        $status = $this->model->getStatus();
-        $dateJoined = $this->model->getDateJoined();
 
         $i=0;
-
-        //db loading
-        // $db_datas=[];
-        // $result = $this->connection->query("SELECT B.origin, B.destination, C.airplane_id, C.name, A.departure_day, A.departure_time, A.arrival_time, B.time_taken_hour
-        //                                     FROM flight_schedule A
-        //                                     JOIN route B ON A.route_id = B.route_id
-        //                                     JOIN airplane C ON A.airplane_id = C.airplane_id
-        //                                     WHERE starting_date >= '2000-01-01'");
-        // while (($row = $result->fetch_assoc()) == TRUE) {
-        //     $db_datas[] = $row;
-        // }
 
         //null checking
         if ($companyName == "") {
@@ -682,7 +872,11 @@ class EmployerOop
             $datas[$i]['inputName'] = "phoneNumber";
             $datas[$i]['errorMessage'] = "Phone Number is required";
             $i++;
-        }else if(!preg_match('/^[0-9]{9,10}+$/', $phoneNumber) || substr_count($phoneNumber, '-')>1){
+        }elseif(substr_count($phoneNumber, '-')>0){
+            $datas[$i]['inputName'] = "phoneNumber";
+            $datas[$i]['errorMessage'] = "Do not include '-'";
+            $i++;
+        }elseif(!preg_match('/^[0-9]{9,10}+$/', $phoneNumber)){
             $datas[$i]['inputName'] = "phoneNumber";
             $datas[$i]['errorMessage'] = "Invalid phone number";
             $i++;
@@ -771,6 +965,95 @@ class EmployerOop
         }
     }
 
+    function register_validation(){
+        $datas[]['inputName']="";
+        $datas[]['errorMessage']="";
+
+        $companyName = $this->model->getCompanyName();
+        $contactPersonName = $this->model->getContactPersonName();
+        $emailAddress = $this->model->getEmailAddress();
+        $password = $this->model->getPassword();
+        $confirmPassword = $this->getConfirmPassword();
+        $phoneNumber = $this->model->getPhoneNumber();
+
+        $i=0;
+
+        //null checking
+        if ($companyName == "") {
+            $datas[$i]['inputName'] = "companyName";
+            $datas[$i]['errorMessage'] = "Company Name is required";
+            $i++;
+        }
+    
+        if ($contactPersonName == "") {
+            $datas[$i]['inputName'] = "contactPersonName";
+            $datas[$i]['errorMessage'] = "Contact Person Name is required";
+            $i++;
+        }
+
+        if ($emailAddress == "") {
+            $datas[$i]['inputName'] = "emailAddress";
+            $datas[$i]['errorMessage'] = "Email Address is required";
+            $i++;
+        }else if (filter_var($emailAddress, FILTER_VALIDATE_EMAIL)==false) {
+            $datas[$i]['inputName'] = "emailAddress";
+            $datas[$i]['errorMessage'] = "Invalid email address";
+            $i++;
+        }
+        
+        if($password ==""){
+            $datas[$i]['inputName']="password";
+            $datas[$i]['errorMessage']="Password is required";
+            $i++;
+        }else{
+            $uppercase = preg_match('@[A-Z]@', $password);
+            $lowercase = preg_match('@[a-z]@', $password);
+            $number    = preg_match('@[0-9]@', $password);
+            $specialChars = preg_match('@[^\w]@', $password);
+            if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($password) < 8) {
+                $datas[$i]['inputName']="password";
+                $datas[$i]['errorMessage']="Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character";
+                $i++;
+            }elseif($password!=$confirmPassword){
+                $datas[$i]['inputName']="password";
+                $datas[$i]['errorMessage']="Password does not match with Confirm Password";
+                $i++;
+                $datas[$i]['inputName']="confirmPassword";
+                $datas[$i]['errorMessage']="Password does not match with Confirm Password";
+                $i++;
+            }
+        }
+
+        if ($phoneNumber == "") {
+            $datas[$i]['inputName'] = "phoneNumber";
+            $datas[$i]['errorMessage'] = "Phone Number is required";
+            $i++;
+        }elseif(substr_count($phoneNumber, '-')>0){
+            $datas[$i]['inputName'] = "phoneNumber";
+            $datas[$i]['errorMessage'] = "Do not include '-'";
+            $i++;
+        }elseif(!preg_match('/^[0-9]{9,10}+$/', $phoneNumber)){
+            $datas[$i]['inputName'] = "phoneNumber";
+            $datas[$i]['errorMessage'] = "Invalid phone number";
+            $i++;
+        }
+
+        if($i>0){
+            echo json_encode(
+                [
+                    "status" => false,
+                    "data" => $datas
+                ]
+            );
+        } else{
+            echo json_encode(
+                [
+                    "status" => true,
+                ]
+            );
+        }
+    }
+
 
 }
 
@@ -778,18 +1061,24 @@ header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript given cors error
 
 $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
-// $formData = $_POST['employerID'];
-// echo $formData;
-// die();
 
 $employerOop = new EmployerOop();
 try {
     switch ($mode) {
-        case  "update":
+        case "create":
+            $employerOop->create();
+            break;
+        case "update":
             $employerOop->update();
+            break;
+        case "login_validation":
+            $employerOop->login_validation();
             break;
         case "check_validation":
             $employerOop->check_validation();
+            break;
+        case "register_validation":
+            $employerOop->register_validation();
             break;
         default:
             throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
