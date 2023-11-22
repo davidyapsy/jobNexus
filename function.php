@@ -48,7 +48,7 @@ function staffLogin($uemail, $pwd, $conn) {
                 $_SESSION['name'] = $row['name'];
                 $_SESSION['staff_id'] = $row['staff_id'];
                 $_SESSION['staffLoggedIn'] =true;
-                header("Location: /flight_ticketing_system/admin"); //change here
+                header("Location: /flight_ticketing_system/employer"); //change here
                 // exit();
             } else {
                 echo "<script>alert('Incorrect Email or Password!'); window.location.href = 'staffLogin.html';</script>";

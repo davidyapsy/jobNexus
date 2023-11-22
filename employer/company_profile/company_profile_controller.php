@@ -1,5 +1,13 @@
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Include PHPMailer library
+require_once '../../phpMailer/src/Exception.php';
+require_once '../../phpMailer/src/PHPMailer.php';
+require_once '../../phpMailer/src/SMTP.php';
+
 class ConnectionString
 {
 
@@ -540,6 +548,9 @@ class EmployerOop
             $this->model->setStatus($status);
             $this->model->setDateJoined($dateJoined);
             $this->setConfirmPassword($confirmPassword);
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update_password"){
+            $this->model->setEmployerID($employerID);
+            $this->model->setPassword($password);
         }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "login_validation"){
             $this->model->setEmailAddress($emailAddress);
             $this->model->setPassword($password);
@@ -568,9 +579,18 @@ class EmployerOop
             $this->model->setCompanyName($companyName);
             $this->model->setPassword($password);
             $this->setConfirmPassword($confirmPassword);
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "forgot_password_validation"){
+            $this->model->setEmailAddress($emailAddress);
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "reset_password_validation"){
+            $this->model->setPassword($password);
+            $this->setConfirmPassword($confirmPassword);
         }
+        
     }
 
+    /**
+     * @throws Exception
+     */
     function create()
     {
         $this->connection->autocommit(false);
@@ -709,6 +729,42 @@ class EmployerOop
         }
     }
 
+    /**
+     * @throws Exception
+     */
+    function update_password()
+    {
+        $this->connection->autocommit(false);
+
+        $employerID = $this->model->getEmployerID();
+        $password = md5($this->model->getPassword());
+
+        if (strlen($password) > 0) {
+            $statement = $this->connection->prepare("UPDATE employer 
+                                                    SET password = ? 
+                                                    WHERE employerID = ?");
+            $statement->bind_param("ss", $password, $employerID);
+
+            try {
+                $statement->execute();
+            } catch (Exception $exception) {
+                throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
+            }
+
+            $this->connection->commit();
+            echo json_encode(
+                [
+                    "status" => true,
+                    "code" => ReturnCode::UPDATE_SUCCESS,
+                ]
+            );
+
+        } else {
+            throw new Exception(ReturnCode::ACCESS_DENIED);
+        }
+    }
+    
+
     function login_validation(){
         $datas[]['inputName']="";
         $datas[]['errorMessage']="";
@@ -719,6 +775,7 @@ class EmployerOop
         $i=0;
         $accountFound = false;
         $employerID="";
+        $companyName="";
         $status="";
 
         //null checking
@@ -751,7 +808,7 @@ class EmployerOop
             if($foundEmail){
                 $password = md5($password);
                 
-                $sql = "SELECT count(*) as totalRecord, employerID, status
+                $sql = "SELECT count(*) as totalRecord, employerID, status, companyName
                 FROM employer
                 WHERE emailAddress = '$emailAddress' AND password = '$password'";
         
@@ -759,6 +816,7 @@ class EmployerOop
                 while(($row = $statement->fetch_assoc())==TRUE){
                     $row['totalRecord'] > 0?($accountFound=true):($accountFound=false);
                     $employerID = $row['employerID'];
+                    $companyName = $row['companyName'];
                     $status = $row['status'];
                 }
                 
@@ -792,6 +850,8 @@ class EmployerOop
         } else{
             session_start();
             $_SESSION['employerID']=base64_encode($employerID);
+            $_SESSION['companyName']=$companyName;
+
             echo json_encode(
                 [
                     "status" => true,
@@ -1054,7 +1114,198 @@ class EmployerOop
         }
     }
 
+    function forgot_password_validation(){
+        $datas[]['inputName']="";
+        $datas[]['errorMessage']="";
 
+        $emailAddress = $this->model->getEmailAddress();
+        $companyName="";
+        $employerID="";
+        $i=0;
+
+        //null checking
+        if ($emailAddress == "") {
+            $datas[$i]['inputName'] = "emailAddress";
+            $datas[$i]['errorMessage'] = "Email Address is required";
+            $i++;
+        }elseif (filter_var($emailAddress, FILTER_VALIDATE_EMAIL)==false) {
+            $datas[$i]['inputName'] = "emailAddress";
+            $datas[$i]['errorMessage'] = "Invalid email address";
+            $i++;
+        }
+
+        if($emailAddress!="" && $i==0){
+            $foundEmail=false;
+            $emailSql = "SELECT count(*) as totalRecord, companyName, employerID
+                    FROM employer
+                    WHERE emailAddress = '$emailAddress'";
+            
+            $statement = $this->connection->query($emailSql);
+            while(($row = $statement->fetch_assoc())==TRUE){
+                $row['totalRecord'] > 0?($foundEmail=true):($foundEmail=false);
+                $companyName = $row['companyName'];
+                $employerID = $row['employerID'];
+            }
+            if(!$foundEmail){
+                $datas[$i]['inputName']="emailAddress";
+                $datas[$i]['errorMessage']="Account not found, please register.";
+                $i++;
+            }else{
+                $this->model->setEmployerID($employerID);
+                $this->model->setCompanyName($companyName);
+                $this->send_email();
+            }
+        }
+
+        if($i>0){
+            echo json_encode(
+                [
+                    "status" => false,
+                    "data" => $datas,
+                ]
+            );
+        } else{
+            echo json_encode(
+                [
+                    "status" => true,
+                ]
+            );
+        }
+    }
+
+    function reset_password_validation(){
+        $datas[]['inputName']="";
+        $datas[]['errorMessage']="";
+
+        $password = $this->model->getPassword();
+        $confirmPassword= $this->getConfirmPassword();
+        $i=0;
+
+        //null checking
+        if($password ==""){
+            $datas[$i]['inputName']="password";
+            $datas[$i]['errorMessage']="Password is required";
+            $i++;
+        }else{
+            $uppercase = preg_match('@[A-Z]@', $password);
+            $lowercase = preg_match('@[a-z]@', $password);
+            $number    = preg_match('@[0-9]@', $password);
+            $specialChars = preg_match('@[^\w]@', $password);
+            if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($password) < 8) {
+                $datas[$i]['inputName']="password";
+                $datas[$i]['errorMessage']="Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character";
+                $i++;
+            }elseif($password!=$confirmPassword){
+                $datas[$i]['inputName']="password";
+                $datas[$i]['errorMessage']="Password does not match with Confirm Password";
+                $i++;
+                $datas[$i]['inputName']="confirmPassword";
+                $datas[$i]['errorMessage']="Password does not match with Confirm Password";
+                $i++;
+            }
+        }
+
+        if($i>0){
+            echo json_encode(
+                [
+                    "status" => false,
+                    "data" => $datas,
+                ]
+            );
+        } else{
+            echo json_encode(
+                [
+                    "status" => true,
+                ]
+            );
+        }
+    }
+
+    private function send_email(){
+        $emailAddress = $this->model->getEmailAddress();
+        $companyName = $this->model->getCompanyName();
+        $employerID = base64_encode($this->model->getEmployerID());
+        // Create a new PHPMailer object
+        $mail = new PHPMailer(true);
+        
+        $content = "
+            <!DOCTYPE html>
+            <html lang='en'>
+
+            <head>
+                <meta charset='UTF-8'>
+                <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <title>Password Reset</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                        background-color: #f4f4f4;
+                    }
+
+                    .container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        background-color: #fff;
+                        padding: 20px;
+                        border-radius: 5px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    }
+
+                    h2 {
+                        color: #333;
+                    }
+
+                    p {
+                        color: #666;
+                    }
+
+                    a {
+                        color: #3498db;
+                        text-decoration: none;
+                        font-weight: bold;
+                    }
+                </style>
+            </head>
+
+            <body>
+                    <h2>Password Reset</h2>
+                    <p>Dear $companyName,</p>
+                    <p>We hope this email finds you well. It appears that you've requested to reset your password for your account with Job Nexus. To complete the password reset process, please click on the following link:</p>
+                    <p><a href='localhost/jobnexus/employer/security/reset_password.php?id=$employerID'>Reset Your Password</a></p>
+                    <p>If you did not initiate this password reset or if you believe this is an error, please disregard this email. Your password will remain unchanged.</p>
+                    <p>For your security, please ensure that you use this link within the next 5 minutes. After this period, the link will expire, and you may need to request another password reset.</p>
+                    <p>If you encounter any issues or have questions, feel free to contact our support team at <a href='mailto:jobnexus2@gmail.com'>jobnexus2@gmail.com</a>.</p>
+                    <p>Thank you for choosing Job Nexus.</p>
+                    <p>Best regards,<br>Job Nexus<br>016-2462609</p>
+            </body>
+
+            </html>
+            ";
+        // Set up the SMTP configuration
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'jobnexus2@gmail.com';
+        $mail->Password = 'njysranxlvecliqc';
+        $mail->SMTPSecure = 'tsl';
+        $mail->Port = 587;
+
+        // Set up the email content
+        $mail->setFrom('jobnexus2@gmail.com');
+        $mail->addAddress($emailAddress);
+        $mail->isHTML(true);
+        $mail->Subject = "Reset Your Password";
+        $mail->Body = $content;
+
+        if($mail->send()){
+            $_SESSION['resetPassword'] = true;
+        }else{
+            $_SESSION['resetPassword'] = false;
+        }
+    }
 }
 
 header('Content-Type: application/json');
@@ -1080,6 +1331,15 @@ try {
         case "register_validation":
             $employerOop->register_validation();
             break;
+        case "forgot_password_validation":
+            $employerOop->forgot_password_validation();
+            break;
+        case "reset_password_validation":
+            $employerOop->reset_password_validation();
+            break;
+        case "update_password":
+            $employerOop->update_password();
+            break;
         default:
             throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
             break;
@@ -1091,3 +1351,4 @@ try {
         "code" => $exception->getCode()
     ]);
 }
+

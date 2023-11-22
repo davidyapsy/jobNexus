@@ -124,17 +124,15 @@
                     </table>
                     <div class="row">
                         <div class="col-12">
-                            <div id="paypal-button-container" class="float-end"></div>
-                            <!-- <button type="button" onclick ="submitConfirmation()" class="btn btn-primary float-end">Pay</button>
-                            <button type="button" onclick ="backConfirmation()" class="btn btn-danger float-start">Back</button> -->
+                            <button type="button" onclick ="submitConfirmation()" class="btn btn-primary float-end">Make Payment</button>
                         </div>
                     </div>
                 </div>
             </div>
-            
+            <form class="paypal" action="subscription_payment.php" method="post" id="paypal_form">
+                <input type="hidden" name="cmd" value="_xclick" />
+            </form>
         </div> 
-
-        <script src="https://www.paypal.com/sdk/js?client-id=AfsidUJ0qphlCX2w8BcZEy0aU4LRstW3agQbAvbIWcbBcOzRwF-TJ7nQ5VeN8pMX0-g-DLMLpAWd-k1d&currency=MYR"></script>
 
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
@@ -232,6 +230,44 @@
             })
         }
 
+        function makePayment() {
+            $.ajax({
+                type: "post",
+                url: url,
+                contentType:"application/x-www-form-urlencoded",
+                data: {
+                    mode: "make_payment",
+                    subscriptionPlanID: $("#subscriptionPlanID").val(),
+                    totalAmount: <?=$data['price']*1.1?>,
+                    autoRenewal: ($("#chkAutoRenewal").is(':checked') ? 1 : 0)
+                }, success: function (response) {
+                    const data = response;
+                    if (data.status) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Record successfully created! ',
+                            icon: 'success',
+                            confirmButtonText: 'Cool'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "subscription_sales_invoice.php?id="+encodeURI(btoa(data.subscriptionID));
+                            }
+                        });
+                        
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Please contact technical staff! ',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        })
+                    }
+                }, failure: function (xhr) {
+                    console.log(xhr.status);
+                }
+            })
+        }
+
         function createRecord() {
             $.ajax({
                 type: "post",
@@ -273,120 +309,8 @@
                 }
             })
         }
+        
 
-        // window.paypal
-        // .Buttons({
-        //     async createOrder() {
-        //     try {
-        //         const response = await fetch("/api/orders", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //         // use the "body" param to optionally pass additional order information
-        //         // like product ids and quantities
-        //         body: JSON.stringify({
-        //             cart: [
-        //             {
-        //                 id: "YOUR_PRODUCT_ID",
-        //                 quantity: "YOUR_PRODUCT_QUANTITY",
-        //             },
-        //             ],
-        //         }),
-        //         });
-                
-        //         const orderData = await response.json();
-                
-        //         if (orderData.id) {
-        //         return orderData.id;
-        //         } else {
-        //         const errorDetail = orderData?.details?.[0];
-        //         const errorMessage = errorDetail
-        //             ? `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})`
-        //             : JSON.stringify(orderData);
-                
-        //         throw new Error(errorMessage);
-        //         }
-        //     } catch (error) {
-        //         console.error(error);
-        //         resultMessage(`Could not initiate PayPal Checkout...<br><br>${error}`);
-        //     }
-        //     },
-        //     async onApprove(data, actions) {
-        //     try {
-        //         const response = await fetch(`/api/orders/${data.orderID}/capture`, {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //         });
-                
-        //         const orderData = await response.json();
-        //         // Three cases to handle:
-        //         //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-        //         //   (2) Other non-recoverable errors -> Show a failure message
-        //         //   (3) Successful transaction -> Show confirmation or thank you message
-                
-        //         const errorDetail = orderData?.details?.[0];
-                
-        //         if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
-        //             // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-        //             // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
-        //             return actions.restart();
-        //         } else if (errorDetail) {
-        //             // (2) Other non-recoverable errors -> Show a failure message
-        //             throw new Error(`${errorDetail.description} (${orderData.debug_id})`);
-        //         } else if (!orderData.purchase_units) {
-        //             throw new Error(JSON.stringify(orderData));
-        //         } else {
-        //         // (3) Successful transaction -> Show confirmation or thank you message
-        //         // Or go to another URL:  actions.redirect('thank_you.html');
-        //         const transaction =
-        //             orderData?.purchase_units?.[0]?.payments?.captures?.[0] ||
-        //             orderData?.purchase_units?.[0]?.payments?.authorizations?.[0];
-        //         resultMessage(
-        //             `Transaction ${transaction.status}: ${transaction.id}<br><br>See console for all available details`,
-        //         );
-        //         console.log(
-        //             "Capture result",
-        //             orderData,
-        //             JSON.stringify(orderData, null, 2),
-        //         );
-        //         }
-        //     } catch (error) {
-        //         console.error(error);
-        //         resultMessage(
-        //         `Sorry, your transaction could not be processed...<br><br>${error}`,
-        //         );
-        //     }
-        //     },
-        // })
-        // .render("#paypal-button-container");
-  
-        // Example function to show a result to the user. Your site's UI library can be used instead.
-        function resultMessage(message) {
-            const container = document.querySelector("#result-message");
-            container.innerHTML = message;
-        }
-
-        paypal.Buttons({
-            createOrder: (data, actions) => {
-                return actions.order.create({
-                    purchase_units:[{
-                        amount: {
-                            value:'0.01'
-                        }
-                    }]
-                });
-            },
-            onApprove: (data, actions) => {
-                return actons.order.capture().then(function(orderData){
-                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-                    const transaction = orderData.purchase_units[0].payments.captures[0];
-                    console.log(`Transaction ${transactions.status}: ${transaction.id}\n\n`)
-                });
-            }
-        }).render('#paypal-button-container');
 
     </script>
 </html>

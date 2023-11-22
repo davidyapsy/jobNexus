@@ -25,7 +25,7 @@
         <script src = "https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.1/jquery.twbsPagination.min.js"> </script>  
 
 
-        <link href="../../admin/assets/css/content.css" type="text/css" rel="stylesheet">
+        <link href="../../employer/assets/css/content.css" type="text/css" rel="stylesheet">
 
         <style>
             .col-md-3 .form-group label{
@@ -35,8 +35,8 @@
     </head>
 
     <body>
-        <?php require('../../admin/topBar.php') ?>
-        <?php require('../../admin/sideNav.php') ?>
+        <?php require('../../employer/topBar.php') ?>
+        <?php require('../../employer/sideNav.php') ?>
 
         <div class="main h-100">
             <div class="panel panel-bordered p-2">

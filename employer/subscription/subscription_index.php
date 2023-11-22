@@ -5,20 +5,6 @@
     $database = "db_jobnexus";
 
     $connection = new mysqli($serverName, $userName, $password, $database);
-    $jobPostingID = base64_decode($_GET['id']);
-
-    $sql = "SELECT C.jobTitle, B.firstName, B.lastName, B.emailAddress, B.working_experience, A.availableDate, A.status
-            FROM job_application A 
-            JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
-            JOIN job_posting C ON A.jobPostingID = C.jobPostingID
-            JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
-            WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = 'E2300000'";
-
-    $result = $connection->query($sql);
-    $data =[];
-    while(($row = $result->fetch_assoc())==TRUE){
-        $data = $row;
-    }
 ?>
 <html>
     <head>
@@ -38,7 +24,7 @@
         <script src = "https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.1/jquery.twbsPagination.min.js"> </script>  
 
 
-        <link href="../../admin/assets/css/content.css" type="text/css" rel="stylesheet">
+        <link href="../../employer/assets/css/content.css" type="text/css" rel="stylesheet">
 
         <style>
             .col-md-3 .form-group label{
@@ -48,69 +34,77 @@
     </head>
 
     <body>
-        <?php require('../../admin/topBar.php') ?>
-        <?php require('../../admin/sideNav.php') ?>
+        <?php require('../../employer/topBar.php') ?>
+        <?php require('../../employer/sideNav.php') ?>
 
         <div class="main h-100">
             <div class="panel panel-bordered p-2">
                 <div class="panel-heading p-2">
                     <div class="row">
                         <div class="col-11">
-                            <h3>Job Application / <?=$data['jobTitle']?></h3>
+                            <h3>Subscription</h3>
+                        </div>
+                        <div class="col">
+                            <a href="subscription_plan.php">
+                                <button type="button" class="btn btn-primary btn-round">
+                                    <span class="text hidden-md-down">Subscribe</span>
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
                     <form id="filterBox" method="post" action="">
                         <h4 style="padding-left:15px;">Filter Box</h4>
-                        <input type="hidden" id="jobPostingID" name="jobPostingID" value=" <?= base64_encode($jobPostingID);?>">
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="jobSeekerName" id="jobSeekerName" placeholder="Job Seeker Name"/>
+                                    <select class="form-select" id="subscriptionPlan" name="subscriptionPlan">
+                                        <option value="">All (Subscription Plan)</option>
+                                        <?php $subscriptionPlan_sql = "SELECT subscriptionPlanID, planName
+                                                                FROM subscription_plan 
+                                                                WHERE isActive = 1";
+                                        $subscriptionPlan_result = $connection->query($subscriptionPlan_sql);
+                                        while (($row = $subscriptionPlan_result->fetch_assoc()) == TRUE) { ?>
+                                                    <option value="<?= base64_encode($row['subscriptionPlanID']); ?>"><?= $row['planName'] ?></option>
+                                        <?php } ?>
+                                    </select>                                
                                 </div>                            
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="address" id="address" placeholder="Address"/>
+                                    <input type="date" class="form-control date" name="startDateFrom" id="startDateFrom" title="Start Date (From)">
+                                    <label for="startDateFrom">Start Date (From)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input type="date" class="form-control date" name="startDateTo" id="startDateTo" title="Start Date (To)">
+                                    <label for="startDateTo">Start Date (To)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <select class="form-select" id="autoRenewal" name="autoRenewal">
+                                        <option value="">All (Auto Renewal)</option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
                                 </div>                            
-                            </div>
-                            <div class="col-md-3">
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i>More than or equals to</i>
-                                    </span>
-                                    <input type="number" class="form-control" id="workingExperience" name="workingExperience" value="0" min="0" title="Working Experience">
-                                    <span class="input-group-text">
-                                        <i>Years</i>
-                                    </span>
-                                </div>                          
-                            </div>
-                            <div class="col-md-3">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="skills" name="skills" placeholder="Skills">
-                                </div>                          
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i>More than or equals to (RM)</i>
-                                    </span>
-                                    <input type="number" class="form-control" id="salaryExpectation" name="salaryExpectation" value="0" title="SalaryExpectation" min="0">
-                                </div>                          
+                                <div class="form-group">
+                                    <input type="date" class="form-control date" name="endDateFrom" id="endDateFrom" title="Start Date (From)">
+                                    <label for="endDateFrom">End Date (From)</label>
+                                </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <select class="form-select" id="status" name="status">
-                                        <option value="">All (Status)</option>
-                                        <option value="Under Review">Under Review</option>
-                                        <option value="Shortlisted">Shortlisted</option>
-                                        <option value="Interview Scheduled">Interview Scheduled</option>
-                                        <option value="Interviewed">Interviewed</option>
-                                    </select>
-                                </div>                            
+                                    <input type="date" class="form-control date" name="endDateTo" id="endDateTo" title="End Date (To)">
+                                    <label for="endDateTo">End Date (To)</label>
+                                </div>
                             </div>
                         </div>
                         <div class="text-center">
@@ -134,17 +128,16 @@
                             </button>
                         </div>
                     </form>
+
                     <div class="row" style="padding-left:15px; padding-right:15px;">
-                        <table class="table table-bordered" id="job_application_table">
+                        <table class="table table-bordered" id="job_post_table">
                             <thead>
                                 <tr>
                                     <th class="text-center" scope="col" style="width:5%;">No.</th>
-                                    <th class="text-center" scope="col" style="width:20%;">Job Seeker Name</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Address</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Working Year(s)</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Skills</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Salary Expectation</th>
-                                    <th class="text-center" scope="col" style="width:10%;">Status</th>
+                                    <th class="text-center" scope="col" style="width:30%;">Subscription Plan</th>
+                                    <th class="text-center" scope="col" style="width:25%;">Start Date</th>
+                                    <th class="text-center" scope="col" style="width:25%;">End Date</th>
+                                    <th class="text-center" scope="col" style="width:10%;">Auto Renewal</th>
                                     <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
                                 </tr>
                             </thead>
@@ -165,7 +158,7 @@
 
     <script>
     // at here we try to be native as possible and you can use url to ease change the which one you prefer
-    let url = "job_application_controller.php";
+    let url = "subscription_controller.php";
     const tbody = $("#filtered_data");
         
         $(window).on("load", function() {
@@ -180,13 +173,12 @@
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     mode: "search",
-                    jobPostingID: $('#jobPostingID').val(),
-                    jobSeekerName: $("#jobSeekerName").val(),
-                    address: $("#address").val(),
-                    workingExperience: $("#workingExperience").val(),
-                    skills: $("#skills").val(),
-                    salaryExpectation: $("#salaryExpectation").val(),
-                    status: $("#status").val(),
+                    subscriptionPlanID: $("#subscriptionPlan").val(),
+                    startDateFrom: $("#startDateFrom").val(),
+                    startDateTo: $("#startDateTo").val(),
+                    endDateFrom: $("#endDateFrom").val(),
+                    endDateTo: $("#endDateTo").val(),
+                    autoRenewal: ($("#autoRenewal").val()==""?2:$("#autoRenewal").val()),
                     page: page_number
                 }, success: function (response) {
                     const data = response;
@@ -195,32 +187,19 @@
                         var tableStringBuilder = '';
                         if(response.data.length > 0)
                         {
-                            for(var i = 0; i < records.length; i++){
-                                var statusLine="";
-                                if(records[i].status=="Under Review"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-light text-dark'>Under Review</span>" + "</td>" 
-                                }else if(records[i].status=="Shortlisted"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-secondary'>Shortlisted</span>" + "</td>" 
-                                }
-                                else if(records[i].status=="Interview Scheduled"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-info text-dark'>Interview Scheduled</span>" + "</td>" 
-                                }
-                                else if(records[i].status=="Interviewed"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Interview Scheduled</span>" + "</td>" 
-                                }
+                            for(var i = 0; i < records.length; i++)
+                            {
                                 tableStringBuilder+=
                                 "  <tr>" +
                                 "        <th scope='row' class='text-center'>" + (((i+1)+page_number*5)-5) + ".</th>" +
-                                "        <td>" + records[i].jobSeekerName + "</td>" +
-                                "        <td>" + records[i].address + "</td>" +
-                                "        <td>" + records[i].working_experience + " Year(s)" + "</td>" +
-                                "        <td>" + records[i].skills + "</td>" +
-                                "        <td>" + records[i].salaryExpectation + "</td>" +
-                                statusLine +
+                                "        <td>" + records[i].planName + "</td>" +
+                                "        <td>" + records[i].startDate + "</td>" +
+                                "        <td>" + records[i].endDate + "</td>" +
+                                "        <td class='text-center'>" + (records[i].autoRenewal==1?"<span class='badge bg-success'>Yes</span>":"<span class='badge bg-info'>No</span>") + "</td>" +
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
-                                "             <a href=\"job_application_edit.php?jaID="+ encodeURI(btoa(records[i].applicationID)) +"&jpID="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
+                                "             <a href=\"subscription_edit.php?id="+ encodeURI(btoa(records[i].subscriptionID)) + "\">"+
                                 "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
                                 "                 <i class=\"bi bi-pencil\"></i>" +
                                 "               </button>"+
@@ -233,9 +212,10 @@
                         }
                         else
                         {
-                            tableStringBuilder += '<tr><td colspan="7" class="text-center">No Data Found</td></tr>';
+                            tableStringBuilder += '<tr><td colspan="6" class="text-center">No Data Found</td></tr>';
                         }
                         tbody.html("").html(tableStringBuilder);
+                        // document.getElementById('total_data').innerHTML = response.total_data;
                         $('#pagination_link').html(response.pagination);
                     } else {
                         console.log("something wrong");
@@ -254,26 +234,27 @@
         }
 
         function export_to_excel(){
-            var jobSeekerName= $("#jobSeekerName").val();
-            var address= $("#address").val();
-            var workingExperience= $("#workingExperience").val();
-            var skills= $("#skills").val();
-            var salaryExpectation= $("#salaryExpectation").val();
-            var status= $("#status").val();
+            var subscriptionPlanID= $("#subscriptionPlan").val();
+            var startDateFrom= $("#startDateFrom").val();
+            var startDateTo = $("#startDateTo").val();
+            var autoRenewal = ($("#autoRenewal").val()==""?2:$("#autoRenewal").val());
+            var endDateFrom= $("#endDateFrom").val();
+            var endDateTo = $("#endDateTo").val();
+
             $.ajax({
                 type: "post",
-                url: "job_application_export.php",
+                url: "subscription_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
-                    jobSeekerName: jobSeekerName,
-                    address: address,
-                    workingExperience: workingExperience,
-                    skills: skills,
-                    availableDateTo: availableDateTo,
-                    status: status
+                    subscriptionPlanID: subscriptionPlanID,
+                    startDateFrom: startDateFrom,
+                    startDateTo: startDateTo,
+                    autoRenewal: autoRenewal,
+                    endDateFrom: endDateFrom,
+                    endDateTo: endDateTo
                 },success: function(dataResult){
-                    window.open('job_application_export.php?jobSeekerName='+jobSeekerName+'&address='+address+'&workingExperience='+workingExperience
-                    +'&skills='+skills+'&salaryExpectation='+salaryExpectation+'&status='+status);
+                    window.open('subscription_export.php?subscriptionPlanID='+subscriptionPlanID+'&startDateFrom='+startDateFrom+'&startDateTo='+startDateTo
+                    +'&autoRenewal='+autoRenewal+'&endDateFrom='+endDateFrom+'&endDateTo='+endDateTo);
                 }, failure: function(xhr){
                     console.log(xhr);
                 }

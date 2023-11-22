@@ -39,7 +39,7 @@
         <!-- Top Bar -->
         <nav class="navbar navbar-expand-sm bg-white navbar-white fixed-top w-100 shadow-sm">
             <div class="container-fluid w-100">
-                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/admin"><h3>Job Nexus</h3></a>
+                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/employer/security/login.php"><h3>Job Nexus</h3></a>
                 <a href="login.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right text-white"> Login</i></a>
             </div>
         </nav>
@@ -49,7 +49,7 @@
             <div class="p-3 border bg-white rounded">
                 <div class="row pb-2 text-center">
                     <div class="w-100">
-                        <img class="rounded" width="70" height="70" src="/jobnexus/admin/assets/pictures/logo.jpg" alt="">
+                        <img class="rounded" width="70" height="70" src="/jobnexus/employer/assets/pictures/logo.jpg" alt="">
                     </div>
                 </div>
                 <div class="row">
@@ -74,9 +74,9 @@
             <p class="pb-2">© 2023. ALL RIGHT RESERVED.</p>
             <p>
                 <h4>
-                    <a href="https://www.instagram.com/tarumt.official/"><i class="bi bi-instagram px-3"></a></i> 
-                    <a href="https://www.facebook.com/tarumtkl"><i class="bi bi-facebook px-3"></a></i> 
-                    <a href="https://wa.me/0162462609"><i class="bi bi-whatsapp px-3"></a></i>
+                    <a href="https://www.instagram.com/tarumt.official/" target="_blank"><i class="bi bi-instagram px-3"></a></i> 
+                    <a href="https://www.facebook.com/tarumtkl" target="_blank"><i class="bi bi-facebook px-3"></a></i> 
+                    <a href="https://wa.me/0162462609" target="_blank"><i class="bi bi-whatsapp px-3"></a></i>
                 </h4>
             </p>
         </div>

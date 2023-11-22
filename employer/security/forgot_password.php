@@ -27,18 +27,19 @@
         <!-- Top Bar -->
         <nav class="navbar navbar-expand-sm bg-white navbar-white fixed-top w-100 shadow-sm">
             <div class="container-fluid w-100">
-                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/admin"><h3>Job Nexus</h3></a>
+                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/employer/security/login.php"><h3>Job Nexus</h3></a>
                 <a href="register.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right text-white"> Register</i></a>
             </div>
         </nav>
         <!--End Top Bar-->
 
-        <div class="position-absolute top-50 start-50 translate-middle w-25">
+        <div class="position-absolute top-50 start-50 translate-middle w-50">
             <div class="p-3 border bg-white rounded">
                 <form method="post">
                     <div class="row pb-2 text-center">
                         <div class="col-sm-12">
-                            <img class="rounded" width="70" height="70" src="/jobnexus/admin/assets/pictures/logo.jpg" alt="">
+                            <label for="forgotPassword"><h3>Forgot Your Password?</h3></label>
+                            <p>Enter your registered email address to reset your password</p>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -47,21 +48,9 @@
                             <div class="invalid-feedback"></div>
                         </div>
                     </div>
-                    <div class="form-group row pb-5">
-                        <div class="col-sm-12">
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Password"/>
-                                <span class="input-group-text" onclick="toggleVisibility('password', 'passwordVisibility')">
-                                    <i id="passwordVisibility" class='bi bi-eye-slash'></i>
-                                </span>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <a href="" id="forgotPassword" name="forgotPassword">Forgot Password?</a>
-                        </div>
-                    </div>
                     <div class="form-group row">
                         <div class="col-sm-12">
-                            <button type="button" onclick ="login()" class="w-100 btn btn-primary" >Login</button>
+                            <button type="button" onclick ="submitValidate()" class="w-100 btn btn-primary" >Reset Password</button>
                         </div>
                     </div>
                 </form>
@@ -72,9 +61,9 @@
             <p class="pb-2">© 2023. ALL RIGHT RESERVED.</p>
             <p>
                 <h4>
-                    <a href="https://www.instagram.com/tarumt.official/"><i class="bi bi-instagram px-3"></a></i> 
-                    <a href="https://www.facebook.com/tarumtkl"><i class="bi bi-facebook px-3"></a></i> 
-                    <a href="https://wa.me/0162462609"><i class="bi bi-whatsapp px-3"></a></i>
+                    <a href="https://www.instagram.com/tarumt.official/" target="_blank"><i class="bi bi-instagram px-3"></a></i> 
+                    <a href="https://www.facebook.com/tarumtkl" target="_blank"><i class="bi bi-facebook px-3"></a></i> 
+                    <a href="https://wa.me/0162462609" target="_blank"><i class="bi bi-whatsapp px-3"></a></i>
                 </h4>
             </p>
         </div>
@@ -95,7 +84,7 @@
     </body>
 
     <script>
-        let url = "/jobnexus/admin/company_profile/company_profile_controller.php";
+        let url = "/jobnexus/employer/company_profile/company_profile_controller.php";
         
         function toggleVisibility(input, e){
             var passInput=$("#"+input);
@@ -108,16 +97,15 @@
             }
         }
 
-        function login(){
+        function submitValidate(){
             $('.is-invalid').removeClass('is-invalid');
             $.ajax({
                 type: "post",
                 url: url,
                 contentType:"application/x-www-form-urlencoded",
                 data: {
-                    mode: "login_validation",
-                    emailAddress: $("#emailAddress").val(),
-                    password: $("#password").val()
+                    mode: "forgot_password_validation",
+                    emailAddress: $("#emailAddress").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status==false) {
@@ -128,7 +116,16 @@
                             el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
                         }
                     } else {
-                        window.location.href="/jobnexus/admin";
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Please check your email! ',
+                            icon: 'success',
+                            confirmButtonText: 'Cool'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href="login.php";
+                            }
+                        });
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);
@@ -138,3 +135,4 @@
 
     </script>
 </html>
+

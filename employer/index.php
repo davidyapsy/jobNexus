@@ -1,6 +1,5 @@
 <?php
 session_start();
-echo ($_SESSION['employerID']);
 ?>
 <html>
     <head>
@@ -39,7 +38,7 @@ echo ($_SESSION['employerID']);
         <div class="main h-100">
             <div class="panel p-2">
                 <h1>
-                    <p>Welcome back, David</p>                    
+                    <p>Welcome back, <?=$_SESSION['companyName']?></p>                    
                 </h1>
             </div>
             
