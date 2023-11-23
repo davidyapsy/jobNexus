@@ -1,4 +1,5 @@
 <?php
+    session_start();
     $serverName = "localhost";
     $userName = "root";
     $password = "";
@@ -17,7 +18,11 @@
     while(($row = $result->fetch_assoc())==TRUE){
         $data = $row;
     }
+
+    if(time()<=$_SESSION['resetPasswordTime']){
+        
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -205,3 +210,9 @@
 
     </script>
 </html>
+
+<?php
+    } else {
+        header("location: forgot_password.php?status=expired&emailAddress=".$data['emailAddress']);
+    }
+?>

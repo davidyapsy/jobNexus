@@ -1299,11 +1299,10 @@ class EmployerOop
         $mail->isHTML(true);
         $mail->Subject = "Reset Your Password";
         $mail->Body = $content;
-
+    
         if($mail->send()){
-            $_SESSION['resetPassword'] = true;
-        }else{
-            $_SESSION['resetPassword'] = false;
+            session_start();
+            $_SESSION['resetPasswordTime']=time()+300;
         }
     }
 }

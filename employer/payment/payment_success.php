@@ -5,8 +5,6 @@
     $database = "db_jobnexus";
 
     $connection = new mysqli($serverName, $userName, $password, $database);
-    $status = isset($_GET['status'])?($_GET['status']):"";
-    $emailAddress = isset($_GET['emailAddress'])?($_GET['emailAddress']):"";
 
 ?>
 <!DOCTYPE html>
@@ -29,30 +27,28 @@
         <!-- Top Bar -->
         <nav class="navbar navbar-expand-sm bg-white navbar-white fixed-top w-100 shadow-sm">
             <div class="container-fluid w-100">
-                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/employer/security/login.php"><h3>Job Nexus</h3></a>
-                <a href="register.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right text-white"> Register</i></a>
+                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/employer/index.php"><h3>Job Nexus</h3></a>
             </div>
         </nav>
         <!--End Top Bar-->
 
-        <div class="position-absolute top-50 start-50 translate-middle w-50">
+        <div class="position-absolute top-50 start-50 translate-middle w-25">
             <div class="p-3 border bg-white rounded">
                 <form method="post">
                     <div class="row pb-2 text-center">
                         <div class="col-sm-12">
-                            <label for="forgotPassword"><h3>Forgot Your Password?</h3></label>
-                            <p>Enter your registered email address to reset your password</p>
+                            <h1 class="display-1"><i class="bi bi-check2-circle text-success"></i></h1>
+                            <h1 class="text-success">Payment Completed</h1><br>
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-12">
-                            <input type="input" class="form-control" name="emailAddress" id="emailAddress" placeholder="Email Address"/>
-                            <div class="invalid-feedback"></div>
+                            <button type="button" onclick ="printReceipt()" class="w-100 btn btn-primary" >Print Receipt</button>
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-12">
-                            <button type="button" onclick ="submitValidate()" class="w-100 btn btn-primary" >Reset Password</button>
+                            <button type="button" onclick ="backToIndex()" class="w-100 btn btn-primary" >Back to Home Page</button>
                         </div>
                     </div>
                 </form>
@@ -86,48 +82,40 @@
     </body>
 
     <script>
-        let url = "/jobnexus/employer/company_profile/company_profile_controller.php";
+        let url = "/jobnexus/employer/subscription/subscription_controller.php";
         
-        $(window).on("load", function(){
-            var status = "<?=$status?>";
-            var emailAddress = "<?=$emailAddress?>"
-            if(status=="expired"){
-                Swal.fire({
-                    title: 'Expired!',
-                    text: 'Url has expired! ',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Regenerate',
-                    cancelButtonText: 'Cancel',
-                }).then((result) => {
-                    $('#emailAddress').val(emailAddress);
-                    if (result.isConfirmed) {
-                        submitValidate();
-                    }
-                });
-            }
-        })
+        $(window).load(function() {
+            $.ajax({
+                type: "post",
+                url: url,
+                contentType:"application/x-www-form-urlencoded",
+                data: {
+                    mode: "create",
+                    subscriptionPlanID: <?=$_SESSION['subscriptionPlanID']?>,
+                    startDate : $("#startDate").val(),
+                    endDate: $("#endDate").val(),
+                    subtotalAmount: <?=$data['price']?>,
+                    sstAmount: <?=$data['price']*0.1?>,
+                    totalAmount: <?=$data['price']*1.1?>,
+                    autoRenewal: ($("#chkAutoRenewal").is(':checked') ? 1 : 0)
+                }, success: function (response) {
+                    
+                }, failure: function (xhr) {
+                    console.log(xhr.status);
+                }
+            })
+        });
 
-        function toggleVisibility(input, e){
-            var passInput=$("#"+input);
-            if(passInput.attr('type')==='password'){
-                passInput.attr('type','text');
-                $('#'+e).removeClass('bi bi-eye-slash').addClass('bi bi-eye');
-            }else{
-                passInput.attr('type','password');
-                $('#'+e).removeClass('bi bi-eye').addClass('bi bi-eye-slash');
-            }
-        }
-
-        function submitValidate(){
+        function printReceipt(){
             $('.is-invalid').removeClass('is-invalid');
             $.ajax({
                 type: "post",
                 url: url,
                 contentType:"application/x-www-form-urlencoded",
                 data: {
-                    mode: "forgot_password_validation",
-                    emailAddress: $("#emailAddress").val()
+                    mode: "login_validation",
+                    emailAddress: $("#emailAddress").val(),
+                    password: $("#password").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status==false) {
@@ -138,16 +126,7 @@
                             el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
                         }
                     } else {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Please check your email! ',
-                            icon: 'success',
-                            confirmButtonText: 'Cool'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href="login.php";
-                            }
-                        });
+                        window.location.href="/jobnexus/employer";
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);
@@ -157,4 +136,3 @@
 
     </script>
 </html>
-

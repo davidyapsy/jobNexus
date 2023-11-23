@@ -208,6 +208,10 @@ class SubscriptionOop
     private $startDateTo;
     private $endDateFrom;
     private $endDateTo;
+    private $totalAmount;
+    private $taxAmount;
+    private $subtotalAmount;
+    private $paymentMethod;
     private $page;
 
     public function getStartDateFrom(): String
@@ -251,6 +255,50 @@ class SubscriptionOop
     public function setEndDateTo($endDateTo=""): SubscriptionOop
     {
         $this->endDateTo = $endDateTo;
+        return $this;
+    }
+
+    public function getTotalAmount(): float
+    {
+        return $this->totalAmount;
+    }
+
+    public function setTotalAmount($totalAmount=0): SubscriptionOop
+    {
+        $this->totalAmount = $totalAmount;
+        return $this;
+    }
+
+    public function getTaxAmount(): float
+    {
+        return $this->taxAmount;
+    }
+
+    public function setTaxAmount($taxAmount=0): SubscriptionOop
+    {
+        $this->taxAmount = $taxAmount;
+        return $this;
+    }
+
+    public function getSubtotalAmount(): float
+    {
+        return $this->subtotalAmount;
+    }
+
+    public function setSubtotalAmount($subtotalAmount=0): SubscriptionOop
+    {
+        $this->subtotalAmount = $subtotalAmount;
+        return $this;
+    }
+
+    public function getPaymentMethod(): String
+    {
+        return $this->paymentMethod;
+    }
+
+    public function setPaymentMethod($paymentMethod=""): SubscriptionOop
+    {
+        $this->paymentMethod = $paymentMethod;
         return $this;
     }
 
@@ -323,8 +371,9 @@ class SubscriptionOop
         $endDateFrom = filter_input(INPUT_POST, "endDateFrom", FILTER_SANITIZE_STRING);
         $endDateTo = filter_input(INPUT_POST, "endDateTo", FILTER_SANITIZE_STRING);
         $subtotalAmount = filter_input(INPUT_POST, "subtotalAmount", FILTER_SANITIZE_STRING);
-        $taxAmount = filter_input(INPUT_POST, "subtotalAmount", FILTER_SANITIZE_STRING);
-        $subtotalAmount = filter_input(INPUT_POST, "subtotalAmount", FILTER_SANITIZE_STRING);
+        $taxAmount = filter_input(INPUT_POST, "taxAmount", FILTER_SANITIZE_STRING);
+        $totalAmount = filter_input(INPUT_POST, "totalAmount", FILTER_SANITIZE_STRING);
+        $paymentMethod = filter_input(INPUT_POST, "paymentMethod", FILTER_SANITIZE_STRING);
 
         $page = filter_input(INPUT_POST, "page", FILTER_SANITIZE_NUMBER_INT);
 
@@ -334,11 +383,17 @@ class SubscriptionOop
             $this->model->setStartDate($startDate);
             $this->model->setEndDate($endDate);
             $this->model->setAutoRenewal($autoRenewal);
+            $this->setSubtotalAmount($subtotalAmount);
+            $this->setTaxAmount($taxAmount);
+            $this->setTotalAmount($totalAmount);
+            $this->setPaymentMethod($paymentMethod);
+
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
             $this->model->setSubscriptionID($subscriptionID);
             $this->model->setAutoRenewal($autoRenewal);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
             $this->model->setStartDate($startDate);
+            $this->setPaymentMethod($paymentMethod);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
             $this->setPage($page);
             $this->model->setSubscriptionPlanID($subscriptionPlanID);
@@ -349,6 +404,11 @@ class SubscriptionOop
             $this->model->setAutoRenewal($autoRenewal);
         }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "make_payment"){
             $this->model->setSubscriptionPlanID($subscriptionPlanID);
+            $this->model->setStartDate($startDate);
+            $this->model->setEndDate($endDate);
+            $this->model->setAutoRenewal($autoRenewal);
+            $this->setPaymentMethod($paymentMethod);
+
         }
     }
 
@@ -419,17 +479,17 @@ class SubscriptionOop
             $paymentID = $tempPaymentID.$newNumber;
         }
 
-        $paymentMethod = "PayPal";
-        $amount = 52.49;
+        $paymentMethod = $this->getPaymentMethod();
+        $amount = $this->getTotalAmount();
         $paymentStatus = "Completed";
         $paymentDateTime = date("Y-m-d H:i:s");
 
         //sales
         $saleID=str_replace('P', 'S', $paymentID);
         $salesDateTime = date("Y-m-d H:i:s");
-        $subtotalAmount = 49.99;
-        $taxAmount = 2.5;
-        $totalAmount = 52.49;
+        $subtotalAmount = $this->getSubtotalAmount();
+        $taxAmount = $this->getTaxAmount();
+        $totalAmount = $this->getTotalAmount();
 
         //insert into db
         if (strlen($paymentID) > 0 &&  strlen($saleID) > 0 &&  strlen($subscriptionID) > 0 &&  strlen($startDate) > 0) {
@@ -741,12 +801,19 @@ class SubscriptionOop
         $datas[]['errorMessage']="";
 
         $startDate = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getStartDate())));
+        $paymentMethod = $this->getPaymentMethod();
         $i=0;
         
         //null checking
         if($startDate == "1970-01-01"){
             $datas[$i]['inputName']="startDate";
-            $datas[$i]['errorMessage']="Please select a start date";
+            $datas[$i]['errorMessage']="Start Date is required";
+            $i++;
+        }
+
+        if($paymentMethod == ""){
+            $datas[$i]['inputName']="paymentMethod";
+            $datas[$i]['errorMessage']="Payment Method is required";
             $i++;
         }
 
@@ -767,34 +834,45 @@ class SubscriptionOop
     }
 
     function make_payment(){
-        $enableSandbox = true;
+        $itemName = "";
+        $itemAmount = 0;
+        $subscriptionPlanID=$this->model->getSubscriptionPlanID();
+        $startDate=$this->model->getStartDate();
+        $endDate=$this->model->getEndDate();
+        $autoRenewal=$this->model->getAutoRenewal();
+        $paymentMethod=$this->getPaymentMethod();
 
-        // PayPal settings. Change these to your account details and the relevant URLs
-        // for your site.
+        $html_query = "&startDate=$startDate&endDate=$endDate&autoRenewal=$autoRenewal&paymentMethod=$paymentMethod";
+
         $paypalConfig = [
             'email' => 'jobnexus2@gmail.com',
-            'return_url' => 'http://example.com/payment-successful.html',
-            'cancel_url' => 'http://example.com/payment-cancelled.html',
-            'notify_url' => 'http://example.com/payments.php'
+            'return_url' => 'http://localhost/jobnexus/employer/subscription/subscription_order_summary.php?id='.base64_encode($subscriptionPlanID).'&status=success'.$html_query,
+            'cancel_url' => 'http://localhost/jobnexus/employer/subscription/subscription_order_summary.php?id='.base64_encode($subscriptionPlanID).'&status=failed',
+            'notify_url' => 'http://localhost/jobnexus/employer/subscription/subscription_index.php'
         ];
+        
+        $paypalUrl =  'https://www.sandbox.paypal.com/cgi-bin/webscr';
 
-        $paypalUrl = $enableSandbox ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr';
+        $statement = $this->connection->query("SELECT planName, price
+                                                FROM subscription_plan
+                                                WHERE subscriptionPlanID = '$subscriptionPlanID'");
 
-        // Product being purchased.
-        $itemName = 'Test Item';
-        $itemAmount = 5.00;
+        while (($row = $statement->fetch_assoc()) == TRUE) {
+            $itemName = $row['planName'];
+            $itemAmount = $row['price']*1.1;
+        }
+        $txnID = filter_input(INPUT_POST, "txn_id", FILTER_SANITIZE_STRING);
+        $txnType = filter_input(INPUT_POST, "txn_type", FILTER_SANITIZE_STRING);
 
         // Check if paypal request or response
-        if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])) {
+        if (!isset($txnID) && !isset($txnType)) {
 
             // Grab the post data so that we can set up the query string for PayPal.
             // Ideally we'd use a whitelist here to check nothing is being injected into
             // our post data.
             $data = [];
-            // foreach ($_POST as $key => $value) {
-            //     $data[$key] = stripslashes($value);
-            // }
-
+            
+            $data['cmd']="_xclick";
             // Set the PayPal account.
             $data['business'] = $paypalConfig['email'];
 
@@ -815,113 +893,18 @@ class SubscriptionOop
             // Build the query string from the data.
             $queryString = http_build_query($data);
 
-            // Redirect to paypal IPN
-            header('location:' . $paypalUrl . '?' . $queryString);
-            exit();
+            echo json_encode(
+                [
+                    "status" => true,
+                    "linkAddress" => $paypalUrl . '?' . $queryString
+                ]
+            );
 
         } else {
-            // Handle the PayPal response.
 
-            // Create a connection to the database.
-            $db = new mysqli($dbConfig['host'], $dbConfig['username'], $dbConfig['password'], $dbConfig['name']);
-
-            // Assign posted variables to local data array.
-            $data = [
-                'item_name' => $_POST['item_name'],
-                'item_number' => $_POST['item_number'],
-                'payment_status' => $_POST['payment_status'],
-                'payment_amount' => $_POST['mc_gross'],
-                'payment_currency' => $_POST['mc_currency'],
-                'txn_id' => $_POST['txn_id'],
-                'receiver_email' => $_POST['receiver_email'],
-                'payer_email' => $_POST['payer_email'],
-                'custom' => $_POST['custom'],
-            ];
-
-            // We need to verify the transaction comes from PayPal and check we've not
-            // already processed the transaction before adding the payment to our
-            // database.
-            if (verifyTransaction($_POST) && checkTxnid($data['txn_id'])) {
-                if (addPayment($data) !== false) {
-                    // Payment successfully added.
-                }
-            }
         }
-
     }
 
-    private function verifyTransaction($data) {
-        global $paypalUrl;
-    
-        $req = 'cmd=_notify-validate';
-        foreach ($data as $key => $value) {
-            $value = urlencode(stripslashes($value));
-            $value = preg_replace('/(.*[^%^0^D])(%0A)(.*)/i', '${1}%0D%0A${3}', $value); // IPN fix
-            $req .= "&$key=$value";
-        }
-    
-        $ch = curl_init($paypalUrl);
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $req);
-        curl_setopt($ch, CURLOPT_SSLVERSION, 6);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_FORBID_REUSE, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Connection: Close'));
-        $res = curl_exec($ch);
-    
-        if (!$res) {
-            $errno = curl_errno($ch);
-            $errstr = curl_error($ch);
-            curl_close($ch);
-            throw new Exception("cURL error: [$errno] $errstr");
-        }
-    
-        $info = curl_getinfo($ch);
-    
-        // Check the http response
-        $httpCode = $info['http_code'];
-        if ($httpCode != 200) {
-            throw new Exception("PayPal responded with http code $httpCode");
-        }
-        curl_close($ch);
-    
-        return $res === 'VERIFIED';
-    }
-    
-    private function checkTxnid($txnid) {
-        global $db;
-    
-        $txnid = $db->real_escape_string($txnid);
-        $results = $db->query('SELECT * FROM `payments` WHERE txnid = \'' . $txnid . '\'');
-    
-        return ! $results->num_rows;
-    }
-    
-    private function addPayment($data) {
-        global $db;
-    
-        if (is_array($data)) {
-            $stmt = $db->prepare('INSERT INTO `payments` (txnid, payment_amount, payment_status, itemid, createdtime) VALUES(?, ?, ?, ?, ?)');
-            $stmt->bind_param(
-                'sdsss',
-                $data['txn_id'],
-                $data['payment_amount'],
-                $data['payment_status'],
-                $data['item_number'],
-                date('Y-m-d H:i:s')
-            );
-            $stmt->execute();
-            $stmt->close();
-    
-            return $db->insert_id;
-        }
-    
-        return false;
-    }
 }
 
 header('Content-Type: application/json');
@@ -929,26 +912,26 @@ header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript 
 
 $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
 
-$jobPostingOop = new SubscriptionOop();
+$subscriptionOop = new SubscriptionOop();
 try {
     switch ($mode) {
         case  "create":
-            $jobPostingOop->create();
+            $subscriptionOop->create();
             break;
         case  "search":
-            $jobPostingOop->search();
+            $subscriptionOop->search();
             break;
         case  "update":
-            $jobPostingOop->update();
+            $subscriptionOop->update();
             break;
         case  "delete":
-            $jobPostingOop->delete();
+            $subscriptionOop->delete();
             break;
         case "check_validation":
-            $jobPostingOop->check_validation();
+            $subscriptionOop->check_validation();
             break;
         case "make_payment":
-            $jobPostingOop->make_payment();
+            $subscriptionOop->make_payment();
             break;
         default:
             throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);

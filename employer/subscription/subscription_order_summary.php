@@ -1,4 +1,11 @@
 <?php
+    session_start();
+    $transactionStatus = isset($_GET['status'])?$_GET['status']:"";
+    $startDate = isset($_GET['startDate'])?$_GET['startDate']:"";
+    $endDate = isset($_GET['endDate'])?$_GET['endDate']:"";
+    $autoRenewal = isset($_GET['autoRenewal'])?$_GET['autoRenewal']:"";
+    $paymentMethod = isset($_GET['paymentMethod'])?$_GET['paymentMethod']:"";
+    
     $serverName = "localhost";
     $userName = "root";
     $password = "";
@@ -56,30 +63,8 @@
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
-                    <form id="form_details" action="" method="post">
-                        <h4 style="padding:10px;"><i class="bi bi-person-fill px-2"></i>Subscription Details</h4>
-                        <hr>
-                        <input type="hidden" class="form-control" name="subscriptionPlanID" id="subscriptionPlanID" value="<?=base64_encode($subscriptionPlanID)?>"/>
-                        <input type="hidden" class="form-control" name="endDate" id="endDate"  min="<?= date('Y-m-d'); ?>"/>
-                        <div class="form-group row">
-                            <label for="startDate" class="col-sm-3 col-form-label">Start Date: <span class="required">*</span></label>
-                            <div class="col-sm-9">
-                                <input type="date" class="form-control" name="startDate" id="startDate" min="<?= date('Y-m-d'); ?>"/>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="autoRenewal" class="col-sm-3 col-form-label">Auto Renewal: </label>
-                            <div class="col-sm-9">
-                                <div class="form-control form-check form-switch border-0">
-                                    <input class="form-check-input" type="checkbox" id="chkAutoRenewal" name="chkAutoRenewal" value="">
-                                </div>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                    </form>
-
-                    <hr class="pb-3">
+                    <h4 style="padding:10px;"><i class="bi bi-person-fill px-2"></i>Subscription Details</h4>
+                    <hr>
                     <table class="table table-bordered">
                         <thead class="table-dark">
                             <tr>
@@ -122,16 +107,57 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <hr class="pb-3">
+
+                    <form id="form_details" method="post">
+
+                        <input type="hidden" class="form-control" name="subscriptionPlanID" id="subscriptionPlanID" value="<?=base64_encode($subscriptionPlanID)?>"/>
+                        <input type="hidden" class="form-control" name="endDate" id="endDate"  min="<?= date('Y-m-d'); ?>"/>
+                        <input type="hidden" class="form-control" name="subtotalAmount" id="subtotalAmount"  value="<?=$data['price']?>'"/>
+                        <input type="hidden" class="form-control" name="taxAmount" id="taxAmount"  value="<?=$data['price']*0.1?>'"/>
+                        <input type="hidden" class="form-control" name="totalAmount" id="totalAmount"  value="<?=$data['price']*1.1?>'"/>
+
+
+                        <div class="form-group row">
+                            <label for="startDate" class="col-sm-3 col-form-label">Start Date: <span class="required">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="date" class="form-control" name="startDate" id="startDate" min="<?= date('Y-m-d'); ?>"/>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="autoRenewal" class="col-sm-3 col-form-label">Auto Renewal: </label>
+                            <div class="col-sm-9">
+                                <div class="form-control form-check form-switch border-0">
+                                    <input class="form-check-input" type="checkbox" id="chkAutoRenewal" name="chkAutoRenewal" value="">
+                                </div>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="paymentMethod" class="col-sm-3 col-form-label">Payment Method: <span class="required">*</span> </label>
+                            <div class="col-sm-9">
+                                <select class="form-select" id="paymentMethod" name="paymentMethod" onchange="paymentMethodFunction()">
+                                    <option value=""> -- Please select a payment method. -- </option>
+                                    <option value="Online Banking">Online Banking</option>
+                                    <option value="Credit / Debit Card">Credit / Debit Card</option>
+                                    <option value="Paypal">Paypal</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row d-none" id="subPaymentMethod">
+                        </div>
+                    </form>
+
                     <div class="row">
-                        <div class="col-12">
-                            <button type="button" onclick ="submitConfirmation()" class="btn btn-primary float-end">Make Payment</button>
+                        <div class="col-md-12">
+                            <button type="button" onclick ="submitValidate()" id="obPayment"class="btn btn-primary float-end">Make Payment</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <form class="paypal" action="subscription_payment.php" method="post" id="paypal_form">
-                <input type="hidden" name="cmd" value="_xclick" />
-            </form>
         </div> 
 
         <!-- Bootstrap JS -->
@@ -147,7 +173,27 @@
 
     <script>
         let url = "subscription_controller.php";
-        
+
+        $(window).on("load",function(){
+            var transactionStatus = "<?= $transactionStatus?>";
+            var autoRenewal = "<?=$autoRenewal?>";
+            if(transactionStatus=="success"){
+                $("#startDate").val("<?=$startDate?>");
+                $("#endDate").val("<?=$endDate?>");
+                autoRenewal == 1? $("#chkAutoRenewal").prop('checked', true):$("#chkAutoRenewal").prop('checked', false);
+                $("#paymentMethod").val("<?=$paymentMethod?>");
+
+                createRecord();
+            }else if(transactionStatus=="failed"){
+                Swal.fire({
+                    title: 'Transaction failed!',
+                    text: 'Please contact technical staff! ',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                })
+            }
+        });
+
         $('#startDate').change(function() {
             if($(this).val()){
                 var oriStartDate = new Date($(this).val());
@@ -164,6 +210,48 @@
                 $("#validDateRange").text('Valid From dd/mm/yyyy To dd/mm/yyyy.');
             }
         });
+
+        function paymentMethodFunction() {
+            var paymentMethod = $('#paymentMethod').val();
+
+            if(paymentMethod=="Online Banking"){
+                var text = "<label for='paymentMethod' class='col-sm-3 col-form-label'>Bank: <span class='required'>*</span> </label>"+
+                            "<div class='col-sm-9'>"+
+                                    "<select class='form-select' id='bank' name='bank'>"+
+                                        "<option value=''> -- Please select a bank. -- </option>"+
+                                        "<option value='Maybank2u'>Maybank2u</option>"+
+                                        "<option value='CIMB Clicks'>CIMB Clicks</option>"+
+                                        "<option value='Public Bank'>Public Bank</option>"+
+                                        "<option value='RHB Now'>RHB Now</option>"+
+                                        "<option value='Ambank'>Ambank</option>"+
+                                        "<option value='MyBSN'>MyBSN</option>"+
+                                        "<option value='Bank Rakyat'>Bank Rakyat</option>"+
+                                        "<option value='UOB'>UOB</option>"+
+                                        "<option value='Affin Bank'>Affin Bank</option>"+
+                                        "<option value='Bank Islam'>Bank Islam</option>"+
+                                        "<option value='HSBC Online'>HSBC Online</option>"+
+                                        "<option value='Standard Chartered Bank'>Standard Chartered Bank</option>"+
+                                        "<option value='Kuwai Finance House'>Kuwai Finance House</option>"+
+                                        "<option value='Bank Muamalat'>cBank Muamalat</option>"+
+                                        "<option value='OCBS Online'>OCBS Online</option>"+
+                                        "<option value='Alliance Bank (Personal)'>Alliance Bank (Personal)</option>"+
+                                        "<option value='Hong Leong Connect'>Hong Leong Connect</option>"+
+                                        "<option value='Agrobank'>Agrobank</option>"+
+                                    "</select>"+
+                                    "<div class='invalid-feedback'></div>"+
+                            "</div>";
+                var text1 = "<button type='button' onclick ='submitConfirmation()' class='btn btn-primary float-end'>Make Payment</button>";
+                $("#subPaymentMethod").removeClass("d-none");
+                $("#subPaymentMethod").html(text);
+
+            }else if(paymentMethod=="Credit / Debit Card" || paymentMethod=="Paypal"){
+                $("#subPaymentMethod").addClass("d-none");
+
+            }else{
+                $("#subPaymentMethod").addClass("d-none");
+
+            }
+        }
 
         function convertDateFormat(inputDate){
             var date = inputDate.getDate();
@@ -189,29 +277,17 @@
             });
         }
 
-        function submitConfirmation(){
-            Swal.fire({
-                title: "Are you sure to save it?",
-                icon: "info",
-                showCancelButton: true,
-                confirmButtonText: 'Yes',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    submitValidate();
-                }
-            });
-        }
-
         function submitValidate(){
             $('.is-invalid').removeClass('is-invalid');
+            var paymentMethod = $('#paymentMethod').val();
             $.ajax({
                 type: "post",
                 url: url,
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "check_validation",
-                    startDate: $("#startDate").val()
+                    startDate: $("#startDate").val(),
+                    paymentMethod: paymentMethod
                 }, success: function (response) {
                     const data = response;
                     if (data.status==false) {
@@ -222,7 +298,11 @@
                             el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
                         }
                     } else {
-                        createRecord();
+                        if(paymentMethod=="Online Banking"){
+                            createRecord();
+                        }else{
+                            makePayment();
+                        }
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);
@@ -238,21 +318,14 @@
                 data: {
                     mode: "make_payment",
                     subscriptionPlanID: $("#subscriptionPlanID").val(),
-                    totalAmount: <?=$data['price']*1.1?>,
-                    autoRenewal: ($("#chkAutoRenewal").is(':checked') ? 1 : 0)
+                    startDate : $("#startDate").val(),
+                    endDate: $("#endDate").val(),
+                    autoRenewal: ($("#chkAutoRenewal").is(':checked') ? 1 : 0),
+                    paymentMethod: $("#paymentMethod").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Record successfully created! ',
-                            icon: 'success',
-                            confirmButtonText: 'Cool'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "subscription_sales_invoice.php?id="+encodeURI(btoa(data.subscriptionID));
-                            }
-                        });
+                        window.location.href=data.linkAddress;
                         
                     } else {
                         Swal.fire({
@@ -266,6 +339,7 @@
                     console.log(xhr.status);
                 }
             })
+            
         }
 
         function createRecord() {
@@ -279,9 +353,10 @@
                     startDate : $("#startDate").val(),
                     endDate: $("#endDate").val(),
                     subtotalAmount: <?=$data['price']?>,
-                    sstAmount: <?=$data['price']*0.1?>,
+                    taxAmount: <?=$data['price']*0.1?>,
                     totalAmount: <?=$data['price']*1.1?>,
-                    autoRenewal: ($("#chkAutoRenewal").is(':checked') ? 1 : 0)
+                    autoRenewal: ($("#chkAutoRenewal").is(':checked') ? 1 : 0),
+                    paymentMethod: $("#paymentMethod").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
@@ -309,8 +384,6 @@
                 }
             })
         }
-        
-
 
     </script>
 </html>
