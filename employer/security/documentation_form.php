@@ -39,8 +39,8 @@
         <!-- Top Bar -->
         <nav class="navbar navbar-expand-sm bg-white navbar-white fixed-top w-100 shadow-sm">
             <div class="container-fluid w-100">
-                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/employer/security/login.php"><h3>Job Nexus</h3></a>
-                <a href="login.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right text-white"> Login</i></a>
+                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/employer/login.php"><h3>Job Nexus</h3></a>
+                <a href="/jobnexus/employer/login.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right text-white"> Login</i></a>
             </div>
         </nav>
         <!--End Top Bar-->

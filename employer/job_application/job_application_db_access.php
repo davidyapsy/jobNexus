@@ -55,16 +55,8 @@
             <div class="panel panel-bordered p-2">
                 <div class="panel-heading p-2">
                     <div class="row">
-                        <div class="col-9">
-                            <h3>Job Application / <?=$data['jobTitle']?></h3>
-                        </div>
-                        <div class="col-3 text-end">
-                            <a href='job_application_db_access.php?id=<?= base64_encode($jobPostingID);?>'> 
-                                <button type='button' class='btn btn-primary btn-round'>
-                                    <i class='bi bi-plus-lg' aria-hidden='true'></i>
-                                    <span class='text hidden-md-down'> Potential Candidate </span>
-                                </button>
-                            </a>
+                        <div class="col-11">
+                            <h3>Job Application / <?=$data['jobTitle']?> / Potential Candidate</h3> 
                         </div>
                     </div>
                 </div>

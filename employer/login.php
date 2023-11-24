@@ -21,14 +21,14 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
         <!-- Summernote CSS -->
         <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-        <link href="../assets/css/content.css" type="text/css" rel="stylesheet">
+        <link href="assets/css/content.css" type="text/css" rel="stylesheet">
     </head>
     <body>
         <!-- Top Bar -->
         <nav class="navbar navbar-expand-sm bg-white navbar-white fixed-top w-100 shadow-sm">
             <div class="container-fluid w-100">
-                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/employer/security/login.php"><h3>Job Nexus</h3></a>
-                <a href="register.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right text-white"> Register</i></a>
+                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/employer/login.php"><h3>Job Nexus</h3></a>
+                <a href="security/register.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right text-white"> Register</i></a>
             </div>
         </nav>
         <!--End Top Bar-->
@@ -43,14 +43,14 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-12">
-                            <input type="input" class="form-control" name="emailAddress" id="emailAddress" placeholder="Email Address"/>
+                            <input type="input" class="form-control" name="emailAddress" id="emailAddress" placeholder="Email Address" onkeypress="handle(event)"/>
                             <div class="invalid-feedback"></div>
                         </div>
                     </div>
                     <div class="form-group row pb-5">
                         <div class="col-sm-12">
                             <div class="input-group">
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Password"/>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" onkeypress="handle(event)"/>
                                 <span class="input-group-text" onclick="toggleVisibility('password', 'passwordVisibility')">
                                     <i id="passwordVisibility" class='bi bi-eye-slash'></i>
                                 </span>
@@ -97,6 +97,12 @@
     <script>
         let url = "/jobnexus/employer/company_profile/company_profile_controller.php";
         
+        function handle(e){
+            if(e.keyCode === 13){
+                login();
+            }
+        }
+
         function toggleVisibility(input, e){
             var passInput=$("#"+input);
             if(passInput.attr('type')==='password'){
