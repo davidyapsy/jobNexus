@@ -1,4 +1,5 @@
 <?php
+    session_start();
     $serverName = "localhost";
     $userName = "root";
     $password = "";
@@ -134,13 +135,20 @@
                             el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
                         }
                     } else {
-                        window.location.href="/jobnexus/employer";
+                        <?php if(isset($_SESSION['subscriptionPlanID'])) { 
+                                if($_SESSION['subscriptionPlanID'] == "") {?>
+                                    window.location.href="/jobnexus/employer/subscription/subscription_plan.php";
+                                <?php } else { ?>
+                                    window.location.href="/jobnexus/employer";
+                                <?php } ?>
+                        <?php } else { ?>
+                            window.location.href="/jobnexus/employer";
+                        <?php } ?>
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);
                 }
             })
         }
-
     </script>
 </html>

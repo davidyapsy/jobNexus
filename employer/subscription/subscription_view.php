@@ -1,23 +1,27 @@
 <?php
+    session_start();
     $serverName = "localhost";
     $userName = "root";
     $password = "";
     $database = "db_jobnexus";
+    $employerID = base64_decode($_SESSION['employerID']);
 
     $connection = new mysqli($serverName, $userName, $password, $database);
     $subscriptionID = base64_decode($_GET['id']);
 
     //employerID
-    $sql = "SELECT *
+    $sql = "SELECT B.planName, B.description, B.price, B.validityPeriod, B.maxJobPosting, B.maxJobApplication, B.applicationRankingAvailability, 
+                    B.maxFeatureJobListing, A.startDate, A.endDate, A.isActive
             FROM subscription A
             JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID 
-            WHERE subscriptionID = '$subscriptionID'";
+            WHERE subscriptionID = '$subscriptionID' AND employerID = '$employerID'";
 
     $result = $connection->query($sql);
     $data =[];
     while(($row = $result->fetch_assoc())==TRUE){
         $data = $row;
     }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -70,7 +74,8 @@
                                                                 WHERE isActive = 1";
                                         $subscriptionPlan_result = $connection->query($subscriptionPlan_sql);
                                         while (($row = $subscriptionPlan_result->fetch_assoc()) == TRUE) { ?>
-                                                    <option value="<?= base64_encode($row['subscriptionPlanID']); ?>"><?= $row['planName'] ?></option>
+                                            <option value="<?= base64_encode($row['subscriptionPlanID']); ?>" <?php echo ($row['subscriptionPlanID'] == $data['subscriptionPlanID']) ? 'selected' : '';?>>
+                                            <?= $row['planName'] ?></option>
                                         <?php } ?>
                                 </select>
                                 <div class="invalid-feedback"></div>
@@ -143,10 +148,10 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="autoRenewal" class="col-sm-3 col-form-label">Auto Renewal: </label>
+                            <label for="isActive" class="col-sm-3 col-form-label">Is Active: </label>
                             <div class="col-sm-9">
                                 <div class="form-control form-check form-switch border-0">
-                                    <input class="form-check-input" type="checkbox" id="chkAutoRenewal" name="chkAutoRenewal" <?=$data['autoRenewal']==1?"checked":""?>>
+                                    <input class="form-check-input" type="checkbox" id="chkIsActive" name="chkIsActive" <?=$data['isActive']==1?"checked":""?> disabled/>
                                 </div>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -191,56 +196,6 @@
                 }
                 
             });
-        }
-
-        function submitConfirmation(){
-            Swal.fire({
-                title: "Are you sure to save it?",
-                icon: "info",
-                showCancelButton: true,
-                confirmButtonText: 'Yes',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    updateRecord();
-                }
-            });
-        }
-
-        function updateRecord() {
-            $.ajax({
-                type: "post",
-                url: url,
-                contentType:"application/x-www-form-urlencoded",
-                data: {
-                    mode: "update",
-                    subscriptionID: $("#subscriptionID").val(),
-                    autoRenewal: ($("#chkAutoRenewal").is(':checked') ? 1 : 0)
-                }, success: function (response) {
-                    const data = response;
-                    if (data.status) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Record successfully updated! ',
-                            icon: 'success',
-                            confirmButtonText: 'Cool'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "subscription_index.php"
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Please contact technical staff! ',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        })
-                    }
-                }, failure: function (xhr) {
-                    console.log(xhr.status);
-                }
-            })
         }
 
     </script>

@@ -1,7 +1,9 @@
 <?php
+    session_start();
     error_reporting(0);
     $connection = new mysqli("localhost", "root", "", "db_jobnexus");
 
+    $employerID = base64_decode($_SESSION['employerID']);
     $jobSeekerName = $_GET['jobSeekerName'];
     $address = $_GET['address'];
     $workingExperiece = $_GET['workingExperience'];
@@ -14,7 +16,7 @@
     JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
     JOIN job_posting C ON A.jobPostingID = C.jobPostingID
     JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
-    WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = 'E2300000'";
+    WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = '$employerID'";
 
     $filter_option = "";
     if($jobSeekerName!=""){

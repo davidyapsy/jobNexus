@@ -1,16 +1,17 @@
 <?php
+    session_start();
     $serverName = "localhost";
     $userName = "root";
     $password = "";
     $database = "db_jobnexus";
+    $employerID = base64_decode($_SESSION['employerID']);
 
     $connection = new mysqli($serverName, $userName, $password, $database);
     $jobPostingID = base64_decode($_GET['id']);
 
-    //employerID
     $sql = "SELECT *
             FROM job_posting 
-            WHERE jobPostingID = '$jobPostingID' and employerID = 'E2300000'";
+            WHERE jobPostingID = '$jobPostingID' and employerID = '$employerID'";
 
     $result = $connection->query($sql);
     $data =[];
@@ -77,7 +78,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="Job Title" class="col-sm-3 col-form-label">Job Title: <span class="required">*</span></label>
+                            <label for="jobTitle" class="col-sm-3 col-form-label">Job Title: <span class="required">*</span></label>
                             <div class="col-sm-9">
                                 <input type="input" class="form-control" name="jobTitle" id="jobTitle" value="<?= $data['jobTitle']?>"/>
                                 <div class="invalid-feedback"></div>

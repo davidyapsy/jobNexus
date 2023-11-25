@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 
 class ConnectionString
 {
@@ -104,7 +104,7 @@ class SubscriptionModel
     private String $employerID;
     private String $startDate;
     private String $endDate;
-    private int $autoRenewal;
+    private int $isActive;
 
     public function getSubscriptionID(): String {
         return $this->subscriptionID;
@@ -160,12 +160,12 @@ class SubscriptionModel
         return $this;
     }
     
-    public function getAutoRenewal(): int {
-        return $this->autoRenewal;
+    public function getIsActive(): int {
+        return $this->isActive;
     }
     
-    public function setAutoRenewal(int $autoRenewal): SubscriptionModel {
-        $this->autoRenewal = $autoRenewal;
+    public function setIsActive(int $isActive): SubscriptionModel {
+        $this->isActive = $isActive;
         return $this;
     }
 
@@ -361,10 +361,10 @@ class SubscriptionOop
         $subscriptionID = base64_decode(filter_input(INPUT_POST, "subscriptionID", FILTER_SANITIZE_STRING));
         $saleID = base64_decode(filter_input(INPUT_POST, "saleID", FILTER_SANITIZE_STRING));
         $subscriptionPlanID = base64_decode(filter_input(INPUT_POST, "subscriptionPlanID", FILTER_SANITIZE_STRING));
-        $employerID = "E2300000";
+        $employerID = base64_decode($_SESSION['employerID']);
         $startDate = filter_input(INPUT_POST, "startDate", FILTER_SANITIZE_STRING);
         $endDate = filter_input(INPUT_POST, "endDate", FILTER_SANITIZE_STRING);
-        $autoRenewal = filter_input(INPUT_POST, "autoRenewal", FILTER_SANITIZE_NUMBER_INT);
+        $isActive = filter_input(INPUT_POST, "isActive", FILTER_SANITIZE_NUMBER_INT);
         
         $startDateFrom = filter_input(INPUT_POST, "startDateFrom", FILTER_SANITIZE_STRING);
         $startDateTo = filter_input(INPUT_POST, "startDateTo", FILTER_SANITIZE_STRING);
@@ -382,7 +382,7 @@ class SubscriptionOop
             $this->model->setSubscriptionPlanID($subscriptionPlanID);
             $this->model->setStartDate($startDate);
             $this->model->setEndDate($endDate);
-            $this->model->setAutoRenewal($autoRenewal);
+            $this->model->setIsActive($isActive);
             $this->setSubtotalAmount($subtotalAmount);
             $this->setTaxAmount($taxAmount);
             $this->setTotalAmount($totalAmount);
@@ -390,23 +390,24 @@ class SubscriptionOop
 
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
             $this->model->setSubscriptionID($subscriptionID);
-            $this->model->setAutoRenewal($autoRenewal);
+            $this->model->setIsActive($isActive);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
             $this->model->setStartDate($startDate);
             $this->setPaymentMethod($paymentMethod);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
             $this->setPage($page);
+            $this->model->setEmployerID($employerID);
             $this->model->setSubscriptionPlanID($subscriptionPlanID);
             $this->setStartDateFrom($startDateFrom);
             $this->setStartDateTo($startDateTo);
             $this->setEndDateFrom($endDateFrom);
             $this->setEndDateTo($endDateTo);
-            $this->model->setAutoRenewal($autoRenewal);
+            $this->model->setIsActive($isActive);
         }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "make_payment"){
             $this->model->setSubscriptionPlanID($subscriptionPlanID);
             $this->model->setStartDate($startDate);
             $this->model->setEndDate($endDate);
-            $this->model->setAutoRenewal($autoRenewal);
+            $this->model->setIsActive($isActive);
             $this->setPaymentMethod($paymentMethod);
 
         }
@@ -423,7 +424,7 @@ class SubscriptionOop
         $subscriptionPlanID = $this->model->getSubscriptionPlanID();
         $startDate = $this->model->getStartDate();
         $endDate = $this->model->getEndDate();
-        $autoRenewal = $this->model->getAutoRenewal();
+        $isActive = $this->model->getIsActive();
 
         $tempSubscriptionID = "SB".date('y', strtotime($startDate)).date('y', strtotime($endDate));
 
@@ -514,7 +515,7 @@ class SubscriptionOop
             $this->connection->commit();
 
             $statement = $this->connection->prepare("INSERT INTO subscription VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $statement->bind_param("ssssssi", $subscriptionID, $saleID, $subscriptionPlanID, $employerID, $startDate, $endDate, $autoRenewal);
+            $statement->bind_param("ssssssi", $subscriptionID, $saleID, $subscriptionPlanID, $employerID, $startDate, $endDate, $isActive);
             
             try {
                 $statement->execute();
@@ -552,16 +553,18 @@ class SubscriptionOop
         }
 
         // you don't need to commit work here ya !
+        $employerID = $this->model->getEmployerID();
         $subscriptionPlanID = $this->model->getSubscriptionPlanID();
         $startDateFrom = $this->getStartDateFrom();
         $startDateTo = $this->getStartDateTo();
         $endDateFrom = $this->getEndDateFrom();
         $endDateTo = $this->getEndDateTo();
-        $autoRenewal = $this->model->getAutoRenewal();
+        $isActive = $this->model->getIsActive();
 
-        $sql = "SELECT subscriptionID, planName, startDate, endDate, autoRenewal
+        $sql = "SELECT subscriptionID, planName, startDate, endDate, A.isActive
         FROM subscription A
-        JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID";
+        JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID 
+        WHERE employerID = '$employerID'";
 
         $filter_options ="";
         if($subscriptionPlanID!=""){
@@ -579,8 +582,8 @@ class SubscriptionOop
         if($endDateTo!= NULL){
             $filter_options.=" AND A.endDate <= $endDateTo";
         }
-        if($autoRenewal!=2){
-            $filter_options.=" AND A.autoRenewal = '$autoRenewal'";
+        if($isActive!=2){
+            $filter_options.=" AND A.isActive = '$isActive'";
         }
         $sql.=$filter_options;
 
@@ -593,7 +596,7 @@ class SubscriptionOop
         while (($row = $statement->fetch_assoc()) == TRUE) {
             $total_data = $row['totalRecord'];
         }
-
+        
         $filter_query = $sql . ' LIMIT ' . $start . ', ' . $limit . '';
         $stat = $this->connection->prepare($filter_query);
         $stat->execute();
@@ -735,15 +738,15 @@ class SubscriptionOop
         $this->connection->autocommit(false);
 
         $subscriptionID = $this->model->getSubscriptionID();
-        $autoRenewal = $this->model->getAutoRenewal();
+        $isActive = $this->model->getIsActive();
 
         //insert into db
         if (strlen($subscriptionID) > 0) {
             $statement = $this->connection->prepare("UPDATE subscription 
-                                                    SET autoRenewal = ?
+                                                    SET isActive = ?
                                                     WHERE subscriptionID = ?");
 
-            $statement->bind_param("is", $autoRenewal, $subscriptionID);
+            $statement->bind_param("is", $isActive, $subscriptionID);
 
             try {
                 $statement->execute();
@@ -839,10 +842,10 @@ class SubscriptionOop
         $subscriptionPlanID=$this->model->getSubscriptionPlanID();
         $startDate=$this->model->getStartDate();
         $endDate=$this->model->getEndDate();
-        $autoRenewal=$this->model->getAutoRenewal();
+        $isActive=$this->model->getIsActive();
         $paymentMethod=$this->getPaymentMethod();
 
-        $html_query = "&startDate=$startDate&endDate=$endDate&autoRenewal=$autoRenewal&paymentMethod=$paymentMethod";
+        $html_query = "&startDate=$startDate&endDate=$endDate&isActive=$isActive&paymentMethod=$paymentMethod";
 
         $paypalConfig = [
             'email' => 'jobnexus2@gmail.com',
@@ -861,6 +864,7 @@ class SubscriptionOop
             $itemName = $row['planName'];
             $itemAmount = $row['price']*1.1;
         }
+
         $txnID = filter_input(INPUT_POST, "txn_id", FILTER_SANITIZE_STRING);
         $txnType = filter_input(INPUT_POST, "txn_type", FILTER_SANITIZE_STRING);
 

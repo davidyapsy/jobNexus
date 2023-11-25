@@ -1,8 +1,10 @@
 <?php
+    session_start();
     $serverName = "localhost";
     $userName = "root";
     $password = "";
     $database = "db_jobnexus";
+    $employerID = base64_decode($_SESSION['employerID']);
 
     $connection = new mysqli($serverName, $userName, $password, $database);
     $jobPostingID = base64_decode($_GET['id']);
@@ -12,7 +14,7 @@
             JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
             JOIN job_posting C ON A.jobPostingID = C.jobPostingID
             JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
-            WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = 'E2300000'";
+            WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = '$employerID'";
 
     $result = $connection->query($sql);
     $data =[];

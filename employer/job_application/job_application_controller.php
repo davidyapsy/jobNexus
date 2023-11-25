@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 
 class ConnectionString
 {
@@ -343,7 +343,7 @@ class JobApplicationOop
     function setParameter()
     {
         //employerID
-        $employerID =  "E2300000";
+        $employerID = base64_decode($_SESSION['employerID']);
         $applicationID = base64_decode(filter_input(INPUT_POST, "applicationID", FILTER_SANITIZE_STRING));
         $jobSeekerID = base64_decode(filter_input(INPUT_POST, "jobSeekerID", FILTER_SANITIZE_STRING));
         $jobPostingID = base64_decode(filter_input(INPUT_POST, "jobPostingID", FILTER_SANITIZE_STRING));
@@ -494,7 +494,7 @@ class JobApplicationOop
                                                 JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
                                                 JOIN job_posting C ON A.jobPostingID = C.jobPostingID
                                                 JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
-                                                WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = 'E2300000'".$filter_option);
+                                                WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = '$employerID'".$filter_option);
         while (($row = $statement->fetch_assoc()) == TRUE) {
             $total_data = $row['totalRecord'];
         }

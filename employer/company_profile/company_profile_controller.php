@@ -849,6 +849,24 @@ class EmployerOop
             );
         } else{
             session_start();
+            $remindRenewal = false;
+            $sql = "SELECT subscriptionPlanID, startDate, endDate, isActive
+                    FROM subscription
+                    WHERE employerID = '$employerID' AND isActive =1";
+            $statement = $this->connection->query($sql);
+
+            if($statement->num_rows > 0){
+                while(($row = $statement->fetch_assoc())==TRUE){
+                    if(date('Y-m-d')>$row['endDate']){
+                        $_SESSION['subscriptionPlanID']="";
+                    }else{
+                        $_SESSION['subscriptionPlanID']= base64_encode($row['subscriptionPlanID']);
+                    }
+                }
+            }else{
+                $_SESSION['subscriptionPlanID']="";
+            }
+            
             $_SESSION['employerID']=base64_encode($employerID);
             $_SESSION['companyName']=$companyName;
 

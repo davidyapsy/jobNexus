@@ -4,12 +4,8 @@
     $connection = new mysqli("localhost", "root", "", "db_jobnexus");
 
     $employerID = base64_decode($_SESSION['employerID']);
-    $jobCategoryID = $_GET['jobCategoryID'];
-    $jobTitle = $_GET['jobTitle'];
-    $locationState = $_GET['locationState'];
-    $employmentType = $_GET['employmentType'];
-    $salary = $_GET['salary'];
-    $isPublish = $_GET['isPublish'];
+    $benefitTitle = $_GET['benefitTitle'];
+    $benefitDescription = $_GET['benefitDescription'];
 
     //employerID
     $sql = "SELECT jobPostingID, B.categoryName, jobTitle, locationState, employmentType, salary, isPublish

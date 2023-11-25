@@ -111,7 +111,6 @@
                     <hr class="pb-3">
 
                     <form id="form_details" method="post">
-
                         <input type="hidden" class="form-control" name="subscriptionPlanID" id="subscriptionPlanID" value="<?=base64_encode($subscriptionPlanID)?>"/>
                         <input type="hidden" class="form-control" name="endDate" id="endDate"  min="<?= date('Y-m-d'); ?>"/>
                         <input type="hidden" class="form-control" name="subtotalAmount" id="subtotalAmount"  value="<?=$data['price']?>'"/>
@@ -325,8 +324,21 @@
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
-                        window.location.href=data.linkAddress;
-                        
+                        <?php if($_SESSION['subscriptionPlanID']=="") { ?>
+                            window.location.href=data.linkAddress;
+                        <?php } else { ?>
+                            Swal.fire({
+                                title: "Question",
+                                text: "You are currently subscribed a plan, Do you want to replace with new plan?",
+                                icon: "question",
+                                showCancelButton: true,
+                                confirmButtonText: "Confirm",
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href=data.linkAddress;
+                                }
+                            });
+                        <?php } ?>
                     } else {
                         Swal.fire({
                             title: 'Error!',

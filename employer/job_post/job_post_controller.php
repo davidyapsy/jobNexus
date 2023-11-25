@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 
 class ConnectionString
 {
@@ -112,6 +112,7 @@ class JobPostingModel
     private String $applicationDeadline;
     private String $isPublish;
     private String $publishDate;
+    private int $isFeatured;
     private int $isDeleted;
 
     public function getEmployerID(): String{
@@ -266,6 +267,17 @@ class JobPostingModel
         return $this;
     }
 
+    public function getIsFeatured(): int
+    {
+        return $this->isFeatured;
+    }
+
+    public function setIsFeatured(int $isFeatured): JobPostingModel
+    {
+        $this->isFeatured = $isFeatured;
+        return $this;
+    }
+
     public function getIsDeleted(): int
     {
         return $this->isDeleted;
@@ -382,8 +394,7 @@ class JobPostingOop
      */
     function setParameter()
     {
-        //employerID
-        $employerID =  "E2300000";
+        $employerID = base64_decode($_SESSION['employerID']);
         $jobPostingID =  base64_decode(filter_input(INPUT_POST, "jobPostingID", FILTER_SANITIZE_STRING));
         $jobCategoryID =  base64_decode(filter_input(INPUT_POST, "jobCategoryID", FILTER_SANITIZE_STRING));
         $jobTitle = filter_input(INPUT_POST, "jobTitle", FILTER_SANITIZE_STRING);
@@ -396,6 +407,7 @@ class JobPostingOop
         $employmentType = filter_input(INPUT_POST, "employmentType", FILTER_SANITIZE_STRING);
         $applicationDeadline = filter_input(INPUT_POST, "applicationDeadline", FILTER_SANITIZE_STRING);
         $isPublish = filter_input(INPUT_POST, "isPublish", FILTER_SANITIZE_STRING);
+        $isFeatured = filter_input(INPUT_POST, "isFeatured", FILTER_SANITIZE_STRING);
         $page = filter_input(INPUT_POST, "page", FILTER_SANITIZE_NUMBER_INT);
 
         if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "create"){
@@ -412,6 +424,7 @@ class JobPostingOop
             $this->model->setEmploymentType($employmentType);
             $this->model->setApplicationDeadline($applicationDeadline);
             $this->model->setIsPublish($isPublish);
+            $this->model->setIsFeatured($isFeatured);
             if($isPublish == "Published"){
                 $this->model->setPublishDate(date("Y-m-d"));
             }else{
@@ -433,6 +446,7 @@ class JobPostingOop
             $this->model->setEmploymentType($employmentType);
             $this->model->setApplicationDeadline($applicationDeadline);
             $this->model->setIsPublish($isPublish);
+            $this->model->setIsFeatured($isFeatured);
             if($isPublish == "Published"){
                 $this->model->setPublishDate(date("Y-m-d"));
             }else{
@@ -478,6 +492,7 @@ class JobPostingOop
         $employmentType = $this->model->getEmploymentType();
         $applicationDeadline= $this->model->getApplicationDeadline();
         $isPublish= $this->model->getIsPublish();
+        $isFeatured= $this->model->getIsFeatured();
         $publishDate= $this->model->getPublishDate();
         $isDeleted = 0;
 
@@ -521,9 +536,9 @@ class JobPostingOop
 
         //insert into db
         if (strlen($jobCategoryID) > 0 &&  strlen($jobTitle) > 0 &&  strlen($jobDescription) > 0 &&  strlen($jobRequirement) > 0 &&  strlen($locationState) > 0 &&  strlen($employmentType) > 0) {
-            $statement = $this->connection->prepare("INSERT INTO job_posting VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $statement->bind_param("sssssssssdssssi", $employerID, $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, 
-                                                        $salary, $employmentType, $applicationDeadline, $isPublish, $publishDate, $isDeleted);
+            $statement = $this->connection->prepare("INSERT INTO job_posting VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $statement->bind_param("sssssssssdssssii", $employerID, $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, 
+                                                        $salary, $employmentType, $applicationDeadline, $isPublish, $publishDate, $isFeatured, $isDeleted);
             
             try {
                 $statement->execute();
@@ -599,7 +614,7 @@ class JobPostingOop
         $statement = $this->connection->query("SELECT count(*) as totalRecord
                                                 FROM job_posting A
                                                 JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
-                                                WHERE employerID='E2300000' AND isDeleted=0". $filter_options);
+                                                WHERE employerID='$employerID' AND isDeleted=0". $filter_options);
         while (($row = $statement->fetch_assoc()) == TRUE) {
             $total_data = $row['totalRecord'];
         }
@@ -886,6 +901,7 @@ class JobPostingOop
         $locationState = $this->model->getLocationState();
         $employmentType = $this->model->getEmploymentType();
         $isPublish = $this->model->getIsPublish();
+        $isFeatured = $this->model->getIsFeatured();
         $applicationDeadline = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getApplicationDeadline())));
         $i=0;
         
@@ -925,6 +941,7 @@ class JobPostingOop
             $datas[$i]['errorMessage']="Application Deadline must be larger than today's date";
             $i++;
         }
+
 
         if($i>0){
             echo json_encode(

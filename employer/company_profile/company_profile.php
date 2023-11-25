@@ -1,15 +1,16 @@
 <?php
+    session_start();
     $serverName = "localhost";
     $userName = "root";
     $password = "";
     $database = "db_jobnexus";
+    $employerID = base64_decode($_SESSION['employerID']);
 
     $connection = new mysqli($serverName, $userName, $password, $database);
-    // $employerID = base64_decode($_GET['id']);
 
     $sql = "SELECT *
             FROM employer
-            WHERE employerID = 'E2300000'";
+            WHERE employerID = '$employerID'";
 
     $statement = $connection->prepare($sql);
     $statement->execute();
@@ -62,7 +63,7 @@
                     <h4 style="padding:10px;"><i class="bi bi-person-fill px-2"></i>Profile Details</h4>
                     <hr>
                     <form id="form_details" action="" method="post" enctype="multipart/form-data">
-                        <input type="hidden" id="employerID" name="employerID" value="<?= base64_encode('E2300000');?>">
+                        <input type="hidden" id="employerID" name="employerID" value="<?= base64_encode($employerID);?>">
                         <div class="form-group row">
                             <label for="companyName" class="col-sm-3 col-form-label">Company Name: <span class="required">*</span></label>
                             <div class="col-sm-9">

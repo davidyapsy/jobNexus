@@ -5,6 +5,7 @@
     $database = "db_jobnexus";
 
     $connection = new mysqli($serverName, $userName, $password, $database);
+
 ?>
 <html>
     <head>
@@ -42,12 +43,13 @@
                 <div class="panel-heading p-2">
                     <div class="row">
                         <div class="col-11">
-                            <h3>Subscription</h3>
+                            <h3>Benefit</h3>
                         </div>
-                        <div class="col">
-                            <a href="subscription_plan.php">
-                                <button type="button" class="btn btn-primary btn-round">
-                                    <span class="text hidden-md-down">Subscribe</span>
+                        <div class="col" >
+                            <a href='benefit_add.php'> 
+                                <button type='button' class='btn btn-primary btn-round'>
+                                    <i class='bi bi-plus-lg' aria-hidden='true'></i>
+                                        <span class='text hidden-md-down'> Add </span>
                                 </button>
                             </a>
                         </div>
@@ -56,55 +58,16 @@
                 <div class="panel-body bg-white p-2 rounded">
                     <form id="filterBox" method="post" action="">
                         <h4 style="padding-left:15px;">Filter Box</h4>
-                        <div class="row">
+                        <div class="row pb-2">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <select class="form-select" id="subscriptionPlan" name="subscriptionPlan">
-                                        <option value="">All (Subscription Plan)</option>
-                                        <?php $subscriptionPlan_sql = "SELECT subscriptionPlanID, planName
-                                                                FROM subscription_plan 
-                                                                WHERE isActive = 1";
-                                        $subscriptionPlan_result = $connection->query($subscriptionPlan_sql);
-                                        while (($row = $subscriptionPlan_result->fetch_assoc()) == TRUE) { ?>
-                                                    <option value="<?= base64_encode($row['subscriptionPlanID']); ?>"><?= $row['planName'] ?></option>
-                                        <?php } ?>
-                                    </select>                                
+                                    <input type="text" class="form-control" name="benefitTitle" id="benefitTitle" placeholder="Title"/>
                                 </div>                            
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <input type="date" class="form-control date" name="startDateFrom" id="startDateFrom" title="Start Date (From)">
-                                    <label for="startDateFrom">Start Date (From)</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="date" class="form-control date" name="startDateTo" id="startDateTo" title="Start Date (To)">
-                                    <label for="startDateTo">Start Date (To)</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <select class="form-select" id="isActive" name="isActive">
-                                        <option value="">All (Active)</option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
+                                    <input type="text" class="form-control" name="benefitDescription" id="benefitDescription" placeholder="Description"/>
                                 </div>                            
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="date" class="form-control date" name="endDateFrom" id="endDateFrom" title="Start Date (From)">
-                                    <label for="endDateFrom">End Date (From)</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="date" class="form-control date" name="endDateTo" id="endDateTo" title="End Date (To)">
-                                    <label for="endDateTo">End Date (To)</label>
-                                </div>
                             </div>
                         </div>
                         <div class="text-center">
@@ -134,10 +97,9 @@
                             <thead>
                                 <tr>
                                     <th class="text-center" scope="col" style="width:5%;">No.</th>
-                                    <th class="text-center" scope="col" style="width:30%;">Subscription Plan</th>
-                                    <th class="text-center" scope="col" style="width:25%;">Start Date</th>
-                                    <th class="text-center" scope="col" style="width:25%;">End Date</th>
-                                    <th class="text-center" scope="col" style="width:10%;">Active</th>
+                                    <th class="text-center" scope="col" style="width:20%;">Title</th>
+                                    <th class="text-center" scope="col" style="width:50%;">Description</th>
+                                    <th class="text-center" scope="col" style="width:15%;">Icon</th>
                                     <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
                                 </tr>
                             </thead>
@@ -150,7 +112,6 @@
                 </div>
 
             </div>
-
         </div>
         <?php include('../footer.php') ?>
 
@@ -158,7 +119,7 @@
 
     <script>
     // at here we try to be native as possible and you can use url to ease change the which one you prefer
-    let url = "subscription_controller.php";
+    let url = "benefit_controller.php";
     const tbody = $("#filtered_data");
         
         $(window).on("load", function() {
@@ -173,12 +134,8 @@
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     mode: "search",
-                    subscriptionPlanID: $("#subscriptionPlan").val(),
-                    startDateFrom: $("#startDateFrom").val(),
-                    startDateTo: $("#startDateTo").val(),
-                    endDateFrom: $("#endDateFrom").val(),
-                    endDateTo: $("#endDateTo").val(),
-                    isActive: ($("#isActive").val()==""?2:$("#isActive").val()),
+                    benefitTitle: $("#benefitTitle").val(),
+                    benefitDescription: $("#benefitDescription").val(),
                     page: page_number
                 }, success: function (response) {
                     const data = response;
@@ -192,18 +149,20 @@
                                 tableStringBuilder+=
                                 "  <tr>" +
                                 "        <th scope='row' class='text-center'>" + (((i+1)+page_number*5)-5) + ".</th>" +
-                                "        <td>" + records[i].planName + "</td>" +
-                                "        <td>" + records[i].startDate + "</td>" +
-                                "        <td>" + records[i].endDate + "</td>" +
-                                "        <td class='text-center'>" + (records[i].isActive==1?"<span class='badge bg-success'>Yes</span>":"<span class='badge bg-info'>No</span>") + "</td>" +
+                                "        <td>" + records[i].benefitTitle + "</td>" +
+                                "        <td>" + records[i].benefitDescription+ "</td>" +
+                                "        <td class='text-center'><h5><span class='badge bg-primary'> <i class='bi " + records[i].icon + "'></i></span></h5></td>" +
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
-                                "             <a href=\"subscription_view.php?id="+ encodeURI(btoa(records[i].subscriptionID)) + "\">"+
+                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].benefitID)) + "\">"+
                                 "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
-                                "                 <i class=\"bi bi-eye\"></i>" +
+                                "                 <i class=\"bi bi-pencil\"></i>" +
                                 "               </button>"+
                                 "             </a>" +
+                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].benefitID)) + "')\" class=\"btn btn-sm btn-danger\">" +
+                                "              <i class=\"bi bi-trash\"></i>" +
+                                "            </button>" +
                                 "          </div>" +
                                 "        </td>" +
                                 "      </tr>" +
@@ -212,10 +171,9 @@
                         }
                         else
                         {
-                            tableStringBuilder += '<tr><td colspan="6" class="text-center">No Data Found</td></tr>';
+                            tableStringBuilder += '<tr><td colspan="8" class="text-center">No Data Found</td></tr>';
                         }
                         tbody.html("").html(tableStringBuilder);
-                        // document.getElementById('total_data').innerHTML = response.total_data;
                         $('#pagination_link').html(response.pagination);
                     } else {
                         console.log("something wrong");
@@ -232,33 +190,64 @@
             });
             load_data();
         }
+        
+        function deleteRecord(benefitID) {
+            
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You will not able to recover this record!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#ff0000",
+                confirmButtonText: 'Yes !',
+                cancelButtonText: "Cancel !",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "post",
+                        url: url,
+                        contentType: "application/x-www-form-urlencoded",
+                        data: {
+                            mode: "delete",
+                            benefitID: benefitID
+                        }, success: function (response) {
+                            const data = response;
+                            if (data.status) {
+                                Swal.fire({
+                                    title: "Deleted!",
+                                    text: "Record has been deleted.",
+                                    icon: "success"
+                                });
+                                clear_form();
+                            } else {
+                                console.log("something wrong");
+                            }
+                        }, failure: function (xhr) {
+                            console.log(xhr.status);
+                        }
+                    })
+                }
+            });
+        }
 
         function export_to_excel(){
-            var subscriptionPlanID= $("#subscriptionPlan").val();
-            var startDateFrom= $("#startDateFrom").val();
-            var startDateTo = $("#startDateTo").val();
-            var isActive = ($("#isActive").val()==""?2:$("#isActive").val());
-            var endDateFrom= $("#endDateFrom").val();
-            var endDateTo = $("#endDateTo").val();
+            var benefitTitle= $("#benefitTitle").val();
+            var benefitDescription = $("#benefitDescription").val();
 
             $.ajax({
                 type: "post",
-                url: "subscription_export.php",
+                url: "benefit_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
-                    subscriptionPlanID: subscriptionPlanID,
-                    startDateFrom: startDateFrom,
-                    startDateTo: startDateTo,
-                    isActive: isActive,
-                    endDateFrom: endDateFrom,
-                    endDateTo: endDateTo
+                    benefitTitle: benefitTitlevvv,
+                    benefitDescription: benefitDescription,
                 },success: function(dataResult){
-                    window.open('subscription_export.php?subscriptionPlanID='+subscriptionPlanID+'&startDateFrom='+startDateFrom+'&startDateTo='+startDateTo
-                    +'&isActive='+isActive+'&endDateFrom='+endDateFrom+'&endDateTo='+endDateTo);
+                    window.open('benefit_export.php?benefitTitle='+benefitTitle+'&benefitDescription='+benefitDescription);
                 }, failure: function(xhr){
                     console.log(xhr);
                 }
             });
         }
+
     </script>
 </html>

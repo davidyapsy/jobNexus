@@ -1,6 +1,7 @@
 <?php
 session_start();
 ?>
+<!DOCTYPE html>
 <html>
     <head>
         <title>Job Nexus Employers</title>
