@@ -160,7 +160,7 @@
                             <label for="applicationDeadline" class="col-sm-3 col-form-label">Application Deadline: </label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline" value="<?=$data['applicationDeadline']?>"> 
+                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline" value="<?=$data['applicationDeadline']?>"  min="<?= date('Y-m-d'); ?>"/> 
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
@@ -287,6 +287,7 @@
                     salary: $("#salary").val(),
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
+                    isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : "Unpublished"),
                     isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : "Unpublished")
                 }, success: function (response) {
                     const data = response;

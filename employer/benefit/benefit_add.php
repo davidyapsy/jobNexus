@@ -19,7 +19,7 @@
         <!-- Sweet Alert CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css">
         <!-- Bootstrap icon CSS -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
         <!-- Summernote CSS -->
         <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
         <!-- Bootstrap multi-select CSS  -->
@@ -68,7 +68,8 @@
                             <label for="icon" class="col-sm-3 col-form-label">Icon:</label>
                             <div class="col-sm-9">
                                 <select class="form-select" id="icon" name="icon">
-                                    <option value="bi-heart-pulse"> -- Please select an icon. -- </option>
+                                    <option value=""> -- Please select an icon. -- </option>
+                                    <option value="bi-heart-pulse"> Health </option>
                                     <option value="bi-wifi">Internet<i class="bi bi-wifi"></i></option>
                                     <option value="bi-suitcase2">Travel<i class="bi bi-suitcase2"></i></option>
                                     <option value="bi-house-door">House<i class="bi bi-house-door"></i></option>

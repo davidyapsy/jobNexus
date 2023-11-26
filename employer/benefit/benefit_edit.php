@@ -5,7 +5,7 @@
     $password = "";
     $database = "db_jobnexus";
     $employerID = base64_decode($_SESSION['employerID']);
-    $benefitID = base64_decode($_GET['benefitID']);
+    $benefitID = base64_decode($_GET['id']);
 
     $connection = new mysqli($serverName, $userName, $password, $database);
     $sql = "SELECT *
@@ -60,6 +60,7 @@
                     <h4 style="padding:10px;"><i class="bi bi-person-fill px-2"></i>Benefit Details</h4>
                     <hr>
                     <form id="form_details" action="" method="post">
+                        <input type="hidden" class="form-control" name="benefitID" id="benefitID" value="<?=base64_encode($data['benefitID'])?>"/>
                         <div class="form-group row">
                             <label for="benefitTitle" class="col-sm-3 col-form-label">Benefit Title: <span class="required">*</span></label>
                             <div class="col-sm-9">
@@ -78,15 +79,16 @@
                             <label for="icon" class="col-sm-3 col-form-label">Icon:</label>
                             <div class="col-sm-9">
                                 <select class="form-select" id="icon" name="icon">
-                                    <option value="bi-heart-pulse" <?=$data['icon'] == "bi-heart-pulse"? "selected": ""?>> -- Please select an icon. -- </option>
-                                    <option value="bi-wifi" <?=$data['icon'] == "bi-wifi"? "selected": ""?>><i class="bi bi-wifi"></i></option>
-                                    <option value="bi-luggage" <?=$data['icon'] == "bi-luggage"? "selected": ""?>><i class="bi bi-luggage"></i></option>
-                                    <option value="bi-house-door" <?=$data['icon'] == "bi-house-door"? "selected": ""?>><i class="bi bi-house-door"></i></option>
-                                    <option value="bi-p-circle" <?=$data['icon'] == "bi-p-circle"? "selected": ""?>><i class="bi bi-p-circle"></i></option>
-                                    <option value="bi-car-front" <?=$data['icon'] == "bi-car-front"? "selected": ""?>><i class="bi bi-car-front"></i></option>
-                                    <option value="bi-people" <?=$data['icon'] == "bi-people"? "selected": ""?>><i class="bi bi-people"></i></option>
-                                    <option value="bi-diagram-2" <?=$data['icon'] == "bi-diagram-2"? "selected": ""?>><i class="bi bi-diagram-2"></i></option>
-                                    <option value="bi-hospital" <?=$data['icon'] == "bi-hospital"? "selected": ""?>><i class="bi bi-hospital"></i></option>
+                                    <option value=""> -- Please select an icon. -- </option>
+                                    <option value="bi-heart-pulse" <?=$data['icon']=='bi-heart-pulse'?"selected":""?>> Health </option>
+                                    <option value="bi-wifi" <?=$data['icon']=='bi-wifi'?"selected":""?>>Internet<i class="bi bi-wifi"></i></option>
+                                    <option value="bi-suitcase2" <?=$data['icon']=='bi-suitcase2'?"selected":""?>>Travel<i class="bi bi-suitcase2"></i></option>
+                                    <option value="bi-house-door" <?=$data['icon']=='bi-house-door'?"selected":""?>>House<i class="bi bi-house-door"></i></option>
+                                    <option value="bi-p-circle" <?=$data['icon']=='bi-p-circle'?"selected":""?>>Circle<i class="bi bi-p-circle"></i></option>
+                                    <option value="bi-car-front" <?=$data['icon']=='bi-car-front'?"selected":""?>>Car<i class="bi bi-car-front"></i></option>
+                                    <option value="bi-people" <?=$data['icon']=='bi-people'?"selected":""?>>People<i class="bi bi-people"></i></option>
+                                    <option value="bi-diagram-2" <?=$data['icon']=='bi-diagram-2'?"selected":""?>>Diagram<i class="bi bi-diagram-2"></i></option>
+                                    <option value="bi-hospital" <?=$data['icon']=='bi-hospital'?"selected":""?>>Hospital<i class="bi bi-hospital"></i></option>
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -183,22 +185,22 @@
                 url: url,
                 contentType:"application/x-www-form-urlencoded",
                 data: {
-                    mode: "create",
-                    benefitTitle : $("#benefitTitle").val()
+                    mode: "update",
+                    benefitID : $("#benefitID").val(),
+                    benefitTitle : $("#benefitTitle").val(),
                     benefitDescription: $("#benefitDescription").val(),
                     icon: $("#icon").val()
                 }, success: function (response) {
                     const data = response;
-                    if (data.icon) {
+                    if (data.status) {
                         Swal.fire({
                             title: 'Success!',
-                            text: 'Record successfully created! ',
+                            text: 'Record successfully updated! ',
                             icon: 'success',
                             confirmButtonText: 'Cool'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                //trigger reset button
-                                $("#btnReset").trigger("click"); 
+                                window.location.href="benefit_index.php"
                             }
                         });
                         

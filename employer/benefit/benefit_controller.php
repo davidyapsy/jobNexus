@@ -305,11 +305,7 @@ class BenefitOop
         while (($row = $stat->fetch_assoc()) == TRUE) {
             $total_data = $row['totalRecord'];
         }
-        if($total_data>0){
-            $benefitID = "B".sprintf('%10d', $total_data+1);
-        }else{
-            $benefitID = "B".sprintf('%10d', 0);
-        }
+        $benefitID = "B".sprintf('%010d', $total_data+1);
 
         //insert into db
         if (strlen($benefitTitle) > 0 ) {
@@ -523,10 +519,10 @@ class BenefitOop
         $benefitDescription = $this->model->getBenefitDescription();
         $icon = $this->model->getIcon();
 
-        //insert into db
+        //update db
         if (strlen($benefitTitle) > 0 ) {
-            $statement = $this->connection->prepare("UPDATE 
-                                                     SET (benefitTitle = ?, benefitDescription = ?, icon = ?)
+            $statement = $this->connection->prepare("UPDATE benefit
+                                                     SET benefitTitle = ?, benefitDescription = ?, icon = ?
                                                      WHERE benefitID = ? AND employerID = ?");
             $statement->bind_param("sssss", $benefitTitle, $benefitDescription, $icon, $benefitID, $employerID);
             
@@ -540,7 +536,7 @@ class BenefitOop
             echo json_encode(
                 [
                     "status" => true,
-                    "code" => ReturnCode::CREATE_SUCCESS,
+                    "code" => ReturnCode::UPDATE_SUCCESS,
                 ]
             );
 

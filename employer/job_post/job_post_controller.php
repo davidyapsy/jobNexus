@@ -1,5 +1,12 @@
 <?php
 session_start();
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Include PHPMailer library
+require_once '../../phpMailer/src/Exception.php';
+require_once '../../phpMailer/src/PHPMailer.php';
+require_once '../../phpMailer/src/SMTP.php';
 
 class ConnectionString
 {
@@ -540,13 +547,18 @@ class JobPostingOop
             $statement->bind_param("sssssssssdssssii", $employerID, $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, 
                                                         $salary, $employmentType, $applicationDeadline, $isPublish, $publishDate, $isFeatured, $isDeleted);
             
+
             try {
                 $statement->execute();
             } catch (Exception $exception) {
                 throw new Exception($exception->getMessage(), ReturnCode::QUERY_FAILURE);
             }
-
+            if($isPublish =="Published"){
+                $this->send_email($jobCategoryID, $jobTitle, $employerID);
+            }
             $this->connection->commit();
+
+            
             echo json_encode(
                 [
                     "status" => true,
@@ -745,19 +757,9 @@ class JobPostingOop
         //subscription details
         $todaysDate = date('Y-m-d');
         $allowToAdd = true;
-        $maxJobPosting = 0;
+        $maxJobPosting = $_SESSION['maxJobPosting'];
         
-        $statement = $this->connection->query("SELECT maxJobPosting
-                                                FROM subscription A
-                                                JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID
-                                                JOIN employer C ON A.employerID = C.employerID
-                                                JOIN job_posting D ON C.employerID = D.employerID
-                                                WHERE A.employerID = '$employerID' AND '$todaysDate' >= startDate AND '$todaysDate' <= endDate AND D.isDeleted=0");
-                                                
-        while (($row = $statement->fetch_assoc()) == TRUE) {
-            $maxJobPosting = $row['maxJobPosting'];
-        }
-        if($maxJobPosting==$total_data){
+        if($maxJobPosting==$total_data || $maxJobPosting == 0){
             $allowToAdd=false;
         }
 
@@ -827,6 +829,7 @@ class JobPostingOop
             $newNumber = (int)(substr($currentID, 8)) + 1;
             $newNumber = sprintf('%04d', $newNumber);
             $newID = $tempID.$newNumber;
+            $this->send_email($jobCategoryID, $jobTitle, $employerID);
         }
 
         //insert into db
@@ -846,6 +849,7 @@ class JobPostingOop
             }
 
             $this->connection->commit();
+
             echo json_encode(
                 [
                     "status" => true,
@@ -901,7 +905,6 @@ class JobPostingOop
         $locationState = $this->model->getLocationState();
         $employmentType = $this->model->getEmploymentType();
         $isPublish = $this->model->getIsPublish();
-        $isFeatured = $this->model->getIsFeatured();
         $applicationDeadline = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getApplicationDeadline())));
         $i=0;
         
@@ -957,6 +960,84 @@ class JobPostingOop
                 ]
             );
         }
+    }
+
+    private function send_email($jobCategoryID, $jobTitle, $employerID){
+        $categoryName = "";
+        $companyName = "";
+        $keywords = "";
+        $jobSeekerArr=array();
+        $jobTitle = $this->model->getJobTitle();
+        $jobDescription = $this->model->getJobDescription();
+        $locationState = $this->model->getLocationState();
+        $employmentType = $this->model->getEmploymentType();
+
+        $stat = $this->connection->query("SELECT categoryName, keywords
+                                            FROM job_category
+                                            WHERE jobCategoryID = '$jobCategoryID'");
+        while(($row = $stat->fetch_assoc())==TRUE){
+            $categoryName = $row['categoryName'];
+            $keywords = $row['keywords'];
+        }
+
+        $stat = $this->connection->query("SELECT companyName
+                                            FROM employer
+                                            WHERE employerID = '$employerID'");
+        while(($row = $stat->fetch_assoc())==TRUE){
+            $companyName = $row['companyName'];
+        }
+
+        $keyword_arr = explode (",", $keywords); 
+        $jobSeekerSQL = "SELECT firstName, emailAddress
+        FROM job_seeker
+        WHERE isOpenForJobs = 1 AND (";
+        for ($i=0;$i<sizeof($keyword_arr);$i++){
+            if($i+1!=sizeof($keyword_arr)){
+                $jobSeekerSQL.="UPPER(field_of_study) LIKE UPPER('%$keyword_arr[$i]%') OR ";
+            }else{
+                $jobSeekerSQL.="UPPER(field_of_study) LIKE UPPER('%$keyword_arr[$i]%'))";
+            }
+        }
+
+        $stat = $this->connection->query($jobSeekerSQL);
+        while(($row = $stat->fetch_assoc())==TRUE){
+            array_push($jobSeekerArr, $row);
+        }
+
+        // Create a new PHPMailer object
+        $mail = new PHPMailer(true);
+        try{
+            // Set up the SMTP configuration
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'jobnexus2@gmail.com';
+            $mail->Password = 'njysranxlvecliqc';
+            $mail->SMTPSecure = 'tsl';
+            $mail->Port = 587;
+            $mail->setFrom('jobnexus2@gmail.com', 'Job Nexus Job Alerts');
+
+            foreach($jobSeekerArr as $jobSeeker){
+                $mail->addAddress($jobSeeker['emailAddress'], $jobSeeker['firstName']);
+                $mail->isHTML(true);
+                $mail->Subject = "New Job Opportunity: ".$jobTitle;
+                $content = 'Dear ' . $jobSeeker['firstName'] . ',<br><br>' .
+                            'A new job opportunity has been posted that matches your skills and experience:<br><br>' .
+                            'Job Title: ' . $jobTitle . '<br>' .
+                            'Description: ' . $jobDescription . '<br>' .
+                            'Location: ' . $locationState . '<br><br>' .
+                            'Employment Type: ' . $employmentType . '<br><br>' .
+                            'Apply now to seize this opportunity!<br><br>' .
+                            'Best regards,<br>Job Nexus';
+                $mail->Body = $content;
+                // Set up the email content
+                $mail->send();
+                $mail->clearAddresses();
+            }
+        } catch (Exception $e) {
+            echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+
     }
 
 }

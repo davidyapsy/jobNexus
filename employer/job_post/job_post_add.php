@@ -7,29 +7,34 @@
     $employerID = base64_decode($_SESSION['employerID']);
 
     $connection = new mysqli($serverName, $userName, $password, $database);
-    $sql = "SELECT maxFeatureJobListing
-            FROM subscription_plan A
-            JOIN subscription B ON A.subscriptionPlanID = B.subscriptionPlanID
-            WHERE B.employerID = '$employerID' AND B.isActive = 1";
 
-    $result = $connection->query($sql);
-    $maxFeatureJobListing =0;
-    while(($row = $result->fetch_assoc())==TRUE){
-        $maxFeatureJobListing = $row['maxFeatureJobListing'];
-    }
+    $stat = $connection->query("SELECT jobPostingID
+                                        FROM job_posting
+                                        WHERE employerID='$employerID' AND isDeleted=0");
+    if($stat->num_rows < $_SESSION['maxJobPosting'] && $_SESSION['maxJobPosting']!=0){
 
-    $sql = "SELECT sum(isFeatured) as totalFeatured
-            FROM job_posting
-            WHERE employerID = '$employerID'";
+        $sql = "SELECT maxFeatureJobListing
+                FROM subscription_plan A
+                JOIN subscription B ON A.subscriptionPlanID = B.subscriptionPlanID
+                WHERE B.employerID = '$employerID' AND B.isActive = 1";
 
-    $result = $connection->query($sql);
-    $totalFeatured =0;
-    while(($row = $result->fetch_assoc())==TRUE){
-        $totalFeatured = $row['totalFeatured'];
-    }
+        $result = $connection->query($sql);
+        $maxFeatureJobListing =0;
+        while(($row = $result->fetch_assoc())==TRUE){
+            $maxFeatureJobListing = $row['maxFeatureJobListing'];
+        }
 
-    $availableFeature = $maxFeatureJobListing - $totalFeatured;
+        $sql = "SELECT sum(isFeatured) as totalFeatured
+                FROM job_posting
+                WHERE employerID = '$employerID'";
 
+        $result = $connection->query($sql);
+        $totalFeatured =0;
+        while(($row = $result->fetch_assoc())==TRUE){
+            $totalFeatured = $row['totalFeatured'];
+        }
+
+        $availableFeature = $maxFeatureJobListing - $totalFeatured;
     
 ?>
 <!DOCTYPE html>
@@ -46,8 +51,6 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
         <!-- Summernote CSS -->
         <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-        <!-- Bootstrap multi-select CSS  -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css" integrity="sha512-mR/b5Y7FRsKqrYZou7uysnOdCIJib/7r5QeJMFvLNHNhtye3xJp1TdJVPLtetkukFn227nKpXD9OjUc09lx97Q==" crossorigin="anonymous"/>
         <link href="../assets/css/content.css" type="text/css" rel="stylesheet">
 
         <style>
@@ -197,17 +200,6 @@
                                 </div>
                             </div>
                         <?php } ?>
-                        <div class="form-group row">
-                            <label for="benefits" class="col-sm-3 col-form-label">Benefits: </label>
-                            <div class="col-sm-9">
-                                <select class="selectpicker w-100 border bg-white" multiple id="benefits" name="benefits">
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
-                                    <option value="3">Three</option>
-                                    <option value="4">Four</option>
-                                </select>
-                            </div>
-                        </div>
                         <hr>
                         <div class="form-group row">
                             <div class="col-md-12">
@@ -229,8 +221,6 @@
         <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
         <!-- Sweet Alert -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
-        <!-- Multi-Select -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js" integrity="sha512-FHZVRMUW9FsXobt+ONiix6Z0tIkxvQfxtCSirkKc5Sb4TKHmqq1dZa8DphF0XqKb3ldLu/wgMa8mT6uXiLlRlw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     </body>
 
@@ -300,8 +290,7 @@
                     locationState: $("#locationState").val(),
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
-                    isPublish: ($("#chkIsPublish").is(':checked') ? "Published" : "Unpublished"),
-
+                    isPublish: ($("#chkIsPublish").is(':checked') ? "Published" : "Unpublished")
                 }, success: function (response) {
                     const data = response;
                     if (data.status==false) {
@@ -348,10 +337,7 @@
                             icon: 'success',
                             confirmButtonText: 'Cool'
                         }).then((result) => {
-                            if (result.isConfirmed) {
-                                //trigger reset button
-                                $("#btnReset").trigger("click"); 
-                            }
+                            location.reload();
                         });
                         
                     } else {
@@ -370,3 +356,7 @@
 
     </script>
 </html>
+
+<?php } else { 
+    header("location: job_post_index.php");
+}?>

@@ -11,7 +11,6 @@
     $salary = $_GET['salary'];
     $isPublish = $_GET['isPublish'];
 
-    //employerID
     $sql = "SELECT jobPostingID, B.categoryName, jobTitle, locationState, employmentType, salary, isPublish
     FROM job_posting A
     JOIN job_category B ON A.jobCategoryID = B.jobCategoryID

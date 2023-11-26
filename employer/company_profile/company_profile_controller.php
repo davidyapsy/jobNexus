@@ -850,20 +850,24 @@ class EmployerOop
         } else{
             session_start();
             $remindRenewal = false;
-            $sql = "SELECT subscriptionPlanID, startDate, endDate, isActive
-                    FROM subscription
-                    WHERE employerID = '$employerID' AND isActive =1";
+            $sql = "SELECT B.subscriptionPlanID, startDate, endDate, B.maxJobPosting
+                    FROM subscription A
+                    JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID
+                    WHERE A.employerID = '$employerID' AND A.isActive =1";
             $statement = $this->connection->query($sql);
 
             if($statement->num_rows > 0){
                 while(($row = $statement->fetch_assoc())==TRUE){
                     if(date('Y-m-d')>$row['endDate']){
+                        $_SESSION['maxJobPosting']= 0;
                         $_SESSION['subscriptionPlanID']="";
                     }else{
+                        $_SESSION['maxJobPosting']= $row['maxJobPosting'];
                         $_SESSION['subscriptionPlanID']= base64_encode($row['subscriptionPlanID']);
                     }
                 }
             }else{
+                $_SESSION['maxJobPosting']= 0;
                 $_SESSION['subscriptionPlanID']="";
             }
             

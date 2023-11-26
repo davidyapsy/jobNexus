@@ -20,7 +20,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
         <!-- icons -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css">
         <script src = "https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.1/jquery.twbsPagination.min.js"> </script>  
 
@@ -155,7 +155,7 @@
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
-                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].benefitID)) + "\">"+
+                                "             <a href=\"benefit_edit.php?id="+ encodeURI(btoa(records[i].benefitID)) + "\">"+
                                 "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
                                 "                 <i class=\"bi bi-pencil\"></i>" +
                                 "               </button>"+
@@ -239,7 +239,7 @@
                 url: "benefit_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
-                    benefitTitle: benefitTitlevvv,
+                    benefitTitle: benefitTitle,
                     benefitDescription: benefitDescription,
                 },success: function(dataResult){
                     window.open('benefit_export.php?benefitTitle='+benefitTitle+'&benefitDescription='+benefitDescription);

@@ -7,31 +7,19 @@
     $benefitTitle = $_GET['benefitTitle'];
     $benefitDescription = $_GET['benefitDescription'];
 
-    //employerID
-    $sql = "SELECT jobPostingID, B.categoryName, jobTitle, locationState, employmentType, salary, isPublish
-    FROM job_posting A
-    JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
-    WHERE employerID = '$employerID' AND isDeleted=0 ";
+    $sql = "SELECT benefitID, benefitTitle, benefitDescription, icon
+        FROM benefit
+        WHERE employerID = '$employerID' AND isDeleted=0 ";
 
-    if($jobCategoryID!=""){
-        $sql.=" AND B.jobCategoryID = '$jobCategoryID'";
+    $filter_options ="";
+    if($benefitTitle!=""){
+        $filter_options.=" AND benefitTitle LIKE '%$benefitTitle%'";
     }
-    if($jobTitle!=""){
-        $sql.=" AND jobTitle LIKE '%$jobTitle%'";
+    if($benefitDescription!=""){
+        $filter_options.=" AND benefitDescription LIKE '%$benefitDescription%'";
     }
-    if($locationState!=""){
-        $sql.=" AND locationState = '$locationState'";
-    }
-    if($employmentType!=""){
-        $sql.=" AND A.employmentType = '$employmentType'";
-    }
-    if($salary!= NULL){
-        $sql.=" AND A.salary >= $salary";
-    }
-    if($isPublish!=""){
-        $sql.=" AND A.isPublish = '$isPublish'";
-    }
-    $sql.=" ORDER BY publishDate";
+    $filter_options.=" ORDER BY benefitID";
+    $sql.=$filter_options;
 
     function filterData(&$str){ 
         $str = preg_replace("/\t/", "\\t", $str); 
@@ -40,10 +28,10 @@
     } 
         
     // Excel file name for download 
-    $fileName = "job_post-data_" . date('Y-m-d') . ".xls"; 
+    $fileName = "benefit-data_" . date('Y-m-d') . ".xls"; 
         
     // Column names 
-    $fields = array('NO.', 'JOB CATEGORY', 'JOB TITLE', 'LOCATION (STATE)','EMPLOYMENT TYPE' ,'SALARY', 'PUBLISHMENT'); 
+    $fields = array('NO.', 'TITLE', 'DESCRIPTION', 'ICON'); 
         
     // Display column names as first row 
     $excelData = implode("\t", array_values($fields)) . "\n"; 
@@ -54,7 +42,7 @@
         // Output each row of the data 
         $count=1;
         while($row = $query->fetch_assoc()){ 
-            $lineData = array($count, $row['categoryName'], $row['jobTitle'], $row['locationState'], $row['employmentType'], $row['salary'], $row['isPublish']); 
+            $lineData = array($count, $row['benefitTitle'], $row['benefitDescription'], $row['icon']); 
             array_walk($lineData, 'filterData'); 
             $excelData .= implode("\t", array_values($lineData)) . "\n"; 
             $count++;
