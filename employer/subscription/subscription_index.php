@@ -25,7 +25,7 @@
 
 
         <link href="../../employer/assets/css/content.css" type="text/css" rel="stylesheet">
-
+    
         <style>
             .col-md-3 .form-group label{
                 color:rgb(179, 179, 179);
@@ -215,7 +215,6 @@
                             tableStringBuilder += '<tr><td colspan="6" class="text-center">No Data Found</td></tr>';
                         }
                         tbody.html("").html(tableStringBuilder);
-                        // document.getElementById('total_data').innerHTML = response.total_data;
                         $('#pagination_link').html(response.pagination);
                     } else {
                         console.log("something wrong");

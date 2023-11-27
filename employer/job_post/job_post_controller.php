@@ -464,6 +464,7 @@ class JobPostingOop
             $this->model->setJobTitle($jobTitle);
             $this->model->setJobDescription($jobDescription);
             $this->model->setJobRequirement($jobRequirement);
+            $this->model->setExperienceLevel($experienceLevel);
             $this->model->setLocationState($locationState);
             $this->model->setEmploymentType($employmentType);
             $this->model->setIsPublish($isPublish);
@@ -902,6 +903,7 @@ class JobPostingOop
         $jobTitle = $this->model->getJobTitle();
         $jobDescription = $this->model->getJobDescription();
         $jobRequirement = $this->model->getJobRequirement();
+        $experienceLevel = $this->model->getExperienceLevel();
         $locationState = $this->model->getLocationState();
         $employmentType = $this->model->getEmploymentType();
         $isPublish = $this->model->getIsPublish();
@@ -927,6 +929,11 @@ class JobPostingOop
         if($jobRequirement==""){
             $datas[$i]['inputName']="jobRequirement";
             $datas[$i]['errorMessage']="Job Requirement is required";
+            $i++;
+        }
+        if($experienceLevel==""){
+            $datas[$i]['inputName']="experienceLevel";
+            $datas[$i]['errorMessage']="Experience Level is required";
             $i++;
         }
         if($locationState==""){
@@ -1039,7 +1046,6 @@ class JobPostingOop
         }
 
     }
-
 }
 
 header('Content-Type: application/json');

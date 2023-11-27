@@ -12,21 +12,11 @@
                                         FROM job_posting
                                         WHERE employerID='$employerID' AND isDeleted=0");
     if($stat->num_rows < $_SESSION['maxJobPosting'] && $_SESSION['maxJobPosting']!=0){
-
-        $sql = "SELECT maxFeatureJobListing
-                FROM subscription_plan A
-                JOIN subscription B ON A.subscriptionPlanID = B.subscriptionPlanID
-                WHERE B.employerID = '$employerID' AND B.isActive = 1";
-
-        $result = $connection->query($sql);
-        $maxFeatureJobListing =0;
-        while(($row = $result->fetch_assoc())==TRUE){
-            $maxFeatureJobListing = $row['maxFeatureJobListing'];
-        }
+        $maxFeatureJobListing =$_SESSION['maxFeatureJobListing'];
 
         $sql = "SELECT sum(isFeatured) as totalFeatured
                 FROM job_posting
-                WHERE employerID = '$employerID'";
+                WHERE employerID = '$employerID' AND isDeleted=0";
 
         $result = $connection->query($sql);
         $totalFeatured =0;
@@ -121,7 +111,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="experienceLevel" class="col-sm-3 col-form-label">Experience Level: </label>
+                            <label for="experienceLevel" class="col-sm-3 col-form-label">Experience Level: <span class="required">*</span></label></label>
                             <div class="col-sm-9">
                                 <input type="input" class="form-control" name="experienceLevel" id="experienceLevel"/>
                                 <div class="invalid-feedback"></div>
@@ -189,17 +179,15 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-                        <?php if($availableFeature > 0){ ?>
-                            <div class="form-group row">
-                                <label for="isFeatured" class="col-sm-3 col-form-label">Feature Job Post: </label>
-                                <div class="col-sm-9">
-                                    <div class="form-control form-check form-switch border-0">
-                                        <input class="form-check-input" type="checkbox" id="chkIsFeatured" name="chkIsFeatured" value="">
-                                    </div>
-                                    <div class="invalid-feedback"></div>
+                        <div class="form-group row">
+                            <label for="isFeatured" class="col-sm-3 col-form-label">Feature Job Post: </label>
+                            <div class="col-sm-9">
+                                <div class="form-control form-check form-switch border-0">
+                                    <input class="form-check-input" type="checkbox" <?=$availableFeature>0?"":"disabled"?> id="chkIsFeatured" name="chkIsFeatured" value="">
                                 </div>
+                                <div class="invalid-feedback"></div>
                             </div>
-                        <?php } ?>
+                        </div>
                         <hr>
                         <div class="form-group row">
                             <div class="col-md-12">
@@ -287,6 +275,7 @@
                     jobTitle: $("#jobTitle").val(),
                     jobDescription: $('#jobDescription').summernote('code'),
                     jobRequirement: $('#jobRequirement').summernote('code'),
+                    experienceLevel: $("#experienceLevel").val(),
                     locationState: $("#locationState").val(),
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),

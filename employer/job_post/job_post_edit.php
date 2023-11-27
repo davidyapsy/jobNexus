@@ -8,6 +8,7 @@
 
     $connection = new mysqli($serverName, $userName, $password, $database);
     $jobPostingID = base64_decode($_GET['id']);
+    $maxFeatureJobListing =$_SESSION['maxFeatureJobListing'];
 
     $sql = "SELECT *
             FROM job_posting 
@@ -18,6 +19,19 @@
     while(($row = $result->fetch_assoc())==TRUE){
         $data = $row;
     }
+
+    $sql = "SELECT sum(isFeatured) as totalFeatured
+                FROM job_posting
+                WHERE employerID = '$employerID' AND isDeleted=0";
+
+    $result = $connection->query($sql);
+    $totalFeatured =0;
+    while(($row = $result->fetch_assoc())==TRUE){
+        $totalFeatured = $row['totalFeatured'];
+    }
+
+    $availableFeature = $maxFeatureJobListing - $totalFeatured;
+    
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -106,7 +120,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="experienceLevel" class="col-sm-3 col-form-label">Experience Level: </label>
+                            <label for="experienceLevel" class="col-sm-3 col-form-label">Experience Level: <span class="required">*</span></label></label>
                             <div class="col-sm-9">
                                 <input type="input" class="form-control" name="experienceLevel" id="experienceLevel" value="<?= $data['experienceLevel']?>"/>
                                 <div class="invalid-feedback"></div>
@@ -171,6 +185,15 @@
                                 <div class="form-control form-check form-switch border-0">
                                     <input class="form-check-input" type="checkbox" id="chkIsPublish" <?=$data['isPublish']=="Published"?"checked":""?>
                                         name="chkIsPublish" value="">
+                                </div>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="isFeatured" class="col-sm-3 col-form-label">Feature Job Post: </label>
+                            <div class="col-sm-9">
+                                <div class="form-control form-check form-switch border-0">
+                                    <input class="form-check-input" type="checkbox" <?=$availableFeature>0?"":"disabled"?> id="chkIsFeatured" name="chkIsFeatured" value="">
                                 </div>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -288,7 +311,7 @@
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
                     isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : "Unpublished"),
-                    isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : "Unpublished")
+                    isFeatured: ($("#chkIsFeatured").is(':checked') ?  1 : 0)
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {

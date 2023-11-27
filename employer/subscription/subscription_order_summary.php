@@ -3,7 +3,6 @@
     $transactionStatus = isset($_GET['status'])?$_GET['status']:"";
     $startDate = isset($_GET['startDate'])?$_GET['startDate']:"";
     $endDate = isset($_GET['endDate'])?$_GET['endDate']:"";
-    $autoRenewal = isset($_GET['autoRenewal'])?$_GET['autoRenewal']:"";
     $paymentMethod = isset($_GET['paymentMethod'])?$_GET['paymentMethod']:"";
     
     $serverName = "localhost";
@@ -24,6 +23,7 @@
     while(($row = $result->fetch_assoc())==TRUE){
         $data = $row;
     }
+    
     
 ?>
 <!DOCTYPE html>
@@ -126,15 +126,6 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="autoRenewal" class="col-sm-3 col-form-label">Auto Renewal: </label>
-                            <div class="col-sm-9">
-                                <div class="form-control form-check form-switch border-0">
-                                    <input class="form-check-input" type="checkbox" id="chkAutoRenewal" name="chkAutoRenewal" value="">
-                                </div>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="form-group row">
                             <label for="paymentMethod" class="col-sm-3 col-form-label">Payment Method: <span class="required">*</span> </label>
                             <div class="col-sm-9">
                                 <select class="form-select" id="paymentMethod" name="paymentMethod" onchange="paymentMethodFunction()">
@@ -175,11 +166,9 @@
 
         $(window).on("load",function(){
             var transactionStatus = "<?= $transactionStatus?>";
-            var autoRenewal = "<?=$autoRenewal?>";
             if(transactionStatus=="success"){
                 $("#startDate").val("<?=$startDate?>");
                 $("#endDate").val("<?=$endDate?>");
-                autoRenewal == 1? $("#chkAutoRenewal").prop('checked', true):$("#chkAutoRenewal").prop('checked', false);
                 $("#paymentMethod").val("<?=$paymentMethod?>");
 
                 createRecord();
@@ -286,6 +275,7 @@
                 data: {
                     mode: "check_validation",
                     startDate: $("#startDate").val(),
+                    endDate: $("#endDate").val(),
                     paymentMethod: paymentMethod
                 }, success: function (response) {
                     const data = response;
@@ -297,11 +287,31 @@
                             el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
                         }
                     } else {
-                        if(paymentMethod=="Online Banking"){
-                            createRecord();
-                        }else{
-                            makePayment();
-                        }
+
+                        <?php if($_SESSION['subscriptionPlanID']=="") { ?>
+                            if(paymentMethod=="Online Banking"){
+                                createRecord();
+                            }else{
+                                makePayment();
+                            }
+                        <?php } else { ?>
+                            Swal.fire({
+                                title: "Question",
+                                text: "You are currently subscribed a plan, Do you want to replace with new plan?",
+                                icon: "question",
+                                showCancelButton: true,
+                                confirmButtonText: "Confirm",
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    if(paymentMethod=="Online Banking"){
+                                        createRecord();
+                                    }else{
+                                        makePayment();
+                                    }
+                                }
+                            });
+                        <?php } ?>
+                        
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);
@@ -319,26 +329,11 @@
                     subscriptionPlanID: $("#subscriptionPlanID").val(),
                     startDate : $("#startDate").val(),
                     endDate: $("#endDate").val(),
-                    autoRenewal: ($("#chkAutoRenewal").is(':checked') ? 1 : 0),
                     paymentMethod: $("#paymentMethod").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
-                        <?php if($_SESSION['subscriptionPlanID']=="") { ?>
-                            window.location.href=data.linkAddress;
-                        <?php } else { ?>
-                            Swal.fire({
-                                title: "Question",
-                                text: "You are currently subscribed a plan, Do you want to replace with new plan?",
-                                icon: "question",
-                                showCancelButton: true,
-                                confirmButtonText: "Confirm",
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href=data.linkAddress;
-                                }
-                            });
-                        <?php } ?>
+                        window.location.href=data.linkAddress;
                     } else {
                         Swal.fire({
                             title: 'Error!',
@@ -367,20 +362,17 @@
                     subtotalAmount: <?=$data['price']?>,
                     taxAmount: <?=$data['price']*0.1?>,
                     totalAmount: <?=$data['price']*1.1?>,
-                    autoRenewal: ($("#chkAutoRenewal").is(':checked') ? 1 : 0),
                     paymentMethod: $("#paymentMethod").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
                         Swal.fire({
                             title: 'Success!',
-                            text: 'Record successfully created! ',
+                            text: 'You have successfully subscribed to a plan, Please check your email for receipt! Please login again.',
                             icon: 'success',
                             confirmButtonText: 'Cool'
                         }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "subscription_sales_invoice.php?id="+encodeURI(btoa(data.subscriptionID));
-                            }
+                            window.location.href= "/jobnexus/employer/security/logout.php";
                         });
                         
                     } else {

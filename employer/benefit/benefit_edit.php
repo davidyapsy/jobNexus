@@ -71,7 +71,7 @@
                         <div class="form-group row">
                             <label for="benefitDescription" class="col-sm-3 col-form-label">Benefit Description: </label>
                             <div class="col-sm-9">
-                                <textarea class="form-control" name="benefitDescription" id="benefitDescription" rows="4"><?=$data['benefitDescription']?></textarea>
+                                <textarea class="form-control" name="benefitDescription" id="benefitDescription" rows="4" placeholder="Max 200 characters" maxlength="200"><?=$data['benefitDescription']?></textarea>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>

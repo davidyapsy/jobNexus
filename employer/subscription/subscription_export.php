@@ -5,11 +5,11 @@
     $subscriptionPlanID = $_GET['subscriptionPlanID'];
     $startDateFrom = $_GET['startDateFrom'];
     $startDateTo = $_GET['startDateTo'];
-    $autoRenewal = $_GET['autoRenewal'];
     $endDateFrom = $_GET['endDateFrom'];
     $endDateTo = $_GET['endDateTo'];
+    $isActive = $_GET['isActive'];
 
-    $sql = "SELECT subscriptionID, planName, startDate, endDate, autoRenewal
+    $sql = "SELECT subscriptionID, planName, startDate, endDate, isActive
         FROM subscription A
         JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID";
 
@@ -28,8 +28,8 @@
     if($endDateTo!= NULL){
         $sql.=" AND A.endDate <= $endDateTo";
     }
-    if($autoRenewal!=2){
-        $sql.=" AND A.autoRenewal = '$autoRenewal'";
+    if($isActive!=2){
+        $sql.=" AND A.isActive = '$isActive'";
     }
 
     function filterData(&$str){ 
@@ -42,7 +42,7 @@
     $fileName = "suscription-data_" . date('Y-m-d') . ".xls"; 
         
     // Column names 
-    $fields = array('NO.', 'SUBSCRIPTION PLAN', 'START DATE', 'END DATE', 'AUTO RENEWAL'); 
+    $fields = array('NO.', 'SUBSCRIPTION PLAN', 'START DATE', 'END DATE', 'IS ACTIVE'); 
         
     // Display column names as first row 
     $excelData = implode("\t", array_values($fields)) . "\n"; 
@@ -53,7 +53,7 @@
         // Output each row of the data 
         $count=1;
         while($row = $query->fetch_assoc()){ 
-            $lineData = array($count, $row['planName'], $row['startDate'], $row['endDate'], ($row['autoRenewal']=='1'?"Yes":"No")); 
+            $lineData = array($count, $row['planName'], $row['startDate'], $row['endDate'], ($row['isActive']=='1'?"Yes":"No")); 
             array_walk($lineData, 'filterData'); 
             $excelData .= implode("\t", array_values($lineData)) . "\n"; 
             $count++;

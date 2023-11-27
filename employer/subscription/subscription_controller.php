@@ -1,5 +1,12 @@
 <?php
 session_start();
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Include PHPMailer library
+require_once '../../phpMailer/src/Exception.php';
+require_once '../../phpMailer/src/PHPMailer.php';
+require_once '../../phpMailer/src/SMTP.php';
 
 class ConnectionString
 {
@@ -382,17 +389,14 @@ class SubscriptionOop
             $this->model->setSubscriptionPlanID($subscriptionPlanID);
             $this->model->setStartDate($startDate);
             $this->model->setEndDate($endDate);
-            $this->model->setIsActive($isActive);
             $this->setSubtotalAmount($subtotalAmount);
             $this->setTaxAmount($taxAmount);
             $this->setTotalAmount($totalAmount);
             $this->setPaymentMethod($paymentMethod);
 
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
-            $this->model->setSubscriptionID($subscriptionID);
-            $this->model->setIsActive($isActive);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
             $this->model->setStartDate($startDate);
+            $this->model->setEndDate($endDate);
             $this->setPaymentMethod($paymentMethod);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
             $this->setPage($page);
@@ -407,9 +411,7 @@ class SubscriptionOop
             $this->model->setSubscriptionPlanID($subscriptionPlanID);
             $this->model->setStartDate($startDate);
             $this->model->setEndDate($endDate);
-            $this->model->setIsActive($isActive);
             $this->setPaymentMethod($paymentMethod);
-
         }
     }
 
@@ -424,7 +426,7 @@ class SubscriptionOop
         $subscriptionPlanID = $this->model->getSubscriptionPlanID();
         $startDate = $this->model->getStartDate();
         $endDate = $this->model->getEndDate();
-        $isActive = $this->model->getIsActive();
+        $isActive = 1;
 
         $tempSubscriptionID = "SB".date('y', strtotime($startDate)).date('y', strtotime($endDate));
 
@@ -494,6 +496,11 @@ class SubscriptionOop
 
         //insert into db
         if (strlen($paymentID) > 0 &&  strlen($saleID) > 0 &&  strlen($subscriptionID) > 0 &&  strlen($startDate) > 0) {
+            if($_SESSION['subscriptionID']!=""){
+                $this->model->setSubscriptionID(base64_decode($_SESSION['subscriptionID']));
+                $this->model->setIsActive(0);
+                $this->update();
+            }
             $statement = $this->connection->prepare("INSERT INTO payment VALUES (?, ?, ?, ?, ?)");
             $statement->bind_param("ssdss", $paymentID, $paymentMethod, $amount, $paymentStatus, $paymentDateTime);
             
@@ -524,11 +531,12 @@ class SubscriptionOop
             }
 
             $this->connection->commit();
+
+            $this->send_email($subscriptionID);
             echo json_encode(
                 [
                     "status" => true,
                     "code" => ReturnCode::CREATE_SUCCESS,
-                    "subscriptionID" => $subscriptionID,
                 ]
             );
 
@@ -587,16 +595,15 @@ class SubscriptionOop
         }
         $sql.=$filter_options;
 
-
         $total_data=0;
         $statement = $this->connection->query("SELECT count(*) as totalRecord
                                                 FROM subscription A
-                                                JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID". $filter_options);
+                                                JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID 
+                                                WHERE employerID = '$employerID'". $filter_options);
 
         while (($row = $statement->fetch_assoc()) == TRUE) {
             $total_data = $row['totalRecord'];
         }
-        
         $filter_query = $sql . ' LIMIT ' . $start . ', ' . $limit . '';
         $stat = $this->connection->prepare($filter_query);
         $stat->execute();
@@ -804,6 +811,7 @@ class SubscriptionOop
         $datas[]['errorMessage']="";
 
         $startDate = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getStartDate())));
+        $endDate = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getEndDate())));
         $paymentMethod = $this->getPaymentMethod();
         $i=0;
         
@@ -820,6 +828,11 @@ class SubscriptionOop
             $i++;
         }
 
+        $sql = "SELECT subscriptionPlanID
+                FROM subscription 
+                WHERE employerID = '$employerID' AND ($endDate < startDate OR $startDate > endDate) AND isActive =1";
+        $statement = $this->connection->query($sql);
+        
         if($i>0){
             echo json_encode(
                 [
@@ -831,6 +844,7 @@ class SubscriptionOop
             echo json_encode(
                 [
                     "status" => true,
+                    "totalRecord" => $statement->num_rows
                 ]
             );
         }
@@ -842,10 +856,9 @@ class SubscriptionOop
         $subscriptionPlanID=$this->model->getSubscriptionPlanID();
         $startDate=$this->model->getStartDate();
         $endDate=$this->model->getEndDate();
-        $isActive=$this->model->getIsActive();
         $paymentMethod=$this->getPaymentMethod();
 
-        $html_query = "&startDate=$startDate&endDate=$endDate&isActive=$isActive&paymentMethod=$paymentMethod";
+        $html_query = "&startDate=$startDate&endDate=$endDate&paymentMethod=$paymentMethod";
 
         $paypalConfig = [
             'email' => 'jobnexus2@gmail.com',
@@ -907,6 +920,83 @@ class SubscriptionOop
         } else {
 
         }
+    }
+
+    private function send_email($subscriptionID){
+        $data=[];
+        $stat = $this->connection->query("SELECT B.companyName, C.planName, C.price, C.validityPeriod, B.emailAddress
+                                        FROM subscription A
+                                        JOIN employer B ON A.employerID = B.employerID
+                                        JOIN subscription_plan C ON A.subscriptionPlanID = C.subscriptionPlanID
+                                        WHERE subscriptionID = '$subscriptionID'");
+        while(($row = $stat->fetch_assoc())==TRUE){
+            $data=$row;
+        }
+
+        // Create a new PHPMailer object
+        $mail = new PHPMailer(true);
+        
+        $content = "
+            <!DOCTYPE html>
+            <html lang='en'>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <title>Thank You for Subscribing!</title>
+            </head>
+            <body style='font-family: Arial, sans-serif;'>
+
+                <table width='100%' border='0' cellspacing='0' cellpadding='0'>
+                    <tr>
+                        <td style='background-color: #f7f7f7; padding: 20px; text-align: center;'>
+                            <h1 style='color: #333;'>Thank You for Subscribing!</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='padding: 20px;'>
+                            <p>Dear ".$data['companyName'].",</p>
+                            <p>Thank you for choosing our online employment website and subscribing to our ".$data['planName']." plan. We are thrilled to have you on board!</p>
+                            <p>Your subscription details:</p>
+                            <ul>
+                                <li><strong>Plan:</strong> ".$data['planName']."</li>
+                                <li><strong>Price:</strong> RM ".number_format($data['price'])."</li>
+                                <li><strong>Validity Period:</strong> ".$data['validityPeriod']."</li>
+                            </ul>
+                            <p>Your subscription will give you access to a range of features and benefits designed to enhance your experience on our platform.</p>
+                            <p>You can print you receipt by clicking <a href='http://localhost/jobNexus/employer/subscription/subscription_print.php?id=".base64_encode($subscriptionID)
+                            ."' target='_blank'>here</a> .</p>
+                            <p>If you have any questions or need assistance, feel free to reach out to our support team at jobnexus2@gmail.com.</p>
+                            <p>Thank you once again for choosing Job Nexus. We look forward to helping you find success in your job search!</p>
+                            <p>Best regards,</p>
+                            <p>The Job Nexus Team</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='background-color: #333; color: #fff; padding: 10px; text-align: center;'>
+                            &copy; 2023 Job Nexus. All rights reserved.
+                        </td>
+                    </tr>
+                </table>
+
+            </body>
+            </html>
+        ";
+        // Set up the SMTP configuration
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'jobnexus2@gmail.com';
+        $mail->Password = 'njysranxlvecliqc';
+        $mail->SMTPSecure = 'tsl';
+        $mail->Port = 587;
+
+        // Set up the email content
+        $mail->setFrom('jobnexus2@gmail.com');
+        $mail->addAddress($data['emailAddress']);
+        $mail->isHTML(true);
+        $mail->Subject = "Job Nexus Subscription";
+        $mail->Body = $content;
+        $mail->send();
     }
 
 }

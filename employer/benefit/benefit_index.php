@@ -98,8 +98,8 @@
                                 <tr>
                                     <th class="text-center" scope="col" style="width:5%;">No.</th>
                                     <th class="text-center" scope="col" style="width:20%;">Title</th>
-                                    <th class="text-center" scope="col" style="width:50%;">Description</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Icon</th>
+                                    <th class="text-center" scope="col" style="width:60%;">Description</th>
+                                    <th class="text-center" scope="col" style="width:5%;">Icon</th>
                                     <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
                                 </tr>
                             </thead>

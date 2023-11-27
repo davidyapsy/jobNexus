@@ -849,26 +849,24 @@ class EmployerOop
             );
         } else{
             session_start();
-            $remindRenewal = false;
-            $sql = "SELECT B.subscriptionPlanID, startDate, endDate, B.maxJobPosting
+            $todaysDate = date('Y-m-d');
+            $sql = "SELECT B.subscriptionPlanID, startDate, endDate, B.maxJobPosting, B.maxFeatureJobListing, A.subscriptionID
                     FROM subscription A
                     JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID
-                    WHERE A.employerID = '$employerID' AND A.isActive =1";
+                    WHERE A.employerID = '$employerID' AND A.startDate>='$todaysDate' AND A.endDate<='$todaysDate' AND A.isActive =1";
             $statement = $this->connection->query($sql);
 
             if($statement->num_rows > 0){
                 while(($row = $statement->fetch_assoc())==TRUE){
-                    if(date('Y-m-d')>$row['endDate']){
-                        $_SESSION['maxJobPosting']= 0;
-                        $_SESSION['subscriptionPlanID']="";
-                    }else{
-                        $_SESSION['maxJobPosting']= $row['maxJobPosting'];
-                        $_SESSION['subscriptionPlanID']= base64_encode($row['subscriptionPlanID']);
-                    }
+                    $_SESSION['maxJobPosting']= $row['maxJobPosting'];
+                    $_SESSION['maxFeatureJobListing']= $row['maxFeatureJobListing'];
+                    $_SESSION['subscriptionPlanID']= base64_encode($row['subscriptionPlanID']);
+                    $_SESSION['subscriptionID']=base64_encode($row['subscriptionID']);
                 }
             }else{
                 $_SESSION['maxJobPosting']= 0;
-                $_SESSION['subscriptionPlanID']="";
+                $_SESSION['maxFeatureJobListing']= 0;
+                $_SESSION['subscriptionID']="";
             }
             
             $_SESSION['employerID']=base64_encode($employerID);

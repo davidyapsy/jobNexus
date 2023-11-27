@@ -11,10 +11,10 @@
 
     //employerID
     $sql = "SELECT B.planName, B.description, B.price, B.validityPeriod, B.maxJobPosting, B.maxJobApplication, B.applicationRankingAvailability, 
-                    B.maxFeatureJobListing, A.startDate, A.endDate, A.isActive
+                    B.maxFeatureJobListing, A.startDate, A.endDate, A.isActive, B.subscriptionPlanID
             FROM subscription A
             JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID 
-            WHERE subscriptionID = '$subscriptionID' AND employerID = '$employerID'";
+            WHERE subscriptionID = '$subscriptionID' AND employerID = '$employerID' AND A.isActive = 1";
 
     $result = $connection->query($sql);
     $data =[];
@@ -68,7 +68,7 @@
                             <label for="subscriptionPlan" class="col-sm-3 col-form-label">Subscription Plan Name: <span class="required">*</span> </label>
                             <div class="col-sm-9">
                                 <select class="form-select" id="subscriptionPlan" name="subscriptionPlan" disabled>
-                                    <option value=""> -- Please select a job category. -- </option>
+                                    <option value=""> -- Please select a subscription plan. -- </option>
                                     <?php $subscriptionPlan_sql = "SELECT subscriptionPlanID, planName
                                                                 FROM subscription_plan 
                                                                 WHERE isActive = 1";
