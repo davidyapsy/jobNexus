@@ -411,52 +411,6 @@ class JobApplicationOop
         $salaryExpectation = $this->model->getSalaryExpectation();
         $status = $this->model->getStatus();
 
-        // // salarySQL
-        // $salarySQL = "SELECT salaryExpectation
-        // FROM job_application A
-        // JOIN job_posting B ON A.jobPostingID = B.jobPostingID
-        // WHERE B.jobPostingID = '$jobPostingID' AND employerID = '$employerID'
-        // ORDER BY salaryExpectation";
-        // $salaryData =[];
-        // $statement = $this->connection->query($salarySQL);
-        // while (($row = $statement->fetch_assoc()) == TRUE) {
-        //     $salaryData = $row['salaryExpectation'];
-        // }
-
-        // // jobSeekerSQL
-        // $jobSeekerSQL = "SELECT B.applicationID, working_experience, field_of_study, skills, education_level, address
-        // FROM job_seeker A
-        // JOIN job_application B ON A.jobSeekerID = B.jobSeekerID
-        // JOIN job_posting C ON B.jobPostingID = C.jobPostingID
-        // WHERE C.jobPostingID = '$jobPostingID' AND C.employerID = '$employerID'";
-        // $jobSeekerData =[];
-        // $statement = $this->connection->query($jobSeekerSQL);
-        // while (($row = $statement->fetch_assoc()) == TRUE) {
-        //     $jobSeekerData = $row;
-        // }
-
-        // // jobPostingSQL
-        // $jobPostingSQL = "SELECT salary, experienceLevel, jobRequirement
-        // FROM job_posting
-        // WHERE jobPostingID = '$jobPostingID' AND employerID = '$employerID'";
-        // $jobPostingData =[];
-        // $statement = $this->connection->query($jobPostingSQL);
-        // while (($row = $statement->fetch_assoc()) == TRUE) {
-        //     $jobPostingData = $row;
-        // }
-
-        // // employerSQL
-        // $employerSQL = "SELECT postcode, city, state 
-        // FROM employer A
-        // JOIN job_posting B ON A.employerID = B.employerID 
-        // WHERE B.jobPostingID = '$jobPostingID' AND B.employerID = '$employerID'";
-        // $employerData =[];
-        // $statement = $this->connection->query($employerSQL);
-        // while (($row = $statement->fetch_assoc()) == TRUE) {
-        //     $employerData = $row;
-        // }
-
-
         //table data
         $sql = "SELECT A.applicationID, CONCAT(B.firstName,' ',B.lastName) AS jobSeekerName, B.address, B.working_experience, B.skills, A.salaryExpectation, A.status, C.jobPostingID
         FROM job_application A 

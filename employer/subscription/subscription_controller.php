@@ -397,6 +397,7 @@ class SubscriptionOop
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
             $this->model->setStartDate($startDate);
             $this->model->setEndDate($endDate);
+            $this->model->setEmployerID($employerID);
             $this->setPaymentMethod($paymentMethod);
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
             $this->setPage($page);
@@ -813,6 +814,7 @@ class SubscriptionOop
         $startDate = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getStartDate())));
         $endDate = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getEndDate())));
         $paymentMethod = $this->getPaymentMethod();
+        $employerID = $this->model->getEmployerID();
         $i=0;
         
         //null checking
@@ -828,11 +830,22 @@ class SubscriptionOop
             $i++;
         }
 
-        $sql = "SELECT subscriptionPlanID
+        $dbStartDate = "";
+        $dbEndDate ="";
+        $recordFound=false;
+        $sql = "SELECT subscriptionPlanID, startDate, endDate
                 FROM subscription 
-                WHERE employerID = '$employerID' AND ($endDate < startDate OR $startDate > endDate) AND isActive =1";
+                WHERE employerID = '$employerID' AND isActive =1";
         $statement = $this->connection->query($sql);
-        
+        while(($row = $statement->fetch_assoc())==TRUE){
+            $dbStartDate = $row['startDate'];
+            $dbEndDate = $row['endDate'];
+        }
+
+        if(($startDate>=$dbStartDate && $startDate<=$dbEndDate) || ($endDate>=$dbStartDate && $endDate<=$dbEndDate)){
+            $recordFound=true;
+        }
+
         if($i>0){
             echo json_encode(
                 [
@@ -844,7 +857,7 @@ class SubscriptionOop
             echo json_encode(
                 [
                     "status" => true,
-                    "totalRecord" => $statement->num_rows
+                    "recordFound" => $recordFound,
                 ]
             );
         }

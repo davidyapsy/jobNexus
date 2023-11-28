@@ -287,15 +287,8 @@
                             el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
                         }
                     } else {
-
-                        <?php if($_SESSION['subscriptionPlanID']=="") { ?>
-                            if(paymentMethod=="Online Banking"){
-                                createRecord();
-                            }else{
-                                makePayment();
-                            }
-                        <?php } else { ?>
-                            Swal.fire({
+                        if(data.recordFound){
+                           Swal.fire({
                                 title: "Question",
                                 text: "You are currently subscribed a plan, Do you want to replace with new plan?",
                                 icon: "question",
@@ -310,8 +303,15 @@
                                     }
                                 }
                             });
-                        <?php } ?>
-                        
+                            
+                        } else{
+                            if(paymentMethod=="Online Banking"){
+                                loading();
+                                // createRecord();
+                            }else{
+                                makePayment();
+                            }
+                        }
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);
@@ -347,6 +347,24 @@
                 }
             })
             
+        }
+
+        function loading(){
+            let timerInterval;
+            Swal.fire({
+                title: "Processing!",
+                timer: 5000,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                    createRecord();
+                },
+                }).then((result) => {
+                /* Read more about handling dismissals below */
+                if (result.dismiss === Swal.DismissReason.timer) {
+                    console.log("I was closed by the timer");
+                }
+            });
         }
 
         function createRecord() {

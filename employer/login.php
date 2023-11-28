@@ -135,15 +135,7 @@
                             el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
                         }
                     } else {
-                        <?php if(isset($_SESSION['subscriptionPlanID'])) { 
-                                if($_SESSION['subscriptionPlanID'] == "") {?>
-                                    window.location.href="/jobnexus/employer/subscription/subscription_plan.php";
-                                <?php } else { ?>
-                                    window.location.href="/jobnexus/employer";
-                                <?php } ?>
-                        <?php } else { ?>
-                            window.location.href="/jobnexus/employer";
-                        <?php } ?>
+                        window.location.href="/jobnexus/employer";
                     }
                 }, failure: function (xhr) {
                     console.log(xhr.status);

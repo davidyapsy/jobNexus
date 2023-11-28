@@ -850,17 +850,16 @@ class EmployerOop
         } else{
             session_start();
             $todaysDate = date('Y-m-d');
-            $sql = "SELECT B.subscriptionPlanID, startDate, endDate, B.maxJobPosting, B.maxFeatureJobListing, A.subscriptionID
+            $sql = "SELECT B.maxJobPosting, B.maxFeatureJobListing, A.subscriptionID
                     FROM subscription A
                     JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID
-                    WHERE A.employerID = '$employerID' AND A.startDate>='$todaysDate' AND A.endDate<='$todaysDate' AND A.isActive =1";
+                    WHERE A.employerID = '$employerID' AND A.startDate<='$todaysDate' AND A.endDate>='$todaysDate' AND A.isActive =1";
             $statement = $this->connection->query($sql);
 
             if($statement->num_rows > 0){
                 while(($row = $statement->fetch_assoc())==TRUE){
                     $_SESSION['maxJobPosting']= $row['maxJobPosting'];
                     $_SESSION['maxFeatureJobListing']= $row['maxFeatureJobListing'];
-                    $_SESSION['subscriptionPlanID']= base64_encode($row['subscriptionPlanID']);
                     $_SESSION['subscriptionID']=base64_encode($row['subscriptionID']);
                 }
             }else{

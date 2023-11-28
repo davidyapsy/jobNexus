@@ -32,6 +32,7 @@
 
     $availableFeature = $maxFeatureJobListing - $totalFeatured;
     
+    
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -179,14 +180,15 @@
                                 </div>
                             </div>
                         </div>
+                        <input type="hidden" class="form-control" id="publishDate" name="publishDate" value="<?=$data['publishDate']?>"/> 
                         <div class="form-group row">
                             <label for="isPublish" class="col-sm-3 col-form-label">Publish Job Post: </label>
                             <div class="col-sm-9">
                                 <div class="form-control form-check form-switch border-0">
                                     <input class="form-check-input" type="checkbox" id="chkIsPublish" <?=$data['isPublish']=="Published"?"checked":""?>
                                         name="chkIsPublish" value="">
+                                    <div class="invalid-feedback"></div>
                                 </div>
-                                <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -218,7 +220,6 @@
         <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
         <!-- Sweet Alert -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
-
     </body>
 
     <script>
@@ -267,9 +268,12 @@
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "check_validation",
+                    jobPostingID: $("#jobPostingID").val(),
+                    jobCategoryID : $("#jobCategory").val(),
                     jobTitle: $("#jobTitle").val(),
                     jobDescription: $('#jobDescription').summernote('code'),
                     jobRequirement: $('#jobRequirement').summernote('code'),
+                    experienceLevel: $("#experienceLevel").val(),
                     locationState: $("#locationState").val(),
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
@@ -311,6 +315,7 @@
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
                     isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : "Unpublished"),
+                    publishDate: $("#publishDate").val(),
                     isFeatured: ($("#chkIsFeatured").is(':checked') ?  1 : 0)
                 }, success: function (response) {
                     const data = response;

@@ -11,6 +11,7 @@
     $stat = $connection->query("SELECT jobPostingID
                                         FROM job_posting
                                         WHERE employerID='$employerID' AND isDeleted=0");
+
     if($stat->num_rows < $_SESSION['maxJobPosting'] && $_SESSION['maxJobPosting']!=0){
         $maxFeatureJobListing =$_SESSION['maxFeatureJobListing'];
 

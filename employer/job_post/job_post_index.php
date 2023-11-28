@@ -340,7 +340,7 @@
         }
 
         function print_report(){
-            
+            window.location.href="job_post_report.php";
         }
     </script>
 </html>

@@ -121,6 +121,7 @@ class JobPostingModel
     private String $publishDate;
     private int $isFeatured;
     private int $isDeleted;
+    private String $createdAt;
 
     public function getEmployerID(): String{
         return $this->employerID;
@@ -296,6 +297,17 @@ class JobPostingModel
         return $this;
     }
 
+    public function getCreatedAt(): String
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(String $createdAt): JobPostingModel
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
 }
 
 //
@@ -332,6 +344,8 @@ class JobPostingOop
     private mysqli $connection;
 
     private $departureDay;
+    private $publishDateFrom;
+    private $publishDateTo;
     private $page;
 
     public function getDepartureDay(): String
@@ -342,6 +356,28 @@ class JobPostingOop
     public function setDepartureDay($departureDay=""): JobPostingOop
     {
         $this->departureDay = $departureDay;
+        return $this;
+    }
+
+    public function getPublishDateFrom(): String
+    {
+        return $this->publishDateFrom;
+    }
+
+    public function setPublishDateFrom($publishDateFrom=""): JobPostingOop
+    {
+        $this->publishDateFrom = $publishDateFrom;
+        return $this;
+    }
+
+    public function getPublishDateTo(): String
+    {
+        return $this->publishDateTo;
+    }
+
+    public function setPublishDateTo($publishDateTo=""): JobPostingOop
+    {
+        $this->publishDateTo = $publishDateTo;
         return $this;
     }
 
@@ -414,9 +450,13 @@ class JobPostingOop
         $employmentType = filter_input(INPUT_POST, "employmentType", FILTER_SANITIZE_STRING);
         $applicationDeadline = filter_input(INPUT_POST, "applicationDeadline", FILTER_SANITIZE_STRING);
         $isPublish = filter_input(INPUT_POST, "isPublish", FILTER_SANITIZE_STRING);
+        $publishDate = filter_input(INPUT_POST, "publishDate", FILTER_SANITIZE_STRING);
         $isFeatured = filter_input(INPUT_POST, "isFeatured", FILTER_SANITIZE_STRING);
         $page = filter_input(INPUT_POST, "page", FILTER_SANITIZE_NUMBER_INT);
 
+        //
+        $publishDateFrom = filter_input(INPUT_POST, "publishDateFrom", FILTER_SANITIZE_STRING);
+        $publishDateTo = filter_input(INPUT_POST, "publishDateTo", FILTER_SANITIZE_STRING);
         if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "create"){
             $this->model->setEmployerID($employerID);
             $this->model->setJobPostingID($jobPostingID);
@@ -435,7 +475,7 @@ class JobPostingOop
             if($isPublish == "Published"){
                 $this->model->setPublishDate(date("Y-m-d"));
             }else{
-                $this->model->setPublishDate("");
+                $this->model->setPublishDate("1970-01-01");
             }
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "delete"){
             $this->model->setJobPostingID($jobPostingID);
@@ -453,13 +493,10 @@ class JobPostingOop
             $this->model->setEmploymentType($employmentType);
             $this->model->setApplicationDeadline($applicationDeadline);
             $this->model->setIsPublish($isPublish);
+            $this->model->setPublishDate($publishDate);
             $this->model->setIsFeatured($isFeatured);
-            if($isPublish == "Published"){
-                $this->model->setPublishDate(date("Y-m-d"));
-            }else{
-                $this->model->setPublishDate("");
-            }
         }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "check_validation"){
+            $this->model->setJobPostingID($jobPostingID);
             $this->model->setJobCategoryID($jobCategoryID);
             $this->model->setJobTitle($jobTitle);
             $this->model->setJobDescription($jobDescription);
@@ -478,7 +515,13 @@ class JobPostingOop
             $this->model->setSalary($salary);
             $this->model->setEmploymentType($employmentType);
             $this->model->setIsPublish($isPublish);
-        }       
+        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "print_report"){
+            $this->model->setEmployerID($employerID);
+            $this->model->setJobCategoryID($jobCategoryID);
+            $this->model->setJobTitle($jobTitle);
+            $this->setPublishDateFrom($publishDateFrom);
+            $this->setPublishDateTo($publishDateTo);
+        } 
     }
 
     /**
@@ -498,16 +541,17 @@ class JobPostingOop
         $locationState = $this->model->getLocationState();
         $salary = $this->model->getSalary();
         $employmentType = $this->model->getEmploymentType();
-        $applicationDeadline= $this->model->getApplicationDeadline();
+        $applicationDeadline= $this->model->getApplicationDeadline()==""?"1970-01-01":$this->model->getApplicationDeadline();
         $isPublish= $this->model->getIsPublish();
         $isFeatured= $this->model->getIsFeatured();
         $publishDate= $this->model->getPublishDate();
         $isDeleted = 0;
+        $createdAt = date('Y-md-d');
 
         //assign new job posting id
-        $year = "00";
-        $month= "00";
-        $day  = "00";
+        $year = "70";
+        $month= "01";
+        $day  = "01";
         if($publishDate!=""){
             $year=substr($publishDate, 2,2);
             $month=substr($publishDate, 5,2);
@@ -520,13 +564,9 @@ class JobPostingOop
         $total_data=0;
         $stat = $this->connection->query("SELECT count(*) as totalRecord
                                                 FROM job_posting
-                                                WHERE employerID='$employerID'");
-        while (($row = $stat->fetch_assoc()) == TRUE) {
-            $total_data = $row['totalRecord'];
-        }
-
+                                                WHERE employerID='$employerID' ");
         //employerID
-        if($total_data > 0){
+        if($stat->num_rows > 0){
             $result = $this->connection->query("SELECT jobPostingID
                                                 FROM job_posting
                                                 WHERE employerID='$employerID'
@@ -545,8 +585,8 @@ class JobPostingOop
         //insert into db
         if (strlen($jobCategoryID) > 0 &&  strlen($jobTitle) > 0 &&  strlen($jobDescription) > 0 &&  strlen($jobRequirement) > 0 &&  strlen($locationState) > 0 &&  strlen($employmentType) > 0) {
             $statement = $this->connection->prepare("INSERT INTO job_posting VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $statement->bind_param("sssssssssdssssii", $employerID, $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, 
-                                                        $salary, $employmentType, $applicationDeadline, $isPublish, $publishDate, $isFeatured, $isDeleted);
+            $statement->bind_param("sssssssssdssssiis", $employerID, $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, 
+                                                        $salary, $employmentType, $applicationDeadline, $isPublish, $publishDate, $isFeatured, $isDeleted, $createdAt);
             
 
             try {
@@ -620,7 +660,7 @@ class JobPostingOop
         if($isPublish!=""){
             $filter_options.=" AND A.isPublish = '$isPublish'";
         }
-        $filter_options.=" ORDER BY publishDate";
+        $filter_options.=" ORDER BY created_at, jobPostingID";
         $sql.=$filter_options;
 
         $total_data=0;
@@ -798,7 +838,8 @@ class JobPostingOop
         $isDeleted=0;
         $newID = $jobPostingID;
         
-        if(substr($jobPostingID, 2, 6)=="000000" && $isPublish == "Published"){
+        if(substr($jobPostingID, 2, 6)=="700101" && $isPublish == "Published"){
+            $publishDate = date('Y-m-d');
             //assign new job posting id
             $year=substr($publishDate, 2,2);
             $month=substr($publishDate, 5,2);
@@ -899,6 +940,7 @@ class JobPostingOop
         $datas[]['inputName']="";
         $datas[]['errorMessage']="";
 
+        $jobPostingID = $this->model->getJobPostingID();
         $jobCategoryID = $this->model->getJobCategoryID();
         $jobTitle = $this->model->getJobTitle();
         $jobDescription = $this->model->getJobDescription();
@@ -951,7 +993,11 @@ class JobPostingOop
             $datas[$i]['errorMessage']="Application Deadline must be larger than today's date";
             $i++;
         }
-
+        if(substr($jobPostingID, 2, 6)!="700101" && $isPublish == "Published"){
+            $datas[$i]['inputName']="chkIsPublish";
+            $datas[$i]['errorMessage']="This job has been posted before, Please create another job";
+            $i++;
+        }
 
         if($i>0){
             echo json_encode(
@@ -967,6 +1013,65 @@ class JobPostingOop
                 ]
             );
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    function print_report(){
+        $data = array();
+        $limit = 5;
+        $page = $this->getPage();
+
+        if($page > 1) {
+            $start = (($page - 1) * $limit);
+            $page = $page;
+        } else {
+            $start = 0;
+        }
+
+        // table data !
+        $employerID = $this->model->getEmployerID();
+        $jobCategoryID = $this->model->getJobCategoryID();
+        $jobTitle = $this->model->getJobTitle();
+        $publishDateFrom = $this->getPublishDateFrom();
+        $publishDateTo = $this->getPublishDateTo();
+
+        $tableSql = "SELECT CONCAT(C.firstName, ' ', C.lastName) as jobSeekerName, C.working_experience, C.skills, C.field_of_study, B.salaryExpectation, B.applicationDate, B.status
+                FROM job_posting A
+                JOIN job_application B ON A.jobPostingID = B.jobPostingID
+                JOIN job_seeker C ON C.jobSeekerID = B.jobSeekerID
+                WHERE A.isDeleted =0";
+
+        $filter_options ="";
+        if($jobCategoryID!=""){
+            $filter_options.=" AND A.jobCategoryID = '$jobCategoryID'";
+        }
+        if($jobTitle!=""){
+            $filter_options.=" AND A.jobTitle LIKE '%$jobTitle%'";
+        }
+        if($publishDateFrom!=""){
+            $filter_options.=" AND A.publishDate >= '$publishDateFrom'";
+        }
+        if($publishDateTo!=""){
+            $filter_options.=" AND A.publishDate <= '$publishDateTo'";
+        }
+
+        $filter_options.=" ORDER BY A.created_at, A.jobPostingID";
+        $tableSql.=$filter_options;
+
+        $statement = $this->connection->query($tableSql);
+        $data = [];
+        while (($row = $statement->fetch_assoc()) == TRUE) {
+            $data[] = $row;
+        }
+
+        $output = array(
+            'data'				=>	$data,
+            'status'            =>  true
+        );
+
+        echo json_encode($output);
     }
 
     private function send_email($jobCategoryID, $jobTitle, $employerID){
@@ -1070,6 +1175,9 @@ try {
             break;
         case "check_validation":
             $jobPostingOop->check_validation();
+            break;
+        case "print_report":
+            $jobPostingOop->print_report();
             break;
         default:
             throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
