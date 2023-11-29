@@ -745,7 +745,7 @@ class JobPostingOop
                     $previous_id = $page_array[$count] - 1;
 
                     if($previous_id > 0){
-                        $previous_link = '<li class="page-item"><a class="page-link" href="javascript:load_data('.$previous_id.')">Previous</a></li>';
+                        $previous_link = '<li class="page-item"><a class="page-link" href="Bvascript:load_data('.$previous_id.')">Previous</a></li>';
                     }else{
                         $previous_link = '
                         <li class="page-item disabled">
@@ -764,7 +764,7 @@ class JobPostingOop
                         ';
                     }else{
                         $next_link = '
-                        <li class="page-item"><a class="page-link" href="javascript:load_data('.$next_id.')">Next</a></li>
+                        <li class="page-item"><a class="page-link" href="Bvascript:load_data('.$next_id.')">Next</a></li>
                         ';
                     }
                 }
@@ -781,7 +781,7 @@ class JobPostingOop
                     {
                         $page_link .= '
                         <li class="page-item">
-                            <a class="page-link" href="javascript:load_data('.$page_array[$count].')">'.$page_array[$count].'</a>
+                            <a class="page-link" href="Bvascript:load_data('.$page_array[$count].')">'.$page_array[$count].'</a>
                         </li>
                         ';
                     }
@@ -1030,18 +1030,18 @@ class JobPostingOop
             $start = 0;
         }
 
-        // table data !
         $employerID = $this->model->getEmployerID();
         $jobCategoryID = $this->model->getJobCategoryID();
         $jobTitle = $this->model->getJobTitle();
         $publishDateFrom = $this->getPublishDateFrom();
         $publishDateTo = $this->getPublishDateTo();
 
+        // table data !
         $tableSql = "SELECT CONCAT(C.firstName, ' ', C.lastName) as jobSeekerName, C.working_experience, C.skills, C.field_of_study, B.salaryExpectation, B.applicationDate, B.status
                 FROM job_posting A
                 JOIN job_application B ON A.jobPostingID = B.jobPostingID
                 JOIN job_seeker C ON C.jobSeekerID = B.jobSeekerID
-                WHERE A.isDeleted =0";
+                WHERE A.isDeleted =0 AND A.employerID = '$employerID' ";
 
         $filter_options ="";
         if($jobCategoryID!=""){
@@ -1061,13 +1061,77 @@ class JobPostingOop
         $tableSql.=$filter_options;
 
         $statement = $this->connection->query($tableSql);
-        $data = [];
+        $tableData = [];
         while (($row = $statement->fetch_assoc()) == TRUE) {
-            $data[] = $row;
+            $tableData[] = $row;
         }
 
+        // Pie chart data
+        $totalSQL = "SELECT jobPostingID
+                    FROM job_posting A 
+                    JOIN job_category B ON A.jobCategoryID = B.jobCategoryID 
+                    WHERE A.employerID = '$employerID'";
+        $statement = $this->connection->query($totalSQL);
+        $totalPie = $statement->num_rows;
+
+        $jobCatPie = array();
+        $pieSQL = "SELECT B.categoryName, A.jobCategoryID, count(jobPostingID) as totalRecords 
+                    FROM job_posting A 
+                    JOIN job_category B ON A.jobCategoryID = B.jobCategoryID 
+                    WHERE A.employerID = '$employerID'
+                    GROUP BY B.categoryName, A.jobCategoryID";
+        $statement = $this->connection->query($pieSQL);
+        
+        while(($row = $statement->fetch_assoc())==TRUE){
+            $jobCatPie[] = array("label" => $row['categoryName'], "data" => $row['totalRecords']/$totalPie*100);
+        }
+
+        // Line Chart
+        $jobPostDatas = [];
+        $lineData = [];
+        $lineSQL = "SELECT MONTH(publishDate) as month, count(*) as totalPost
+                        FROM job_posting
+                        WHERE publishDate >= '$publishDateFrom' AND publishDate <= '$publishDateTo' AND isDeleted = 0 AND employerID = '$employerID'
+                        GROUP BY month";
+        $statement = $this->connection->query($lineSQL);
+        
+        while(($row = $statement->fetch_assoc())==TRUE){
+            $jobPostDatas[] = array("month" => $row['month'], "totalPost" => $row['totalPost']);
+        }
+
+        for($i=1;$i<=12;$i++){
+            $totalPost = 0;
+            foreach ($jobPostDatas as $jobPostData){
+                if($jobPostData['month'] == (string)$i){
+                    $totalPost = $jobPostData['totalPost'];
+                }
+            }
+            $lineData[] = array("month" => (int)$i, "totalPost" => $totalPost);
+        }
+
+        
+        // Stacked Bar Chart
+        $expSalaryStacked = [];
+        $stackedSQL = "SELECT  A.jobPostingID, 
+                                A.jobTitle, 
+                                A.salary, 
+                                AVG(B.salaryExpectation) AS avg_seeker_salary, 
+                                A.salary - AVG(B.salaryExpectation) AS salary_difference 
+                        FROM job_posting A 
+                        JOIN job_application B ON A.jobPostingID = B.jobPostingID 
+                        GROUP BY A.jobPostingID, A.jobTitle, A.salary";
+        $statement = $this->connection->query($stackedSQL);
+        
+        while(($row = $statement->fetch_assoc())==TRUE){
+            $expSalaryStacked[] = array("label" => $row['jobTitle'], "salary" => (float)$row['salary'], "salaryExp" => (float)$row['avg_seeker_salary']);
+        }
+        
+
         $output = array(
-            'data'				=>	$data,
+            'tableData'			=>	$tableData,
+            'pieData'           =>  $jobCatPie,
+            'lineData'          =>  $lineData,
+            'stackedBCData'     => $expSalaryStacked,
             'status'            =>  true
         );
 
@@ -1154,7 +1218,7 @@ class JobPostingOop
 }
 
 header('Content-Type: application/json');
-header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript given cors error
+header("Access-Control-Allow-Origin: *"); // this is to prevent from Bvascript given cors error
 
 $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
 

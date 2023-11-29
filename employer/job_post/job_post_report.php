@@ -47,63 +47,78 @@
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
-                    <form id="filterBox" method="post" action="">
-                        <h4 style="padding-left:15px;">Filter Box</h4>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <select class="form-select" id="jobCategory" name="jobCategory">
-                                        <option value="">All (Job Category)</option>
-                                        <?php $jobCategory_sql = "SELECT jobCategoryID, categoryName
-                                                                FROM job_category";
-                                        $jobCategory_result = $connection->query($jobCategory_sql);
-                                        while (($row = $jobCategory_result->fetch_assoc()) == TRUE) { ?>
-                                                    <option value="<?= base64_encode($row['jobCategoryID']); ?>"><?= $row['categoryName'] ?></option>
-                                        <?php } ?>
-                                    </select>                                
-                                </div>                            
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="text" class="form-control" name="jobTitle" id="jobTitle" placeholder="Job Title"/>
-                                </div>                            
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="date" class="form-control date" name="publishDateFrom" id="publishDateFrom" title="Publish Date (From)">
-                                    <label for="publishDateFrom">Publish Date (From)</label>
+                    <div class="row" class="d-none">
+                        <form id="filterBox" method="post" action="">
+                            <h4 style="padding-left:15px;">Filter Box</h4>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <select class="form-select" id="jobCategory" name="jobCategory">
+                                            <option value="">All (Job Category)</option>
+                                            <?php $jobCategory_sql = "SELECT jobCategoryID, categoryName
+                                                                    FROM job_category";
+                                            $jobCategory_result = $connection->query($jobCategory_sql);
+                                            while (($row = $jobCategory_result->fetch_assoc()) == TRUE) { ?>
+                                                        <option value="<?= base64_encode($row['jobCategoryID']); ?>"><?= $row['categoryName'] ?></option>
+                                            <?php } ?>
+                                        </select>                                
+                                    </div>                            
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="jobTitle" id="jobTitle" placeholder="Job Title"/>
+                                    </div>                            
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <input type="date" class="form-control date" name="publishDateFrom" id="publishDateFrom" title="Publish Date (From)"
+                                        value="<?=date('Y-m-d', strtotime('first day of january this year'));?>">
+                                        <label for="publishDateFrom">Publish Date (From)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <input type="date" class="form-control date" name="publishDateTo" id="publishDateTo" title="Publish Date (To)"
+                                        value="<?=date('Y-m-d', strtotime('last day of december this year'));?>">
+                                        <label for="publishDateTo">Publish Date (To)</label>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <input type="date" class="form-control date" name="publishDateTo" id="publishDateTo" title="Publish Date (To)">
-                                    <label for="publishDateTo">Publish Date (To)</label>
-                                </div>
+                            <div class="text-center">
+                                <button type="button" id="filterBtn"
+                                        class="btn btn-round btn-primary btn-sm" id="filterBtn"
+                                        data-style="zoom-in"
+                                        onclick="load_data()">
+                                    <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
+                                </button>
+                                <button type="button" id="reportBtn"
+                                        class="btn btn-round btn-success btn-sm ladda-button"
+                                        data-style="zoom-in"
+                                        onclick="print_report()">
+                                    <span class="ladda-label">
+                                        <i class="bi bi-printer" aria-hidden="true"></i> Report
+                                    </span>
+                                </button>
+                                <button type="button" class="btn btn-danger btn-round btn-sm"
+                                        onclick="clear_form()">
+                                    <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Clear
+                                </button>
                             </div>
+                        </form>
+                    </div>
+                    <hr>
+                    <div class="row pb-2">
+                        <div class="col-sm-4">
+                            <canvas id="pieChart"></canvas>
                         </div>
-                        <div class="text-center">
-                            <button type="button" id="filterBtn"
-                                    class="btn btn-round btn-primary btn-sm" id="filterBtn"
-                                    data-style="zoom-in"
-                                    onclick="load_data()">
-                                <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
-                            </button>
-                            <button type="button" id="reportBtn"
-                                    class="btn btn-round btn-success btn-sm ladda-button"
-                                    data-style="zoom-in"
-                                    onclick="print_report()">
-                                <span class="ladda-label">
-                                    <i class="bi bi-printer" aria-hidden="true"></i> Report
-                                </span>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-round btn-sm"
-                                    onclick="clear_form()">
-                                <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Clear
-                            </button>
+                        <div class="col-sm-4">
+                            <canvas id="lineChart"></canvas>
                         </div>
-                    </form>
-
-                    <div class="row" style="padding-left:15px; padding-right:15px;">
+                        <div class="col-sm-4">
+                            <canvas id="stackedBarChart"></canvas>
+                        </div>   
+                    </div>                 
+                    <div class="row">
                         <table class="table table-bordered" id="job_post_table">
                             <thead>
                                 <tr>
@@ -117,23 +132,23 @@
                                     <th class="text-center" scope="col" style="width:10%;">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="filtered_data">
+                            <tbody id="filtered_table_data">
                             </tbody>
                         </table>
                     </div>
-
                 </div>
-
             </div>
         </div>
-        <?php include('../footer.php') ?>
+
+        <!-- Chart.js Chart -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     </body>
 
     <script>
     // at here we try to be native as possible and you can use url to ease change the which one you prefer
     let url = "job_post_controller.php";
-    const tbody = $("#filtered_data");
+    const tbody = $("#filtered_table_data");
         
         $(window).on("load", function() {
             $( "#filterBtn" ).trigger( "click" );
@@ -154,11 +169,11 @@
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
-                        let records = data.data;
+                        let records = data.tableData;
                         var tableStringBuilder = '';
                         var statusLine="";
                         
-                        if(response.data.length > 0)
+                        if(response.tableData.length > 0)
                         {
                             for(var i = 0; i < records.length; i++)
                             {
@@ -192,6 +207,9 @@
                         {
                             tableStringBuilder += '<tr><td colspan="8" class="text-center">No Data Found</td></tr>';
                         }
+                        pie_chart(response.pieData);
+                        stacked_bar_chart(response.stackedBCData);
+                        line_chart(response.lineData);
                         tbody.html("").html(tableStringBuilder);
                     } else {
                         console.log("something wrong");
@@ -209,8 +227,139 @@
             load_data();
         }
 
-        function print_report(){
-            
+        function pie_chart(pieData){
+            const pieLabels = [];
+            const pieDatas =[];
+            pieData.forEach((element) => {
+                    pieLabels.push(element.label),
+                    pieDatas.push(element.data)
+                }
+            );
+
+            const ctx = document.getElementById('pieChart');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: pieLabels,
+                    datasets: [{
+                        label: 'Percentage',
+                        data: pieDatas,
+                        backgroundColor: [
+                            'rgb(255, 99, 132)',
+                            'rgb(54, 162, 235)',
+                            'rgb(255, 205, 86)'
+                        ],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Pie chart',
+                            font:{
+                                size: 20,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            });
         }
+
+        function stacked_bar_chart(stackedBCData){
+            const labels = [];
+            const salary =[];
+            const salaryExp =[];
+            stackedBCData.forEach((element) => {
+                    labels.push(element.label),
+                    salary.push(element.salary),
+                    salaryExp.push(element.salaryExp)
+                }
+            );
+
+            const ctx = document.getElementById('stackedBarChart');
+            const stackedBar = new Chart(ctx, {
+                type: 'bar',
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        label: 'Salary', 
+                        data: salary,
+                        fill: false,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        borderWidth: 1, 
+                    }, { 
+                        label: 'Avg Salary Expectation',
+                        data: salaryExp, 
+                        fill: false, 
+                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        borderColor: 'rgb(255, 159, 64)', 
+                        borderWidth: 1,
+                    }], 
+                }, 
+                options: {
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Stacked bar chart',
+                            font:{
+                                size: 20,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+            });
+        }
+
+        function line_chart(lineData){
+            const lineLabels = [];
+            const lineDatas =[];
+            lineData.forEach((element) => {
+                    lineLabels.push(element.month),
+                    lineDatas.push(element.totalPost)
+                }
+            );
+            const ctx = document.getElementById('lineChart');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: lineLabels,
+                    datasets: [{
+                        label: 'Total Job Post',
+                        data: lineDatas,
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Line chart',
+                            font:{
+                                size: 20,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            });
+
+        }
+
     </script>
 </html>
