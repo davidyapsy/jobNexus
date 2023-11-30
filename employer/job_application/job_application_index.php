@@ -116,9 +116,8 @@
                                     <select class="form-select" id="status" name="status">
                                         <option value="">All (Status)</option>
                                         <option value="Under Review">Under Review</option>
-                                        <option value="Shortlisted">Shortlisted</option>
-                                        <option value="Interview Scheduled">Interview Scheduled</option>
-                                        <option value="Interviewed">Interviewed</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Success">Success</option>
                                     </select>
                                 </div>                            
                             </div>
@@ -130,12 +129,20 @@
                                     onclick="load_data()">
                                 <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
                             </button>
-                            <button type="button" id="exportBtn"
+                            <!-- <button type="button" id="exportBtn"
                                     class="btn btn-round btn-success btn-sm ladda-button"
                                     data-style="zoom-in"
                                     onclick="export_to_excel()">
                                 <span class="ladda-label">
                                     <i class="bi bi-file-earmark-excel" aria-hidden="true"></i> Export
+                                </span>
+                            </button> -->
+                            <button type="button" id="reportBtn"
+                                    class="btn btn-round btn-success btn-sm ladda-button"
+                                    data-style="zoom-in"
+                                    onclick="print_report()">
+                                <span class="ladda-label">
+                                    <i class="bi bi-printer" aria-hidden="true"></i> Report
                                 </span>
                             </button>
                             <button type="button" class="btn btn-danger btn-round btn-sm"
@@ -209,14 +216,11 @@
                                 var statusLine="";
                                 if(records[i].status=="Under Review"){
                                     statusLine="        <td class='text-center'>"+"<span class='badge bg-light text-dark'>Under Review</span>" + "</td>" 
-                                }else if(records[i].status=="Shortlisted"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-secondary'>Shortlisted</span>" + "</td>" 
+                                }else if(records[i].status=="Pending"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Pending</span>" + "</td>" 
                                 }
-                                else if(records[i].status=="Interview Scheduled"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-info text-dark'>Interview Scheduled</span>" + "</td>" 
-                                }
-                                else if(records[i].status=="Interviewed"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Interview Scheduled</span>" + "</td>" 
+                                else if(records[i].status=="Success"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Success</span>" + "</td>" 
                                 }
                                 tableStringBuilder+=
                                 "  <tr>" +
@@ -288,6 +292,10 @@
                     console.log(xhr);
                 }
             });
+        }
+
+        function print_report(){
+            window.location.href="job_application_report.php";
         }
     </script>
 </html>

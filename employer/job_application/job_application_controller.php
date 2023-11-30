@@ -365,7 +365,7 @@ class JobApplicationOop
             $this->model->setApplicationID($applicationID);
             $this->model->setStatus($status);
             $this->model->setReplies($replies);
-        }else if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "search"){
             $this->setPage($page);
             $this->setEmployerID($employerID);
             $this->model->setJobPostingID($jobPostingID);
@@ -375,7 +375,10 @@ class JobApplicationOop
             $this->setSkills($skills);
             $this->model->setSalaryExpectation($salaryExpectation);
             $this->model->setStatus($status);
-        }       
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "print_report"){
+            $this->setEmployerID($employerID);
+            $this->model->setJobPostingID($jobPostingID);
+        }
     }
 
     /**
@@ -527,7 +530,7 @@ class JobApplicationOop
                     $previous_id = $page_array[$count] - 1;
 
                     if($previous_id > 0){
-                        $previous_link = '<li class="page-item"><a class="page-link" href="javascript:load_data('.$previous_id.')">Previous</a></li>';
+                        $previous_link = '<li class="page-item"><a class="page-link" href="Bvascript:load_data('.$previous_id.')">Previous</a></li>';
                     }else{
                         $previous_link = '
                         <li class="page-item disabled">
@@ -546,7 +549,7 @@ class JobApplicationOop
                         ';
                     }else{
                         $next_link = '
-                        <li class="page-item"><a class="page-link" href="javascript:load_data('.$next_id.')">Next</a></li>
+                        <li class="page-item"><a class="page-link" href="Bvascript:load_data('.$next_id.')">Next</a></li>
                         ';
                     }
                 }
@@ -563,7 +566,7 @@ class JobApplicationOop
                     {
                         $page_link .= '
                         <li class="page-item">
-                            <a class="page-link" href="javascript:load_data('.$page_array[$count].')">'.$page_array[$count].'</a>
+                            <a class="page-link" href="Bvascript:load_data('.$page_array[$count].')">'.$page_array[$count].'</a>
                         </li>
                         ';
                     }
@@ -613,6 +616,9 @@ class JobApplicationOop
             }
 
             $this->connection->commit();
+            if($status == "Success"){
+                $this->send_email();
+            }
             echo json_encode(
                 [
                     "status" => true,
@@ -632,10 +638,206 @@ class JobApplicationOop
     {
         //Implement Delete method
     }
+
+    /**
+     * @throws Exception
+     */
+    function print_report(){
+        $data = array();
+        $limit = 5;
+        $page = $this->getPage();
+
+        if($page > 1) {
+            $start = (($page - 1) * $limit);
+            $page = $page;
+        } else {
+            $start = 0;
+        }
+
+        $employerID = $this->getEmployerID();
+        $jobPostingID = $this->model->getJobPostingID();
+
+        // Job seeker table data
+        $tableSql = "SELECT CONCAT(C.firstName, ' ', C.lastName) as jobSeekerName, C.working_experience, C.skills, C.field_of_study, B.salaryExpectation, B.applicationDate, B.status
+                FROM job_posting A
+                JOIN job_application B ON A.jobPostingID = B.jobPostingID
+                JOIN job_seeker C ON C.jobSeekerID = B.jobSeekerID
+                WHERE A.isDeleted =0 AND A.employerID = '$employerID'";
+
+        $filter_options ="";
+        if($jobPostingID!=""){
+            $filter_options.=" AND A.jobPostingID = '$jobPostingID'";
+        }
+
+        $tableSql.=$filter_options." ORDER BY A.created_at, A.jobPostingID";
+
+        $statement = $this->connection->query($tableSql);
+        $tableData = [];
+        while (($row = $statement->fetch_assoc()) == TRUE) {
+            $tableData[] = $row;
+        }
+
+        // Pie chart data
+        $jobAppPie = array();
+        $countSQL = "SELECT applicationID
+                    FROM 
+                        job_application A
+                    JOIN 
+                        job_posting B ON A.jobPostingID = B.jobPostingID
+                    WHERE B.isDeleted = 0 AND B.employerID = '$employerID'";
+        $countSQL.=$filter_options;
+        $statement = $this->connection->query($countSQL);
+        $sumApplication = $statement->num_rows;
+
+        $pieSQL = "SELECT 
+                        A.jobPostingID,
+                        A.jobTitle,
+                        COUNT(B.applicationID) AS totalApplications
+                    FROM 
+                        job_posting A
+                    JOIN 
+                        job_application B ON A.jobPostingID = B.jobPostingID
+                    WHERE A.isDeleted = 0 AND A.employerID = '$employerID'";
+        $pieSQL.=$filter_options." GROUP BY A.jobPostingID, A.jobTitle";
+        $statement = $this->connection->query($pieSQL);
+        
+        while(($row = $statement->fetch_assoc())==TRUE){
+            $jobAppPie[] = array("title" => $row['jobTitle'], "data" => number_format((float)$row['totalApplications']/$sumApplication*100, 2));
+        }
+
+        // Line Chart
+        // $jobPostDatas = [];
+        // $lineData = [];
+        // $lineSQL = "SELECT MONTH(publishDate) as month, count(*) as totalPost
+        //                 FROM job_posting A
+        //                 WHERE isDeleted = 0 AND employerID = '$employerID'";
+        // $lineSQL.=$filter_options." GROUP BY month";
+
+        // $statement = $this->connection->query($lineSQL);
+        
+        // while(($row = $statement->fetch_assoc())==TRUE){
+        //     $jobPostDatas[] = array("month" => $row['month'], "totalPost" => $row['totalPost']);
+        // }
+
+        // for($i=1;$i<=12;$i++){
+        //     $totalPost = 0;
+        //     foreach ($jobPostDatas as $jobPostData){
+        //         if($jobPostData['month'] == (string)$i){
+        //             $totalPost = $jobPostData['totalPost'];
+        //         }
+        //     }
+        //     $lineData[] = array("month" => (int)$i, "totalPost" => $totalPost);
+        // }
+
+        
+        // Stacked Bar Chart
+        // $expSalaryStacked = [];
+        // $barSQL = "SELECT 
+        //                 A.jobPostingID,
+        //                 A.jobTitle,
+        //                 COUNT(B.applicationID) AS totalApplications
+        //                 FROM 
+        //                     job_posting A
+        //                 JOIN 
+        //                     job_application B ON A.jobPostingID = B.jobPostingID
+        //                 WHERE A.isDeleted = 0 AND A.employerID = '$employerID'";
+        // $barSQL.=$filter_options." GROUP BY A.jobPostingID, A.jobTitle";
+        // $statement = $this->connection->query($barSQL);
+        // while(($row = $statement->fetch_assoc())==TRUE){
+        //     $expSalaryStacked[] = array("title" => $row['jobTitle'], "totalApplication" => (float)$row['salary'], "salaryExp" => (float)$row['avg_seeker_salary']);
+        // }
+        
+        $output = array(
+            'tableData'			=>	$tableData,
+            'pieData'           =>  $jobAppPie,
+            // 'lineData'          =>  $lineData,
+            // 'stackedBCData'     => $expSalaryStacked,
+            'status'            =>  true
+        );
+
+        echo json_encode($output);
+    }
+
+    private function send_email($subscriptionID){
+        $data=[];
+        $stat = $this->connection->query("SELECT B.companyName, C.planName, C.price, C.validityPeriod, B.emailAddress
+                                        FROM subscription A
+                                        JOIN employer B ON A.employerID = B.employerID
+                                        JOIN subscription_plan C ON A.subscriptionPlanID = C.subscriptionPlanID
+                                        WHERE subscriptionID = '$subscriptionID'");
+        while(($row = $stat->fetch_assoc())==TRUE){
+            $data=$row;
+        }
+
+        // Create a new PHPMailer object
+        $mail = new PHPMailer(true);
+        
+        $content = "
+            <!DOCTYPE html>
+            <html lang='en'>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <title>Thank You for Subscribing!</title>
+            </head>
+            <body style='font-family: Arial, sans-serif;'>
+
+                <table width='100%' border='0' cellspacing='0' cellpadding='0'>
+                    <tr>
+                        <td style='background-color: #f7f7f7; padding: 20px; text-align: center;'>
+                            <h1 style='color: #333;'>Thank You for Subscribing!</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='padding: 20px;'>
+                            <p>Dear ".$data['companyName'].",</p>
+                            <p>Thank you for choosing our online employment website and subscribing to our ".$data['planName']." plan. We are thrilled to have you on board!</p>
+                            <p>Your subscription details:</p>
+                            <ul>
+                                <li><strong>Plan:</strong> ".$data['planName']."</li>
+                                <li><strong>Price:</strong> RM ".number_format($data['price'])."</li>
+                                <li><strong>Validity Period:</strong> ".$data['validityPeriod']."</li>
+                            </ul>
+                            <p>Your subscription will give you access to a range of features and benefits designed to enhance your experience on our platform.</p>
+                            <p>You can print you receipt by clicking <a href='http://localhost/jobNexus/employer/subscription/subscription_print.php?id=".base64_encode($subscriptionID)
+                            ."' target='_blank'>here</a> .</p>
+                            <p>If you have any questions or need assistance, feel free to reach out to our support team at jobnexus2@gmail.com.</p>
+                            <p>Thank you once again for choosing Job Nexus. We look forward to helping you find success in your job search!</p>
+                            <p>Best regards,</p>
+                            <p>The Job Nexus Team</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='background-color: #333; color: #fff; padding: 10px; text-align: center;'>
+                            &copy; 2023 Job Nexus. All rights reserved.
+                        </td>
+                    </tr>
+                </table>
+
+            </body>
+            </html>
+        ";
+        // Set up the SMTP configuration
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'jobnexus2@gmail.com';
+        $mail->Password = 'njysranxlvecliqc';
+        $mail->SMTPSecure = 'tsl';
+        $mail->Port = 587;
+
+        // Set up the email content
+        $mail->setFrom('jobnexus2@gmail.com');
+        $mail->addAddress($data['emailAddress']);
+        $mail->isHTML(true);
+        $mail->Subject = "Job Nexus Subscription";
+        $mail->Body = $content;
+        $mail->send();
+    }
 }
 
 header('Content-Type: application/json');
-header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript given cors error
+header("Access-Control-Allow-Origin: *"); // this is to prevent from Bvascript given cors error
 
 $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
 
@@ -653,6 +855,9 @@ try {
             break;
         case  "delete":
             $jobApplicationOop->delete();
+            break;
+        case  "print_report":
+            $jobApplicationOop->print_report();
             break;
         default:
             throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);

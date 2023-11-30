@@ -106,9 +106,8 @@
                                     <select class="form-select" id="status" name="status">
                                         <option value="">All (Status)</option>
                                         <option value="Under Review">Under Review</option>
-                                        <option value="Shortlisted">Shortlisted</option>
-                                        <option value="Interview Scheduled">Interview Scheduled</option>
-                                        <option value="Interviewed">Interviewed</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Success">Success</option>
                                     </select>
                                 </div>                            
                             </div>
@@ -199,14 +198,11 @@
                                 var statusLine="";
                                 if(records[i].status=="Under Review"){
                                     statusLine="        <td class='text-center'>"+"<span class='badge bg-light text-dark'>Under Review</span>" + "</td>" 
-                                }else if(records[i].status=="Shortlisted"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-secondary'>Shortlisted</span>" + "</td>" 
+                                }else if(records[i].status=="Pending"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Pending</span>" + "</td>" 
                                 }
-                                else if(records[i].status=="Interview Scheduled"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-info text-dark'>Interview Scheduled</span>" + "</td>" 
-                                }
-                                else if(records[i].status=="Interviewed"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Interview Scheduled</span>" + "</td>" 
+                                else if(records[i].status=="Success"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Success</span>" + "</td>" 
                                 }
                                 tableStringBuilder+=
                                 "  <tr>" +

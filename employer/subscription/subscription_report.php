@@ -42,7 +42,7 @@
                 <div class="panel-heading p-2">
                     <div class="row">
                         <div class="col-12">
-                            <h3>Job Post / Report</h3>
+                            <h3>Subscription / Report</h3>
                         </div>
                     </div>
                 </div>

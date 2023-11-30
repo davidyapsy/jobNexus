@@ -1,8 +1,10 @@
 <?php
+session_start();
     $serverName = "localhost";
     $userName = "root";
     $password = "";
     $database = "db_jobnexus";
+    $employerID = base64_decode($_SESSION['employerID']);
 
     $connection = new mysqli($serverName, $userName, $password, $database);
 
@@ -23,7 +25,6 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css">
 
-
         <link href="../../employer/assets/css/content.css" type="text/css" rel="stylesheet">
 
         <style>
@@ -42,7 +43,7 @@
                 <div class="panel-heading p-2">
                     <div class="row">
                         <div class="col-12">
-                            <h3>Job Post / Report</h3>
+                            <h3>Job Application / Report</h3>
                         </div>
                     </div>
                 </div>
@@ -53,35 +54,18 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <select class="form-select" id="jobCategory" name="jobCategory">
-                                            <option value="">All (Job Category)</option>
-                                            <?php $jobCategory_sql = "SELECT jobCategoryID, categoryName
-                                                                    FROM job_category";
-                                            $jobCategory_result = $connection->query($jobCategory_sql);
-                                            while (($row = $jobCategory_result->fetch_assoc()) == TRUE) { ?>
-                                                        <option value="<?= base64_encode($row['jobCategoryID']); ?>"><?= $row['categoryName'] ?></option>
+                                        <select class="form-select" id="jobPosting" name="jobPosting">
+                                            <option value="">All (Job Post)</option>
+                                            <?php $jobPosting_sql = "SELECT jobPostingID, jobTitle
+                                                                    FROM job_posting
+                                                                    WHERE isDeleted =0 AND employerID = '$employerID'
+                                                                    GROUP BY jobPostingID, jobTitle";
+                                            $jobPosting_result = $connection->query($jobPosting_sql);
+                                            while (($row = $jobPosting_result->fetch_assoc()) == TRUE) { ?>
+                                                        <option value="<?= base64_encode($row['jobPostingID']); ?>"><?= $row['jobTitle'] ?></option>
                                             <?php } ?>
                                         </select>                                
                                     </div>                            
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" name="jobTitle" id="jobTitle" placeholder="Job Title"/>
-                                    </div>                            
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <input type="date" class="form-control date" name="publishDateFrom" id="publishDateFrom" title="Publish Date (From)"
-                                        value="<?=date('Y-m-d', strtotime('first day of january this year'));?>">
-                                        <label for="publishDateFrom">Publish Date (From)</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <input type="date" class="form-control date" name="publishDateTo" id="publishDateTo" title="Publish Date (To)"
-                                        value="<?=date('Y-m-d', strtotime('last day of december this year'));?>">
-                                        <label for="publishDateTo">Publish Date (To)</label>
-                                    </div>
                                 </div>
                             </div>
                             <div class="text-center">
@@ -123,8 +107,8 @@
                     </div>                 
                     <hr>
                     <div class="row">
-                        <h4>Job Seeker Details</h4>
-                        <table class="table table-bordered" id="job_seeker_details_table">
+                        <h4>Job Application Details</h4>
+                        <table class="table table-bordered" id="job_application_details_table">
                             <thead>
                                 <tr>
                                     <th class="text-center" scope="col" style="width:5%;">No.</th>
@@ -152,7 +136,7 @@
 
     <script>
     // at here we try to be native as possible and you can use url to ease change the which one you prefer
-    let url = "job_post_controller.php";
+    let url = "job_application_controller.php";
     const tbody = $("#filtered_table_data");
     var pieLabelArr = [];
     var pieDataArr =[];
@@ -178,10 +162,7 @@
                 contentType: "application/x-www-form-urlencoded",
                 data: {
                     mode: "print_report",
-                    jobCategoryID: $("#jobCategory").val(),
-                    jobTitle: $("#jobTitle").val(),
-                    publishDateFrom: $("#publishDateFrom").val(),
-                    publishDateTo: $("#publishDateTo").val()
+                    jobPostingID: $("#jobPosting").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
@@ -230,7 +211,7 @@
 
                         if(response.pieData.length>0){
                             for(let i=0;i<response.pieData.length;i++){
-                                pieLabelArr[i] = response.pieData[i].label;
+                                pieLabelArr[i] = response.pieData[i].title;
                                 pieDataArr[i] = response.pieData[i].data;
                             }
                         }
@@ -263,91 +244,8 @@
                             }
                         };
                         update_pie_chart(pieConfig);
+
                         
-                        if(response.lineData.length>0){
-                            for(let i=0;i<response.lineData.length;i++){
-                                lineLabelArr[i] = response.lineData[i].month;
-                                lineDataArr[i] = response.lineData[i].totalPost;
-                            }
-                        }
-                        let lineConfig = {
-                            type: 'line',
-                            data: {
-                                labels: lineLabelArr,
-                                datasets: [{
-                                    label: 'Total Job Post',
-                                    data: lineDataArr,
-                                    fill: false,
-                                    borderColor: 'rgb(75, 192, 192)',
-                                    tension: 0.5
-                                }]
-                            },
-                            options: {
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: 'Monthly Trend Analysis of Job Postings',
-                                        font:{
-                                            size: 20,
-                                            weight: 'bold'
-                                        }
-                                    }
-                                }
-                            }
-                        };
-                        update_line_chart(lineConfig);
-
-                        if(response.stackedBCData.length>0){
-                            for(let i=0;i<response.stackedBCData.length;i++){
-                                stackedLabelArr[i] = response.stackedBCData[i].label;
-                                stackedSalaryArr[i] = response.stackedBCData[i].salary;
-                                stackedSalaryExpArr[i] = response.stackedBCData[i].salaryExp;
-                            }
-                        }
-                        let stackedConfig = {
-                            type: 'bar',
-                            data: { 
-                                labels: stackedLabelArr, 
-                                datasets: [{ 
-                                    label: 'Salary', 
-                                    data: stackedSalaryArr,
-                                    fill: false,
-                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                    borderColor: 'rgb(255, 99, 132)',
-                                    borderWidth: 1, 
-                                }, { 
-                                    label: 'Avg Salary Expectation',
-                                    data: stackedSalaryExpArr, 
-                                    fill: false, 
-                                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                                    borderColor: 'rgb(255, 159, 64)', 
-                                    borderWidth: 1,
-                                }], 
-                            }, 
-                            options: {
-                                indexAxis: 'y',
-                                scales: {
-                                    x: {
-                                        stacked: true
-                                    },
-                                    y: {
-                                        stacked: true
-                                    }
-                                },
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: 'Proposed Salary vs. Average Seeker Expectation',
-                                        font:{
-                                            size: 20,
-                                            weight: 'bold'
-                                        }
-                                    }
-                                }
-                            }
-                        };
-                        update_stacked_chart(stackedConfig);
-
                         tbody.html("").html(tableStringBuilder);
                     } else {
                         console.log("something wrong");
@@ -375,23 +273,23 @@
             pieChart.update();
         }
 
-        let lineChart = new Chart(
-            document.getElementById('lineChart'),
-            lineConfig
-        );
-        function update_line_chart(lineConfig){
-            lineChart.config._config = lineConfig;
-            lineChart.update();
-        }
+        // let lineChart = new Chart(
+        //     document.getElementById('lineChart'),
+        //     lineConfig
+        // );
+        // function update_line_chart(lineConfig){
+        //     lineChart.config._config = lineConfig;
+        //     lineChart.update();
+        // }
 
-        let stackedChart = new Chart(
-            document.getElementById('stackedBarChart'),
-            stackedConfig
-        );
-        function update_stacked_chart(stackedConfig){
-            stackedChart.config._config = stackedConfig;
-            stackedChart.update();
-        }
+        // let stackedChart = new Chart(
+        //     document.getElementById('stackedBarChart'),
+        //     stackedConfig
+        // );
+        // function update_stacked_chart(stackedConfig){
+        //     stackedChart.config._config = stackedConfig;
+        //     stackedChart.update();
+        // }
 
         
 

@@ -8,7 +8,6 @@
     $jobApplicationID = base64_decode($_GET['jaID']);
     $jobPostingID = base64_decode($_GET['jpID']);
 
-    //employerID
     $sql = "SELECT C.jobTitle, B.firstName, B.lastName, B.emailAddress, B.phoneNumber, B.address, B.working_experience, B.resume, B.skills, A.salaryExpectation, A.availableDate, A.status, A.replies
             FROM job_application A 
             JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
@@ -112,9 +111,8 @@
                                 <select class="form-select" id="status" name="status">
                                     <option value=""> -- Please select a status. -- </option>
                                     <option value="Under Review" <?=$data['status']=="Under Review"? "selected":""?>>Under Review</option>
-                                    <option value="Shortlisted" <?=$data['status']=="Shortlisted"? "selected":""?>>Shortlisted</option>
-                                    <option value="Interview Scheduled" <?=$data['status']=="Interview Scheduled"? "selected":""?>>Interview Scheduled</option>
-                                    <option value="Interviewed" <?=$data['status']=="Interviewed"? "selected":""?>>Interviewed</option>
+                                    <option value="Pending" <?=$data['status']=="Pending"? "selected":""?>>Pending</option>
+                                    <option value="Success" <?=$data['status']=="Success"? "selected":""?>>Success</option>
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
