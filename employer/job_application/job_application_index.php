@@ -9,12 +9,9 @@
     $connection = new mysqli($serverName, $userName, $password, $database);
     $jobPostingID = base64_decode($_GET['id']);
 
-    $sql = "SELECT C.jobTitle, B.firstName, B.lastName, B.emailAddress, B.working_experience, A.availableDate, A.status
-            FROM job_application A 
-            JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
-            JOIN job_posting C ON A.jobPostingID = C.jobPostingID
-            JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
-            WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = '$employerID'";
+    $sql = "SELECT jobTitle
+            FROM job_posting 
+            WHERE jobPostingID = '$jobPostingID' AND employerID = '$employerID'";
 
     $result = $connection->query($sql);
     $data =[];

@@ -344,8 +344,8 @@ class JobPostingOop
     private mysqli $connection;
 
     private $departureDay;
-    private $publishDateFrom;
-    private $publishDateTo;
+    private $createdDateFrom;
+    private $createdDateTo;
     private $page;
 
     public function getDepartureDay(): String
@@ -359,25 +359,25 @@ class JobPostingOop
         return $this;
     }
 
-    public function getPublishDateFrom(): String
+    public function getCreatedDateFrom(): String
     {
-        return $this->publishDateFrom;
+        return $this->createdDateFrom;
     }
 
-    public function setPublishDateFrom($publishDateFrom=""): JobPostingOop
+    public function setCreatedDateFrom($createdDateFrom=""): JobPostingOop
     {
-        $this->publishDateFrom = $publishDateFrom;
+        $this->createdDateFrom = $createdDateFrom;
         return $this;
     }
 
-    public function getPublishDateTo(): String
+    public function getCreatedDateTo(): String
     {
-        return $this->publishDateTo;
+        return $this->createdDateTo;
     }
 
-    public function setPublishDateTo($publishDateTo=""): JobPostingOop
+    public function setCreatedDateTo($createdDateTo=""): JobPostingOop
     {
-        $this->publishDateTo = $publishDateTo;
+        $this->createdDateTo = $createdDateTo;
         return $this;
     }
 
@@ -455,8 +455,8 @@ class JobPostingOop
         $page = filter_input(INPUT_POST, "page", FILTER_SANITIZE_NUMBER_INT);
 
         //
-        $publishDateFrom = filter_input(INPUT_POST, "publishDateFrom", FILTER_SANITIZE_STRING);
-        $publishDateTo = filter_input(INPUT_POST, "publishDateTo", FILTER_SANITIZE_STRING);
+        $createdDateFrom = filter_input(INPUT_POST, "createdDateFrom", FILTER_SANITIZE_STRING);
+        $createdDateTo = filter_input(INPUT_POST, "createdDateTo", FILTER_SANITIZE_STRING);
         if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "create"){
             $this->model->setEmployerID($employerID);
             $this->model->setJobPostingID($jobPostingID);
@@ -519,8 +519,8 @@ class JobPostingOop
             $this->model->setEmployerID($employerID);
             $this->model->setJobCategoryID($jobCategoryID);
             $this->model->setJobTitle($jobTitle);
-            $this->setPublishDateFrom($publishDateFrom);
-            $this->setPublishDateTo($publishDateTo);
+            $this->setCreatedDateFrom($createdDateFrom);
+            $this->setCreatedDateTo($createdDateTo);
         } 
     }
 
@@ -546,7 +546,7 @@ class JobPostingOop
         $isFeatured= $this->model->getIsFeatured();
         $publishDate= $this->model->getPublishDate();
         $isDeleted = 0;
-        $createdAt = date('Y-md-d');
+        $createdAt = date('Y-m-d');
 
         //assign new job posting id
         $year = "70";
@@ -1033,15 +1033,14 @@ class JobPostingOop
         $employerID = $this->model->getEmployerID();
         $jobCategoryID = $this->model->getJobCategoryID();
         $jobTitle = $this->model->getJobTitle();
-        $publishDateFrom = $this->getPublishDateFrom();
-        $publishDateTo = $this->getPublishDateTo();
+        $createdDateFrom = $this->getCreatedDateFrom();
+        $createdDateTo = $this->getCreatedDateTo();
 
-        // Job seeker table data
-        $tableSql = "SELECT CONCAT(C.firstName, ' ', C.lastName) as jobSeekerName, C.working_experience, C.skills, C.field_of_study, B.salaryExpectation, B.applicationDate, B.status
-                FROM job_posting A
-                JOIN job_application B ON A.jobPostingID = B.jobPostingID
-                JOIN job_seeker C ON C.jobSeekerID = B.jobSeekerID
-                WHERE A.isDeleted =0 AND A.employerID = '$employerID' AND publishDate>='$publishDateFrom' AND publishDate<='$publishDateTo' ";
+        // Job posting table data
+        $tableSql = "SELECT jobPostingID, B.categoryName, jobTitle, locationState, employmentType, salary, isPublish
+                        FROM job_posting A
+                        JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
+                        WHERE employerID = '$employerID' AND isDeleted=0";
 
         $filter_options ="";
         if($jobCategoryID!=""){
@@ -1049,6 +1048,12 @@ class JobPostingOop
         }
         if($jobTitle!=""){
             $filter_options.=" AND A.jobTitle LIKE '%$jobTitle%'";
+        }
+        if($createdDateFrom!=""){
+            $filter_options.=" AND A.createdDateFrom >= '$createdDateFrom'";
+        }
+        if($createdDateTo!=""){
+            $filter_options.=" AND A.createdDateTo <= '$createdDateTo'";
         }
 
         $tableSql.=$filter_options." ORDER BY A.created_at, A.jobPostingID";
@@ -1063,7 +1068,7 @@ class JobPostingOop
         $totalSQL = "SELECT jobPostingID
                     FROM job_posting A 
                     JOIN job_category B ON A.jobCategoryID = B.jobCategoryID 
-                    WHERE A.isDeleted =0 AND A.employerID = '$employerID' AND publishDate>='$publishDateFrom' AND publishDate<='$publishDateTo' ";
+                    WHERE A.isDeleted =0 AND A.employerID = '$employerID'";
         $totalSQL.=$filter_options;
         $statement = $this->connection->query($totalSQL);
         $totalPie = $statement->num_rows;
@@ -1072,7 +1077,7 @@ class JobPostingOop
         $pieSQL = "SELECT B.categoryName, A.jobCategoryID, count(jobPostingID) as totalRecords 
                     FROM job_posting A 
                     JOIN job_category B ON A.jobCategoryID = B.jobCategoryID 
-                    WHERE A.isDeleted =0 AND A.employerID = '$employerID' AND publishDate>='$publishDateFrom' AND publishDate<='$publishDateTo'";
+                    WHERE A.isDeleted =0 AND A.employerID = '$employerID'";
         $pieSQL.=$filter_options." GROUP BY B.categoryName, A.jobCategoryID";
         $statement = $this->connection->query($pieSQL);
         
@@ -1083,11 +1088,10 @@ class JobPostingOop
         // Line Chart
         $jobPostDatas = [];
         $lineData = [];
-        $lineSQL = "SELECT MONTH(publishDate) as month, count(*) as totalPost
+        $lineSQL = "SELECT MONTH(created_at) as month, count(*) as totalPost
                         FROM job_posting A
-                        WHERE publishDate >= '$publishDateFrom' AND publishDate <= '$publishDateTo' AND isDeleted = 0 AND employerID = '$employerID'";
+                        WHERE isDeleted = 0 AND employerID = '$employerID'";
         $lineSQL.=$filter_options." GROUP BY month";
-
         $statement = $this->connection->query($lineSQL);
         
         while(($row = $statement->fetch_assoc())==TRUE){
@@ -1101,7 +1105,8 @@ class JobPostingOop
                     $totalPost = $jobPostData['totalPost'];
                 }
             }
-            $lineData[] = array("month" => (int)$i, "totalPost" => $totalPost);
+            $month_name = date("M", mktime(0, 0, 0, $i, 10));
+            $lineData[] = array("month" => $month_name, "totalPost" => $totalPost);
         }
 
         
@@ -1114,7 +1119,7 @@ class JobPostingOop
                                 A.salary - AVG(B.salaryExpectation) AS salary_difference 
                         FROM job_posting A 
                         JOIN job_application B ON A.jobPostingID = B.jobPostingID 
-                        WHERE A.publishDate >= '$publishDateFrom' AND A.publishDate <= '$publishDateTo' AND A.isDeleted = 0 AND A.employerID = '$employerID'";
+                        WHERE A.isDeleted = 0 AND A.employerID = '$employerID'";
         $stackedSQL.=$filter_options." GROUP BY A.jobPostingID, A.jobTitle, A.salary";
         $statement = $this->connection->query($stackedSQL);
         

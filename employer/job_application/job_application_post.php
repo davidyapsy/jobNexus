@@ -7,12 +7,13 @@
     $employerID = base64_decode($_SESSION['employerID']);
 
     $connection = new mysqli($serverName, $userName, $password, $database);
+
     //employerID
-    $sql = "SELECT B.jobPostingID, B.jobTitle, C.categoryName, B.employmentType, B.locationState, B.isPublish
-            FROM job_application A
-            JOIN job_posting B ON A.jobPostingID = B.jobPostingID
-            JOIN job_category C ON B.jobCategoryID = C.jobCategoryID
-            WHERE B.employerID = '$employerID' AND B.isDeleted = 0";
+    $sql = "SELECT A.jobPostingID, A.jobTitle, B.categoryName, A.employmentType, A.locationState, A.isPublish
+            FROM job_posting A
+            JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
+            WHERE A.employerID = '$employerID' AND A.isDeleted = 0
+            GROUP BY A.jobPostingID, A.jobTitle, B.categoryName, A.employmentType, A.locationState, A.isPublish";
 
     $result = $connection->query($sql);
     if($result->num_rows >0){
@@ -90,7 +91,6 @@
                 </div>
             </div>
         </div>
-        <?php include('../footer.php') ?>
         
     </body>
 

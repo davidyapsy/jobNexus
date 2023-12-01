@@ -705,57 +705,95 @@ class JobApplicationOop
             $jobAppPie[] = array("title" => $row['jobTitle'], "data" => number_format((float)$row['totalApplications']/$sumApplication*100, 2));
         }
 
-        // Line Chart
-        // $jobPostDatas = [];
-        // $lineData = [];
-        // $lineSQL = "SELECT MONTH(publishDate) as month, count(*) as totalPost
-        //                 FROM job_posting A
-        //                 WHERE isDeleted = 0 AND employerID = '$employerID'";
-        // $lineSQL.=$filter_options." GROUP BY month";
+        // Bar Data
+        $successAppDatas = [];
+        $successAppSQL = "SELECT
+                        A.jobPostingID,
+                        A.jobTitle,
+                        COUNT(B.applicationID) AS TotalApplications,
+                        SUM(CASE WHEN B.status = 'Success' THEN 1 ELSE 0 END) AS SuccessfulApplications,
+                        (SUM(CASE WHEN B.status = 'Success' THEN 1 ELSE 0 END) / COUNT(B.applicationID) * 100) AS SuccessRate
+                    FROM
+                        job_posting A
+                    JOIN
+                        job_application B ON A.jobPostingID = B.jobPostingID
+                    WHERE
+                        isDeleted = 0 AND employerID = '$employerID'
+                    ";
+        $successAppSQL.=$filter_options."GROUP BY A.jobPostingID, A.jobTitle ORDER BY SuccessRate DESC";
 
-        // $statement = $this->connection->query($lineSQL);
+        $statement = $this->connection->query($successAppSQL);
         
-        // while(($row = $statement->fetch_assoc())==TRUE){
-        //     $jobPostDatas[] = array("month" => $row['month'], "totalPost" => $row['totalPost']);
-        // }
+        while(($row = $statement->fetch_assoc())==TRUE){
+            $successAppDatas[] = array("title" => $row['jobTitle'], "successRate" => $row['SuccessRate']);
+        }
 
-        // for($i=1;$i<=12;$i++){
-        //     $totalPost = 0;
-        //     foreach ($jobPostDatas as $jobPostData){
-        //         if($jobPostData['month'] == (string)$i){
-        //             $totalPost = $jobPostData['totalPost'];
-        //         }
-        //     }
-        //     $lineData[] = array("month" => (int)$i, "totalPost" => $totalPost);
-        // }
-
+        //Multi line chart data
+        $dayAppDatas = [];
+        $outputDatas = [];
+        $dayAppSQL = "SELECT B.jobTitle, B.jobPostingID,
+                                DATEDIFF(applicationDate, publishDate) as dayApplied,
+                                count(applicationID) as totalApplication
+                            FROM job_application A
+                            JOIN job_posting B ON A.jobPostingID = B.jobPostingID
+                            WHERE B.isDeleted = 0 AND employerID = '$employerID'
+                            ";
+        $dayAppSQL.=$filter_options."GROUP BY dayApplied";
         
-        // Stacked Bar Chart
-        // $expSalaryStacked = [];
-        // $barSQL = "SELECT 
-        //                 A.jobPostingID,
-        //                 A.jobTitle,
-        //                 COUNT(B.applicationID) AS totalApplications
-        //                 FROM 
-        //                     job_posting A
-        //                 JOIN 
-        //                     job_application B ON A.jobPostingID = B.jobPostingID
-        //                 WHERE A.isDeleted = 0 AND A.employerID = '$employerID'";
-        // $barSQL.=$filter_options." GROUP BY A.jobPostingID, A.jobTitle";
-        // $statement = $this->connection->query($barSQL);
-        // while(($row = $statement->fetch_assoc())==TRUE){
-        //     $expSalaryStacked[] = array("title" => $row['jobTitle'], "totalApplication" => (float)$row['salary'], "salaryExp" => (float)$row['avg_seeker_salary']);
-        // }
+        $statement = $this->connection->query($dayAppSQL);
+
+        while(($row = $statement->fetch_assoc())==TRUE){
+            $dayAppDatas[] = $row;
+        }        
+
+        for($i=0;$i<sizeof($dayAppDatas);$i++){
+            $dayApplied  = [];
+            $totalApplication = [];
+
+            for($j=0;$j<sizeof($dayAppDatas);$j++){
+                if($dayAppDatas[$i]['jobPostingID'] == $dayAppDatas[$j]['jobPostingID']){
+                    $dayApplied[]=($dayAppDatas[$j]['dayApplied']);
+                    $totalApplication[]=($dayAppDatas[$j]['totalApplication']);
+                }
+            }
+            $outputDatas[] = array("jobTitle" => $dayAppDatas[$i]['jobTitle'], "daysApplied" => $dayApplied, "totalApplication" => $totalApplication);
+        }
+        $outputDatas  = (array_unique($outputDatas, SORT_REGULAR));
+
         
         $output = array(
             'tableData'			=>	$tableData,
             'pieData'           =>  $jobAppPie,
-            // 'lineData'          =>  $lineData,
-            // 'stackedBCData'     => $expSalaryStacked,
+            'barData'           =>  $successAppDatas,
+            'multiLineData'     =>  $outputDatas,
             'status'            =>  true
         );
 
         echo json_encode($output);
+    }
+
+    function getWeeks($date, $rollover)
+    {
+        $cut = substr($date, 0, 8);
+        $daylen = 86400;
+
+        $timestamp = strtotime($date);
+        $first = strtotime($cut . "00");
+        $elapsed = ($timestamp - $first) / $daylen;
+
+        $weeks = 1;
+
+        for ($i = 1; $i <= $elapsed; $i++)
+        {
+            $dayfind = $cut . (strlen($i) < 2 ? '0' . $i : $i);
+            $daytimestamp = strtotime($dayfind);
+
+            $day = strtolower(date("l", $daytimestamp));
+
+            if($day == strtolower($rollover))  $weeks ++;
+        }
+
+        return $weeks;
     }
 
     private function send_email($subscriptionID){

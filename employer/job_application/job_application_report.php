@@ -91,18 +91,17 @@ session_start();
                         </form>
                     </div>
                     <hr>
-                    <div class="row pb-2">
-
+                    <div class="row">
                         <div class="col-sm-6">
-                            <canvas id="lineChart"></canvas>
-                        </div>
-                        <div class="col-sm-6">
-                            <canvas id="stackedBarChart"></canvas>
+                            <canvas id="pieChart"></canvas>
                         </div>   
+                        <div class="col-sm-6">
+                            <canvas id="barChart"></canvas>
+                        </div> 
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <canvas id="pieChart"></canvas>
+                            <canvas id="multiLineChart"></canvas>
                         </div>
                     </div>                 
                     <hr>
@@ -141,13 +140,13 @@ session_start();
     var pieLabelArr = [];
     var pieDataArr =[];
     var pieConfig={};
-    var lineLabelArr = [];
-    var lineDataArr =[];
-    var lineConfig={};
-    var stackedLabelArr = [];
-    var stackedSalaryArr =[];
-    var stackedSalaryExpArr =[];
-    var stackedConfig={};
+    var barLabelArr = [];
+    var barDataArr =[];
+    var barConfig={};
+    var multiLineArr1 =[];
+    var multiLineArr2 =[];
+    var multiLineArr3 = [];
+    var multiLineConfig={};
                                             
     $(window).on("load", function() {
             $( "#filterBtn" ).trigger( "click" );
@@ -171,11 +170,12 @@ session_start();
                         var statusLine="";
                         pieLabelArr= [];
                         pieDataArr = [];
+                        pieLabelArr2= [];
+                        pieDataArr2 = [];
                         lineLabelArr= [];
                         lineDataArr = [];
-                        stackedLabelArr= [];
-                        stackedSalaryArr = [];
-                        stackedSalaryExpArr=[];
+                        multiLineArr = [];
+                        multiLineDatasets =[];
 
                         if(response.tableData.length > 0)
                         {
@@ -209,6 +209,7 @@ session_start();
                             tableStringBuilder += '<tr><td colspan="8" class="text-center">No Data Found</td></tr>';
                         }
 
+                        // Pie chart
                         if(response.pieData.length>0){
                             for(let i=0;i<response.pieData.length;i++){
                                 pieLabelArr[i] = response.pieData[i].title;
@@ -245,7 +246,106 @@ session_start();
                         };
                         update_pie_chart(pieConfig);
 
-                        
+                        // Bar chart
+                        if(response.barData.length>0){
+                            for(let i=0;i<response.pieData.length;i++){
+                                barLabelArr[i] = response.barData[i].title;
+                                barDataArr[i] = response.barData[i].successRate;
+                            }
+                        }
+                        let barConfig = {
+                            type: 'bar',
+                            data: {
+                                labels: barLabelArr,
+                                datasets: [{
+                                    label: 'Percentage',
+                                    data: barDataArr,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgb(255, 99, 132)',
+                                        'rgb(255, 159, 64)',
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Distribution of Job Posts Across Job Categories',
+                                        font:{
+                                            size: 20,
+                                            weight: 'bold'
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        };
+                        update_bar_chart(barConfig);
+
+                        // Multi line chart
+                        if(response.multiLineData.length>0){
+                            for(let i=0;i<response.multiLineData.length;i++){
+                                var eachData = [];
+                                for(let j=0; j<30; j++){
+                                    for(let z=0, found = false; z<response.multiLineData[i].daysApplied.length && found==false ; z++){
+                                        var daysApplied = parseInt(response.multiLineData[i].daysApplied[z]);
+                                        if(daysApplied == j){
+                                            found=true;
+                                            eachData[j] = {
+                                                x: daysApplied+1,
+                                                y: parseInt(response.multiLineData[i].totalApplication[z])
+                                            };
+                                        }else{
+                                            eachData[j] = {
+                                                x: j+1,
+                                                y: 0
+                                            };
+                                        }
+                                    }
+                                }
+
+                                multiLineDatasets[i] = {
+                                    label: response.multiLineData[i].jobTitle,
+                                    data: eachData,
+                                    fill: false,
+                                    tension: 0.5
+                                };
+                            }
+                        }
+                        let multiLineConfig = {
+                            type: 'line',
+                            data: {
+                                labels: [1,2,3,4,5,6,7,8,9,10,11,12,
+                                        13,14,15,16,17,18,19,20,21,
+                                        22,23,24,25,26,27,28,29,30],
+                                datasets: multiLineDatasets
+                            },
+                            options: {
+                                responsive: true,
+                                interaction: {
+                                    mode: 'index',
+                                    intersect: false,
+                                },
+                                stacked: false,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Chart.js Line Chart - Multi Axis'
+                                    }
+                                },
+                            }
+                        };
+                        update_multiLine_chart(multiLineConfig);
+
                         tbody.html("").html(tableStringBuilder);
                     } else {
                         console.log("something wrong");
@@ -273,23 +373,26 @@ session_start();
             pieChart.update();
         }
 
-        // let lineChart = new Chart(
-        //     document.getElementById('lineChart'),
-        //     lineConfig
-        // );
-        // function update_line_chart(lineConfig){
-        //     lineChart.config._config = lineConfig;
-        //     lineChart.update();
-        // }
+        let barChart = new Chart(
+            document.getElementById('barChart'),
+            barConfig
+        );
+        function update_bar_chart(barConfig){
+            barChart.config._config = barConfig;
+            barChart.update();
+        }
 
-        // let stackedChart = new Chart(
-        //     document.getElementById('stackedBarChart'),
-        //     stackedConfig
-        // );
-        // function update_stacked_chart(stackedConfig){
-        //     stackedChart.config._config = stackedConfig;
-        //     stackedChart.update();
-        // }
+        let multiLineChart = new Chart(
+            document.getElementById('multiLineChart'),
+            multiLineConfig
+        );
+        function update_multiLine_chart(multiLineConfig){
+            multiLineChart.config._config = multiLineConfig;
+            multiLineChart.update();
+        }
+
+
+
 
         
 

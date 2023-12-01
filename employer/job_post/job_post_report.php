@@ -71,16 +71,16 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <input type="date" class="form-control date" name="publishDateFrom" id="publishDateFrom" title="Publish Date (From)"
-                                        value="<?=date('Y-m-d', strtotime('first day of january this year'));?>">
-                                        <label for="publishDateFrom">Publish Date (From)</label>
+                                        <input type="date" class="form-control date" name="createdDateFrom" id="createdDateFrom" title="Created Date (From)"
+                                        >
+                                        <label for="createdDateFrom">Created Date (From)</label>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <input type="date" class="form-control date" name="publishDateTo" id="publishDateTo" title="Publish Date (To)"
-                                        value="<?=date('Y-m-d', strtotime('last day of december this year'));?>">
-                                        <label for="publishDateTo">Publish Date (To)</label>
+                                        <input type="date" class="form-control date" name="createdDateTo" id="createdDateTo" title="Created Date (To)"
+                                        >
+                                        <label for="createdDateTo">Created Date (To)</label>
                                     </div>
                                 </div>
                             </div>
@@ -123,18 +123,18 @@
                     </div>                 
                     <hr>
                     <div class="row">
-                        <h4>Job Seeker Details</h4>
+                        <h4>Job Post Details</h4>
                         <table class="table table-bordered" id="job_seeker_details_table">
-                            <thead>
+                        <thead>
                                 <tr>
                                     <th class="text-center" scope="col" style="width:5%;">No.</th>
-                                    <th class="text-center" scope="col" style="width:20%;">Job Seeker Name</th>
-                                    <th class="text-center" scope="col" style="width:10%;">Working Year(s)</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Skills</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Field Of Study</th>
-                                    <th class="text-center" scope="col" style="width:10%;">Salary Expectation</th>
-                                    <th class="text-center" scope="col" style="width:10%;">Application Date</th>
-                                    <th class="text-center" scope="col" style="width:10%;">Status</th>
+                                    <th class="text-center" scope="col" style="width:20%;">Job Category</th>
+                                    <th class="text-center" scope="col" style="width:25%;">Job Title</th>
+                                    <th class="text-center" scope="col" style="width:12%;">Location (State)</th>
+                                    <th class="text-center" scope="col" style="width:12%;">Employment Type</th>
+                                    <th class="text-center" scope="col" style="width:10%;">Salary</th>
+                                    <th class="text-center" scope="col" style="width:10%;">Publishment</th>
+                                    <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
                                 </tr>
                             </thead>
                             <tbody id="filtered_table_data">
@@ -180,8 +180,8 @@
                     mode: "print_report",
                     jobCategoryID: $("#jobCategory").val(),
                     jobTitle: $("#jobTitle").val(),
-                    publishDateFrom: $("#publishDateFrom").val(),
-                    publishDateTo: $("#publishDateTo").val()
+                    createdDateFrom: $("#createdDateFrom").val(),
+                    createdDateTo: $("#createdDateTo").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
@@ -200,26 +200,29 @@
                         {
                             for(var i = 0; i < records.length; i++)
                             {
-                                if(records[i].status=="Under Review"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-light text-dark'>Under Review</span>" + "</td>" 
-                                }else if(records[i].status=="Pending"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Pending</span>" + "</td>" 
-                                }
-                                else if(records[i].status=="Success"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Success</span>" + "</td>" 
-                                }
                                 tableStringBuilder+=
                                 "  <tr>" +
                                 "        <th scope='row' class='text-center'>" + (i+1) + ".</th>" +
-                                "        <td>" + records[i].jobSeekerName + "</td>" +
-                                "        <td>" + records[i].working_experience + "</td>" +
-                                "        <td>" + records[i].skills + "</td>" +
-                                "        <td>" + records[i].field_of_study + "</td>" +
-                                "        <td>" + records[i].salaryExpectation + "</td>" +
-                                "        <td>" + records[i].applicationDate + "</td>" +
-                                statusLine+
+                                "        <td>" + records[i].categoryName + "</td>" +
+                                "        <td>" + records[i].jobTitle + "</td>" +
+                                "        <td>" + records[i].locationState + "</td>" +
+                                "        <td>" + records[i].employmentType + "</td>" +
+                                "        <td>" + records[i].salary + "</td>" +
+                                "        <td class='text-center'>" + (records[i].isPublish=="Published"?"<span class='badge bg-success'>Published</span>":"<span class='badge bg-info'>Unpublished</span>") + "</td>" +
                                 "" +
-                                "  </tr>" +
+                                "        <td class='text-center'>" +
+                                "          <div class=\"btn-group\">" +
+                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
+                                "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
+                                "                 <i class=\"bi bi-pencil\"></i>" +
+                                "               </button>"+
+                                "             </a>" +
+                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].jobPostingID)) + "')\" class=\"btn btn-sm btn-danger\">" +
+                                "              <i class=\"bi bi-trash\"></i>" +
+                                "            </button>" +
+                                "          </div>" +
+                                "        </td>" +
+                                "      </tr>" +
                                 "";
                             }
                         }
