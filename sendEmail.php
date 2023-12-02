@@ -16,27 +16,37 @@ function pwdRecovery($to, $code) {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'goflight25@gmail.com';
-    $mail->Password = 'hgenqnmjjmqqtlvu';
-    $mail->SMTPSecure = 'tsl';
+    $mail->Username = 'jobnexus2@gmail.com';
+    $mail->Password = 'njysranxlvecliqc';
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = 587;
 
     // Set up the email content
-    $mail->setFrom('goflight25@gmail.com');
+    $mail->setFrom('jobnexus2@gmail.com');
     $mail->addAddress($to);
     $mail->isHTML(true);
     $mail->Subject = "Temporary Code";
-    $mail->Body = "Hello, this is your temporary pass code: " . $code;
+    $mail->Body = "<h4>Password Recovery</h4>"
+            . "Hello, here's your temporary pass code:"
+            . "<h3>" . $code . "</h3>"
+            . "Please enter the code when asked for it."
+            . "<br><br>Sincerely, <br>The Job Nexus Team";
 
     // Send the email
-    if ($mail->send()) {
-        echo "<script>alert('Email Sent! Please check your email inbox'); window.location.href = 'checkPasscode.html';</script>";
+    if ($mail->send()) {        
+        $tempCode = true;
+        $msg = "Email Sent! Please check your email inbox";
+        header("Location: PwdRecovery/tempCode.php?tempCode=" . urlencode($tempCode) . "&msg=" . urlencode($msg));
+        exit();
     } else {
-        echo "<script>alert('Email sending failed, Please try again'); window.location.href = 'pwdRecovery.html';</script>";
+        $dataToSend = true;
+        $errorMsg = "Email sending failed, Please try again";
+        header("Location: PwdRecovery/pwdRecovery.php?data=" . urlencode($dataToSend) . "&errorMsg=" . urlencode($errorMsg));
+        exit();
     }
 }
 
-function createAcc($to, $name) {
+function createAcc($to, $fname, $lname) {
     // Create a new PHPMailer object
     $mail = new PHPMailer(true);
 
@@ -44,20 +54,24 @@ function createAcc($to, $name) {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'goflight25@gmail.com';
-    $mail->Password = 'hgenqnmjjmqqtlvu';
-    $mail->SMTPSecure = 'tsl';
+    $mail->Username = 'jobnexus2@gmail.com';
+    $mail->Password = 'njysranxlvecliqc';
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = 587;
 
     // Set up the email content
-    $mail->setFrom('goflight25@gmail.com');
+    $mail->setFrom('jobnexus2@gmail.com');
     $mail->addAddress($to);
     $mail->isHTML(true);
-    $mail->Subject = "Welcome! Thanks for chosing GOGO Flight";
-    $mail->Body = "Dear " . $name . ", thanks for using GOGO Flight! Have a safe flight! ";
+    $mail->Subject = "Welcome! Thanks for chosing Job Nexus";
+    $mail->Body = "Dear " . $fname . " " .$lname . ", <br>thanks for using Job Nexus! Have a wonderful journey finding your dream job! Please login again to start using with your account "
+                  . "<br><br>Sincerely, <br>The Job Nexus Team";
 
     // Send the email
-    if ($mail->send()) {
-        echo "<script>alert('Account created successfully! Please proceed to login'); window.location.href = 'login.html';</script>";
+    if ($mail->send()) {       
+        $newAcc = true;
+        $msg = "Account created successfully! Please proceed to login";
+        header("Location: LoginRegister/login.php?valid=" . urlencode($newAcc) . "&msg=" . urlencode($msg));
+        exit();
     }
 }

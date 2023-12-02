@@ -106,7 +106,7 @@
                                     <select class="form-select" id="status" name="status">
                                         <option value="">All (Status)</option>
                                         <option value="Under Review">Under Review</option>
-                                        <option value="Pending">Pending</option>
+                                        <option value="Rejected">Rejected</option>
                                         <option value="Success">Success</option>
                                     </select>
                                 </div>                            
@@ -198,8 +198,8 @@
                                 var statusLine="";
                                 if(records[i].status=="Under Review"){
                                     statusLine="        <td class='text-center'>"+"<span class='badge bg-light text-dark'>Under Review</span>" + "</td>" 
-                                }else if(records[i].status=="Pending"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Pending</span>" + "</td>" 
+                                }else if(records[i].status=="Rejected"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Rejected</span>" + "</td>" 
                                 }
                                 else if(records[i].status=="Success"){
                                     statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Success</span>" + "</td>" 

@@ -1,4 +1,6 @@
 <?php
+session_start();
+if($_SESSION['login']){
     $serverName = "localhost";
     $userName = "root";
     $password = "";
@@ -91,14 +93,6 @@
                                         onclick="load_data()">
                                     <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
                                 </button>
-                                <button type="button" id="reportBtn"
-                                        class="btn btn-round btn-success btn-sm ladda-button"
-                                        data-style="zoom-in"
-                                        onclick="print_report()">
-                                    <span class="ladda-label">
-                                        <i class="bi bi-printer" aria-hidden="true"></i> Report
-                                    </span>
-                                </button>
                                 <button type="button" class="btn btn-danger btn-round btn-sm"
                                         onclick="clear_form()">
                                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Clear
@@ -169,6 +163,12 @@
             $( "#filterBtn" ).trigger( "click" );
         } );
 
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                load_data();
+            }
+        });
 
         function load_data()
         {
@@ -245,9 +245,13 @@
                                     label: 'Percentage',
                                     data: pieDataArr,
                                     backgroundColor: [
-                                        'rgb(255, 99, 132)',
-                                        'rgb(54, 162, 235)',
-                                        'rgb(255, 205, 86)'
+                                        '#36A2EB',
+                                        '#FF6384',
+                                        '#4BC0C0',
+                                        '#FF9F40',
+                                        '#9966FF',
+                                        '#FFCD56',
+                                        '#C9CBCF'
                                     ],
                                     hoverOffset: 4
                                 }]
@@ -396,7 +400,11 @@
             stackedChart.update();
         }
 
-        
-
     </script>
 </html>
+
+<?php
+    } else {
+        header("location: /jobnexus/employer/login.php");
+    }
+?>

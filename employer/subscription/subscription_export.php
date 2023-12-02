@@ -1,7 +1,10 @@
 <?php
+session_start();
+if($_SESSION['login']){
     error_reporting(0);
     $connection = new mysqli("localhost", "root", "", "db_jobnexus");
 
+    $employerID = base64_decode($_SESSION['employerID']);
     $subscriptionPlanID = $_GET['subscriptionPlanID'];
     $startDateFrom = $_GET['startDateFrom'];
     $startDateTo = $_GET['startDateTo'];
@@ -9,27 +12,28 @@
     $endDateTo = $_GET['endDateTo'];
     $isActive = $_GET['isActive'];
 
-    $sql = "SELECT subscriptionID, planName, startDate, endDate, isActive
+    $sql = "SELECT subscriptionID, planName, startDate, endDate, A.isActive
         FROM subscription A
-        JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID";
-
+        JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID
+        WHERE employerID = '$employerID' ";
+    
     if($subscriptionPlanID!=""){
         $sql.=" AND A.subscriptionPlanID = '$subscriptionPlanID'";
     }
     if($startDateFrom!= NULL){
-        $sql.=" AND A.startDate >= $startDateFrom";
+        $sql.=" AND A.startDate >= '$startDateFrom'";
     }
     if($startDateTo!= NULL){
-        $sql.=" AND A.startDate <= $startDateTo";
+        $sql.=" AND A.startDate <= '$startDateTo'";
     }
     if($endDateFrom!= NULL){
-        $sql.=" AND A.endDate >= $endDateFrom";
+        $sql.=" AND A.endDate >= '$endDateFrom'";
     }
     if($endDateTo!= NULL){
-        $sql.=" AND A.endDate <= $endDateTo";
+        $sql.=" AND A.endDate <= '$endDateTo'";
     }
     if($isActive!=2){
-        $sql.=" AND A.isActive = '$isActive'";
+        $sql.=" AND A.isActive = $isActive";
     }
 
     function filterData(&$str){ 
@@ -70,3 +74,6 @@
 
     // Render excel data 
     echo $excelData; 
+} else {
+    header("location: /jobnexus/employer/login.php");
+}

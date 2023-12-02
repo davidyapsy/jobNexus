@@ -1,31 +1,32 @@
 <?php
     session_start();
-    $serverName = "localhost";
-    $userName = "root";
-    $password = "";
-    $database = "db_jobnexus";
-    $employerID = base64_decode($_SESSION['employerID']);
+    if($_SESSION['login']){
+        $serverName = "localhost";
+        $userName = "root";
+        $password = "";
+        $database = "db_jobnexus";
+        $employerID = base64_decode($_SESSION['employerID']);
 
-    $connection = new mysqli($serverName, $userName, $password, $database);
+        $connection = new mysqli($serverName, $userName, $password, $database);
 
-    $stat = $connection->query("SELECT jobPostingID
-                                        FROM job_posting
-                                        WHERE employerID='$employerID' AND isDeleted=0");
+        $stat = $connection->query("SELECT jobPostingID
+                                            FROM job_posting
+                                            WHERE employerID='$employerID' AND isDeleted=0");
 
-    if($stat->num_rows < $_SESSION['maxJobPosting'] && $_SESSION['maxJobPosting']!=0){
-        $maxFeatureJobListing =$_SESSION['maxFeatureJobListing'];
+        if($stat->num_rows < $_SESSION['maxJobPosting'] && $_SESSION['maxJobPosting']!=0){
+            $maxFeatureJobListing =$_SESSION['maxFeatureJobListing'];
 
-        $sql = "SELECT sum(isFeatured) as totalFeatured
-                FROM job_posting
-                WHERE employerID = '$employerID' AND isDeleted=0";
+            $sql = "SELECT sum(isFeatured) as totalFeatured
+                    FROM job_posting
+                    WHERE employerID = '$employerID' AND isDeleted=0";
 
-        $result = $connection->query($sql);
-        $totalFeatured =0;
-        while(($row = $result->fetch_assoc())==TRUE){
-            $totalFeatured = $row['totalFeatured'];
-        }
+            $result = $connection->query($sql);
+            $totalFeatured =0;
+            while(($row = $result->fetch_assoc())==TRUE){
+                $totalFeatured = $row['totalFeatured'];
+            }
 
-        $availableFeature = $maxFeatureJobListing - $totalFeatured;
+            $availableFeature = $maxFeatureJobListing - $totalFeatured;
     
 ?>
 <!DOCTYPE html>
@@ -114,7 +115,7 @@
                         <div class="form-group row">
                             <label for="experienceLevel" class="col-sm-3 col-form-label">Experience Level: <span class="required">*</span></label></label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="experienceLevel" id="experienceLevel"/>
+                                <input type="number" class="form-control" name="experienceLevel" id="experienceLevel" min="0" value="0"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -166,7 +167,7 @@
                             <label for="applicationDeadline" class="col-sm-3 col-form-label">Application Deadline: </label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline"  min="<?= date('Y-m-d'); ?>"> 
+                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline"  min="<?= date('Y-m-d'); ?>" max="<?= date('Y-m-d', strtotime('+31 days')); ?>"> 
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
@@ -192,7 +193,7 @@
                         <hr>
                         <div class="form-group row">
                             <div class="col-md-12">
-                                <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Save</button>
+                                <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Submit</button>
                                 <button type="button" onclick="backConfirmation()" class="btn btn-danger btn-outline">Back</button>
                                 <button type="reset" id="btnReset" class="btn btn-light btn-outline" onclick="clearForm()">Reset</button>
                             </div>
@@ -216,6 +217,13 @@
     <script>
         let url = "job_post_controller.php";
         
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                submitConfirmation();
+            }
+        });
+
         $(".custom-file-input").on("change", function() {
             var files = Array.from(this.files)
             var fileName = files.map(f =>{return f.name}).join(",")
@@ -272,15 +280,15 @@
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "check_validation",
+                    type: "create",
                     jobCategoryID : $("#jobCategory").val(),
                     jobTitle: $("#jobTitle").val(),
                     jobDescription: $('#jobDescription').summernote('code'),
                     jobRequirement: $('#jobRequirement').summernote('code'),
-                    experienceLevel: $("#experienceLevel").val(),
                     locationState: $("#locationState").val(),
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
-                    isPublish: ($("#chkIsPublish").is(':checked') ? "Published" : "Unpublished")
+                    isPublish: ($("#chkIsPublish").is(':checked') ? "Published" : "Never Publish")
                 }, success: function (response) {
                     const data = response;
                     if (data.status==false) {
@@ -316,7 +324,7 @@
                     salary: $("#salary").val(),
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
-                    isPublish: ($("#chkIsPublish").is(':checked') ? "Published" : "Unpublished"),
+                    isPublish: ($("#chkIsPublish").is(':checked') ? "Published" : "Never Publish"),
                     isFeatured: ($("#chkIsFeatured").is(':checked') ? 1 : 0)
                 }, success: function (response) {
                     const data = response;
@@ -327,7 +335,7 @@
                             icon: 'success',
                             confirmButtonText: 'Cool'
                         }).then((result) => {
-                            location.reload();
+                            window.location.href="job_post_index.php";
                         });
                         
                     } else {
@@ -347,6 +355,12 @@
     </script>
 </html>
 
-<?php } else { 
-    header("location: job_post_index.php");
-}?>
+<?php 
+        } else { 
+            header("location: job_post_index.php");
+        }
+    } else {
+        header("location: /jobNexus/employer/login.php");
+    }
+?>
+?>

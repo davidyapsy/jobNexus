@@ -19,7 +19,73 @@
         $data = $row;
     }
 
-    if(time()<=$_SESSION['resetPasswordTime']){
+    if(isset($_SESSION['resetPasswordTime'])==false){
+?>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Job Nexus</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Bootstrap 5 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <!-- Sweet Alert CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css">
+        <!-- Bootstrap icon CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
+        <!-- Summernote CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+        <link href="../assets/css/content.css" type="text/css" rel="stylesheet">
+    </head>
+    <body>
+        <!-- Top Bar -->
+        <nav class="navbar navbar-expand-sm bg-white navbar-white fixed-top w-100 shadow-sm">
+            <div class="container-fluid w-100">
+                <a class="navbar-brand pt-2 px-3" style="color: black;" href="/jobnexus/employer/security/login.php"><h3>Job Nexus</h3></a>
+                <a href="register.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right text-white"> Register</i></a>
+            </div>
+        </nav>
+        <!--End Top Bar-->
+
+        <div class="position-absolute bottom-0 end-0 bg-white w-100" style="height:4%;">
+            <p class="px-2">© 2023 Copyright
+                <span class="float-end px-2"><a href="https://tarc.edu.my/">Need help?</a></span>
+            </p>
+        </div>
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+        <!-- jQuery -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+        <!-- Summernote JS -->
+        <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+        <!-- Sweet Alert -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
+
+    </body>
+
+    <script>    
+        $(window).on("load", function() {
+            wrongBrowser();
+        } );
+
+        function wrongBrowser(){
+            Swal.fire({
+                title: 'Different Browser!',
+                text: 'Please copy this website link address and open it in the window browser you use to reset password! ',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                
+            });
+        }
+
+    </script>
+</html>
+
+<?php
+    }elseif(time()<=$_SESSION['resetPasswordTime']){
         
 ?>
 
@@ -114,7 +180,7 @@
         </div>
         <div class="position-absolute bottom-0 end-0 bg-white w-100" style="height:4%;">
             <p class="px-2">© 2023 Copyright
-                <span class="float-end px-2"><a href="https://mdbootstrap.com/">Need help?</a></span>
+                <span class="float-end px-2"><a href="https://tarc.edu.my/">Need help?</a></span>
             </p>
         </div>
         <!-- Bootstrap JS -->
@@ -141,6 +207,13 @@
                 $('#'+e).removeClass('bi bi-eye').addClass('bi bi-eye-slash');
             }
         }
+
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                submitValidate();
+            }
+        });
 
         function submitValidate(){
             $('.is-invalid').removeClass('is-invalid');
@@ -191,7 +264,7 @@
                             confirmButtonText: 'Cool'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = "/jobnexus/employer/security/login.php"
+                                window.location.href = "/jobnexus/employer/login.php"
                             }
                         });
                     } else {

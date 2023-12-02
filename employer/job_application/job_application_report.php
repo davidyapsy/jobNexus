@@ -1,12 +1,13 @@
 <?php
-session_start();
-    $serverName = "localhost";
-    $userName = "root";
-    $password = "";
-    $database = "db_jobnexus";
-    $employerID = base64_decode($_SESSION['employerID']);
+    session_start();
+    if($_SESSION['login']){
+        $serverName = "localhost";
+        $userName = "root";
+        $password = "";
+        $database = "db_jobnexus";
+        $employerID = base64_decode($_SESSION['employerID']);
 
-    $connection = new mysqli($serverName, $userName, $password, $database);
+        $connection = new mysqli($serverName, $userName, $password, $database);
 
 ?>
 <html>
@@ -75,14 +76,6 @@ session_start();
                                         onclick="load_data()">
                                     <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
                                 </button>
-                                <button type="button" id="reportBtn"
-                                        class="btn btn-round btn-success btn-sm ladda-button"
-                                        data-style="zoom-in"
-                                        onclick="print_report()">
-                                    <span class="ladda-label">
-                                        <i class="bi bi-printer" aria-hidden="true"></i> Report
-                                    </span>
-                                </button>
                                 <button type="button" class="btn btn-danger btn-round btn-sm"
                                         onclick="clear_form()">
                                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Clear
@@ -134,24 +127,30 @@ session_start();
     </body>
 
     <script>
-    // at here we try to be native as possible and you can use url to ease change the which one you prefer
-    let url = "job_application_controller.php";
-    const tbody = $("#filtered_table_data");
-    var pieLabelArr = [];
-    var pieDataArr =[];
-    var pieConfig={};
-    var barLabelArr = [];
-    var barDataArr =[];
-    var barConfig={};
-    var multiLineArr1 =[];
-    var multiLineArr2 =[];
-    var multiLineArr3 = [];
-    var multiLineConfig={};
+        // at here we try to be native as possible and you can use url to ease change the which one you prefer
+        let url = "job_application_controller.php";
+        const tbody = $("#filtered_table_data");
+        var pieLabelArr = [];
+        var pieDataArr =[];
+        var pieConfig={};
+        var barLabelArr = [];
+        var barDataArr =[];
+        var barConfig={};
+        var multiLineArr1 =[];
+        var multiLineArr2 =[];
+        var multiLineArr3 = [];
+        var multiLineConfig={};
                                             
-    $(window).on("load", function() {
+        $(window).on("load", function() {
             $( "#filterBtn" ).trigger( "click" );
         } );
 
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                load_data();
+            }
+        });
 
         function load_data()
         {
@@ -183,8 +182,8 @@ session_start();
                             {
                                 if(records[i].status=="Under Review"){
                                     statusLine="        <td class='text-center'>"+"<span class='badge bg-light text-dark'>Under Review</span>" + "</td>" 
-                                }else if(records[i].status=="Pending"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Pending</span>" + "</td>" 
+                                }else if(records[i].status=="Rejected"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Rejected</span>" + "</td>" 
                                 }
                                 else if(records[i].status=="Success"){
                                     statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Success</span>" + "</td>" 
@@ -224,9 +223,13 @@ session_start();
                                     label: 'Percentage',
                                     data: pieDataArr,
                                     backgroundColor: [
-                                        'rgb(255, 99, 132)',
-                                        'rgb(54, 162, 235)',
-                                        'rgb(255, 205, 86)'
+                                        '#36A2EB',
+                                        '#FF6384',
+                                        '#4BC0C0',
+                                        '#FF9F40',
+                                        '#9966FF',
+                                        '#FFCD56',
+                                        '#C9CBCF'
                                     ],
                                     hoverOffset: 4
                                 }]
@@ -235,7 +238,7 @@ session_start();
                                 plugins: {
                                     title: {
                                         display: true,
-                                        text: 'Distribution of Job Posts Across Job Categories',
+                                        text: 'Distribution of Job Application Across Job Posts',
                                         font:{
                                             size: 20,
                                             weight: 'bold'
@@ -263,10 +266,20 @@ session_start();
                                     backgroundColor: [
                                         'rgba(255, 99, 132, 0.2)',
                                         'rgba(255, 159, 64, 0.2)',
+                                        'rgba(255, 205, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(201, 203, 207, 0.2)'
                                     ],
                                     borderColor: [
                                         'rgb(255, 99, 132)',
                                         'rgb(255, 159, 64)',
+                                        'rgb(255, 205, 86)',
+                                        'rgb(75, 192, 192)',
+                                        'rgb(54, 162, 235)',
+                                        'rgb(153, 102, 255)',
+                                        'rgb(201, 203, 207)'
                                     ],
                                     borderWidth: 1
                                 }]
@@ -275,7 +288,7 @@ session_start();
                                 plugins: {
                                     title: {
                                         display: true,
-                                        text: 'Distribution of Job Posts Across Job Categories',
+                                        text: 'Job Application Success Rate Analysis by Job Posting',
                                         font:{
                                             size: 20,
                                             weight: 'bold'
@@ -295,7 +308,7 @@ session_start();
                         if(response.multiLineData.length>0){
                             for(let i=0;i<response.multiLineData.length;i++){
                                 var eachData = [];
-                                for(let j=0; j<30; j++){
+                                for(let j=0; j<31; j++){
                                     for(let z=0, found = false; z<response.multiLineData[i].daysApplied.length && found==false ; z++){
                                         var daysApplied = parseInt(response.multiLineData[i].daysApplied[z]);
                                         if(daysApplied == j){
@@ -326,7 +339,7 @@ session_start();
                             data: {
                                 labels: [1,2,3,4,5,6,7,8,9,10,11,12,
                                         13,14,15,16,17,18,19,20,21,
-                                        22,23,24,25,26,27,28,29,30],
+                                        22,23,24,25,26,27,28,29,30,31],
                                 datasets: multiLineDatasets
                             },
                             options: {
@@ -339,7 +352,11 @@ session_start();
                                 plugins: {
                                     title: {
                                         display: true,
-                                        text: 'Chart.js Line Chart - Multi Axis'
+                                        text: 'Distribution of Job Application Between Publish date and Deadline',
+                                        font:{
+                                            size: 20,
+                                            weight: 'bold'
+                                        }
                                     }
                                 },
                             }
@@ -398,3 +415,9 @@ session_start();
 
     </script>
 </html>
+
+<?php
+    } else {
+        header("location: /jobNexus/employer/login.php");
+    }
+?>

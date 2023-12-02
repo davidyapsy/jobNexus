@@ -104,7 +104,7 @@
 
         <div class="position-absolute bottom-0 end-0 bg-white w-100" style="height:4%;">
             <p class="px-2">© 2023 Copyright
-                <span class="float-end px-2"><a href="https://mdbootstrap.com/">Need help?</a></span>
+                <span class="float-end px-2"><a href="https://tarc.edu.my/">Need help?</a></span>
             </p>
         </div>
 
@@ -121,7 +121,12 @@
 
     <script>
         let url = "/jobnexus/employer/company_profile/company_profile_controller.php";
-        
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                registerValidate();
+            }
+        });
         function toggleVisibility(input, e){
             var passInput=$("#"+input);
             if(passInput.attr('type')==='password'){

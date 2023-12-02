@@ -112,7 +112,7 @@ class JobPostingModel
     private String $jobDescription;
     private String $jobRequirement;
     private String $jobHighlight;
-    private String $experienceLevel;
+    private int $experienceLevel;
     private String $locationState;
     private float $salary;
     private String $employmentType;
@@ -198,12 +198,12 @@ class JobPostingModel
         return $this;
     }
 
-    public function getExperienceLevel(): String
+    public function getExperienceLevel(): int
     {
         return $this->experienceLevel;
     }
 
-    public function setExperienceLevel(String $experienceLevel): JobPostingModel
+    public function setExperienceLevel(int $experienceLevel): JobPostingModel
     {
         $this->experienceLevel = $experienceLevel;
         return $this;
@@ -444,7 +444,7 @@ class JobPostingOop
         $jobDescription = filter_input(INPUT_POST, "jobDescription", FILTER_SANITIZE_STRING);
         $jobRequirement = filter_input(INPUT_POST, "jobRequirement", FILTER_SANITIZE_STRING);
         $jobHighlight = filter_input(INPUT_POST, "jobHighlight", FILTER_SANITIZE_STRING);
-        $experienceLevel = filter_input(INPUT_POST, "experienceLevel", FILTER_SANITIZE_STRING);
+        $experienceLevel = filter_input(INPUT_POST, "experienceLevel", FILTER_SANITIZE_NUMBER_INT);
         $locationState = filter_input(INPUT_POST, "locationState", FILTER_SANITIZE_STRING);
         $salary = filter_input(INPUT_POST, "salary", FILTER_SANITIZE_NUMBER_FLOAT);
         $employmentType = filter_input(INPUT_POST, "employmentType", FILTER_SANITIZE_STRING);
@@ -501,7 +501,6 @@ class JobPostingOop
             $this->model->setJobTitle($jobTitle);
             $this->model->setJobDescription($jobDescription);
             $this->model->setJobRequirement($jobRequirement);
-            $this->model->setExperienceLevel($experienceLevel);
             $this->model->setLocationState($locationState);
             $this->model->setEmploymentType($employmentType);
             $this->model->setIsPublish($isPublish);
@@ -584,11 +583,10 @@ class JobPostingOop
 
         //insert into db
         if (strlen($jobCategoryID) > 0 &&  strlen($jobTitle) > 0 &&  strlen($jobDescription) > 0 &&  strlen($jobRequirement) > 0 &&  strlen($locationState) > 0 &&  strlen($employmentType) > 0) {
-            $statement = $this->connection->prepare("INSERT INTO job_posting VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $statement->bind_param("sssssssssdssssiis", $employerID, $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, 
+            $statement = $this->connection->prepare("INSERT INTO job_posting VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $statement->bind_param("sssssssisdssssiis", $employerID, $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, 
                                                         $salary, $employmentType, $applicationDeadline, $isPublish, $publishDate, $isFeatured, $isDeleted, $createdAt);
             
-
             try {
                 $statement->execute();
             } catch (Exception $exception) {
@@ -745,7 +743,7 @@ class JobPostingOop
                     $previous_id = $page_array[$count] - 1;
 
                     if($previous_id > 0){
-                        $previous_link = '<li class="page-item"><a class="page-link" href="Bvascript:load_data('.$previous_id.')">Previous</a></li>';
+                        $previous_link = '<li class="page-item"><a class="page-link" href="javascript:load_data('.$previous_id.')">Previous</a></li>';
                     }else{
                         $previous_link = '
                         <li class="page-item disabled">
@@ -764,7 +762,7 @@ class JobPostingOop
                         ';
                     }else{
                         $next_link = '
-                        <li class="page-item"><a class="page-link" href="Bvascript:load_data('.$next_id.')">Next</a></li>
+                        <li class="page-item"><a class="page-link" href="javascript:load_data('.$next_id.')">Next</a></li>
                         ';
                     }
                 }
@@ -781,7 +779,7 @@ class JobPostingOop
                     {
                         $page_link .= '
                         <li class="page-item">
-                            <a class="page-link" href="Bvascript:load_data('.$page_array[$count].')">'.$page_array[$count].'</a>
+                            <a class="page-link" href="javascript:load_data('.$page_array[$count].')">'.$page_array[$count].'</a>
                         </li>
                         ';
                     }
@@ -872,6 +870,10 @@ class JobPostingOop
             $newNumber = sprintf('%04d', $newNumber);
             $newID = $tempID.$newNumber;
             $this->send_email($jobCategoryID, $jobTitle, $employerID);
+        }elseif(substr($jobPostingID, 2, 6)=="700101" && $isPublish == ""){
+            $isPublish = "Never Publish";
+        }elseif($isPublish == ""){
+            $isPublish = "Unpublished";
         }
 
         //insert into db
@@ -881,7 +883,7 @@ class JobPostingOop
                                                         employmentType = ?, applicationDeadline = ?, isPublish = ?, publishDate = ?, isDeleted = ?
                                                     WHERE employerID = ? AND jobPostingID = ?");
 
-            $statement->bind_param("ssssssssdssssiss", $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, $salary, $employmentType,
+            $statement->bind_param("ssssssisdssssiss", $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, $salary, $employmentType,
                                                         $applicationDeadline, $isPublish, $publishDate, $isDeleted, $employerID, $jobPostingID);
 
             try {
@@ -945,11 +947,11 @@ class JobPostingOop
         $jobTitle = $this->model->getJobTitle();
         $jobDescription = $this->model->getJobDescription();
         $jobRequirement = $this->model->getJobRequirement();
-        $experienceLevel = $this->model->getExperienceLevel();
         $locationState = $this->model->getLocationState();
         $employmentType = $this->model->getEmploymentType();
         $isPublish = $this->model->getIsPublish();
         $applicationDeadline = date('Y-m-d', strtotime(str_replace('-', '/', $this->model->getApplicationDeadline())));
+        $type = filter_input(INPUT_POST, "type", FILTER_SANITIZE_STRING);
         $i=0;
         
         //null checking
@@ -973,11 +975,7 @@ class JobPostingOop
             $datas[$i]['errorMessage']="Job Requirement is required";
             $i++;
         }
-        if($experienceLevel==""){
-            $datas[$i]['inputName']="experienceLevel";
-            $datas[$i]['errorMessage']="Experience Level is required";
-            $i++;
-        }
+        
         if($locationState==""){
             $datas[$i]['inputName']="locationState";
             $datas[$i]['errorMessage']="State is required";
@@ -993,10 +991,12 @@ class JobPostingOop
             $datas[$i]['errorMessage']="Application Deadline must be larger than today's date";
             $i++;
         }
-        if(substr($jobPostingID, 2, 6)!="700101" && $isPublish == "Published"){
-            $datas[$i]['inputName']="chkIsPublish";
-            $datas[$i]['errorMessage']="This job has been posted before, Please create another job";
-            $i++;
+        if($type == "update"){
+            if(substr($jobPostingID, 2, 6)!="700101" && $isPublish == "Published"){
+                $datas[$i]['inputName']="chkIsPublish";
+                $datas[$i]['errorMessage']="This job has been posted before, Please create another job";
+                $i++;
+            }
         }
 
         if($i>0){
@@ -1050,14 +1050,13 @@ class JobPostingOop
             $filter_options.=" AND A.jobTitle LIKE '%$jobTitle%'";
         }
         if($createdDateFrom!=""){
-            $filter_options.=" AND A.createdDateFrom >= '$createdDateFrom'";
+            $filter_options.=" AND A.created_at >= '$createdDateFrom'";
         }
         if($createdDateTo!=""){
-            $filter_options.=" AND A.createdDateTo <= '$createdDateTo'";
+            $filter_options.=" AND A.created_at <= '$createdDateTo'";
         }
-
         $tableSql.=$filter_options." ORDER BY A.created_at, A.jobPostingID";
-
+        // echo $tableSql;
         $statement = $this->connection->query($tableSql);
         $tableData = [];
         while (($row = $statement->fetch_assoc()) == TRUE) {
@@ -1218,40 +1217,44 @@ class JobPostingOop
     }
 }
 
-header('Content-Type: application/json');
-header("Access-Control-Allow-Origin: *"); // this is to prevent from Bvascript given cors error
+if($_SESSION['login']){
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript given cors error
 
-$mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
+    $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
 
-$jobPostingOop = new JobPostingOop();
-try {
-    switch ($mode) {
-        case  "create":
-            $jobPostingOop->create();
-            break;
-        case  "search":
-            $jobPostingOop->search();
-            break;
-        case  "update":
-            $jobPostingOop->update();
-            break;
-        case  "delete":
-            $jobPostingOop->delete();
-            break;
-        case "check_validation":
-            $jobPostingOop->check_validation();
-            break;
-        case "print_report":
-            $jobPostingOop->print_report();
-            break;
-        default:
-            throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
-            break;
+    $jobPostingOop = new JobPostingOop();
+    try {
+        switch ($mode) {
+            case  "create":
+                $jobPostingOop->create();
+                break;
+            case  "search":
+                $jobPostingOop->search();
+                break;
+            case  "update":
+                $jobPostingOop->update();
+                break;
+            case  "delete":
+                $jobPostingOop->delete();
+                break;
+            case "check_validation":
+                $jobPostingOop->check_validation();
+                break;
+            case "print_report":
+                $jobPostingOop->print_report();
+                break;
+            default:
+                throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
+                break;
+        }
+    } catch (Exception $exception) {
+        echo json_encode([
+            "status" => false,
+            "message" => "post".$exception->getMessage(),
+            "code" => $exception->getCode()
+        ]);
     }
-} catch (Exception $exception) {
-    echo json_encode([
-        "status" => false,
-        "message" => "post".$exception->getMessage(),
-        "code" => $exception->getCode()
-    ]);
+}else{
+    header("location: /jobnexus/employer/login.php");
 }

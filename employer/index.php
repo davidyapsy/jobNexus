@@ -1,5 +1,6 @@
 <?php
 session_start();
+if($_SESSION['login']){
 ?>
 <!DOCTYPE html>
 <html>
@@ -39,7 +40,7 @@ session_start();
         <div class="main h-100">
             <div class="panel p-2">
                 <h1>
-                    <p>Welcome back, <?=$_SESSION['companyName']?></p>                    
+                    <p>Welcome back, <br><?=$_SESSION['companyName']?></p>                    
                 </h1>
             </div>
             
@@ -49,3 +50,8 @@ session_start();
 
     </body>
 </html>
+<?php
+    } else {
+        header("location: /jobnexus/employer/login.php");
+    }
+?>

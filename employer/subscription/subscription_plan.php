@@ -1,4 +1,6 @@
 <?php
+session_start();
+if($_SESSION['login']){
     $serverName = "localhost";
     $userName = "root";
     $password = "";
@@ -119,3 +121,8 @@
         });
     </script>
 </html>
+<?php
+    } else {
+        header("location: /jobnexus/employer/login.php");
+    }
+?>

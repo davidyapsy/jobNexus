@@ -1,4 +1,6 @@
 <?php
+session_start();
+if($_SESSION['login']){
     $serverName = "localhost";
     $userName = "root";
     $password = "";
@@ -164,7 +166,12 @@
         $(window).on("load", function() {
             $( "#filterBtn" ).trigger( "click" );
         } );
-
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                load_data();
+            }
+        });
         function load_data(page_number = 1)
         {
             $.ajax({
@@ -200,7 +207,7 @@
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
                                 "             <a href=\"subscription_view.php?id="+ encodeURI(btoa(records[i].subscriptionID)) + "\">"+
-                                "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
+                                "               <button type=\"button\"  title=\"view\" class=\"btn btn-sm btn-warning mx-1\">" +
                                 "                 <i class=\"bi bi-eye\"></i>" +
                                 "               </button>"+
                                 "             </a>" +
@@ -265,3 +272,8 @@
         }
     </script>
 </html>
+<?php
+    } else {
+        header("location: /jobnexus/employer/login.php");
+    }
+?>

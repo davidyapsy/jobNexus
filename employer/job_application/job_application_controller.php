@@ -1,5 +1,12 @@
 <?php
 session_start();
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Include PHPMailer library
+require_once '../../phpMailer/src/Exception.php';
+require_once '../../phpMailer/src/PHPMailer.php';
+require_once '../../phpMailer/src/SMTP.php';
 
 class ConnectionString
 {
@@ -617,7 +624,8 @@ class JobApplicationOop
 
             $this->connection->commit();
             if($status == "Success"){
-                $this->send_email();
+                $this->send_email($jobApplicationID);
+                die();
             }
             echo json_encode(
                 [
@@ -796,13 +804,16 @@ class JobApplicationOop
         return $weeks;
     }
 
-    private function send_email($subscriptionID){
+    private function send_email($jobApplicationID){
         $data=[];
-        $stat = $this->connection->query("SELECT B.companyName, C.planName, C.price, C.validityPeriod, B.emailAddress
-                                        FROM subscription A
-                                        JOIN employer B ON A.employerID = B.employerID
-                                        JOIN subscription_plan C ON A.subscriptionPlanID = C.subscriptionPlanID
-                                        WHERE subscriptionID = '$subscriptionID'");
+        $stat = $this->connection->query("SELECT CONCAT(B.firstName, ' ', B.lastName) AS jobSeekerName, C.jobTitle, D.companyName, D.emailAddress AS employerEmail, 
+                                            B.emailAddress AS jobSeekerEmail
+                                            FROM job_application A
+                                            JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
+                                            JOIN job_posting C ON A.jobPostingID = C.jobPostingID
+                                            JOIN employer D ON C.employerID = D.employerID
+                                            WHERE applicationID = '$jobApplicationID'");
+        
         while(($row = $stat->fetch_assoc())==TRUE){
             $data=$row;
         }
@@ -816,95 +827,120 @@ class JobApplicationOop
             <head>
                 <meta charset='UTF-8'>
                 <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-                <title>Thank You for Subscribing!</title>
+                <title>Job Offer</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        background-color: #f4f4f4;
+                        margin: 0;
+                        padding: 20px;
+                    }
+            
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background-color: #fff;
+                        padding: 20px;
+                        border-radius: 5px;
+                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    }
+            
+                    h1 {
+                        color: #333;
+                    }
+            
+                    p {
+                        color: #666;
+                    }
+            
+                    .button {
+                        display: inline-block;
+                        font-size: 16px;
+                        padding: 10px 20px;
+                        margin-top: 20px;
+                        text-decoration: none;
+                        color: #fff;
+                        background-color: #007bff;
+                        border-radius: 5px;
+                    }
+            
+                    .button:hover {
+                        background-color: #0056b3;
+                    }
+                </style>
             </head>
-            <body style='font-family: Arial, sans-serif;'>
-
-                <table width='100%' border='0' cellspacing='0' cellpadding='0'>
-                    <tr>
-                        <td style='background-color: #f7f7f7; padding: 20px; text-align: center;'>
-                            <h1 style='color: #333;'>Thank You for Subscribing!</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 20px;'>
-                            <p>Dear ".$data['companyName'].",</p>
-                            <p>Thank you for choosing our online employment website and subscribing to our ".$data['planName']." plan. We are thrilled to have you on board!</p>
-                            <p>Your subscription details:</p>
-                            <ul>
-                                <li><strong>Plan:</strong> ".$data['planName']."</li>
-                                <li><strong>Price:</strong> RM ".number_format($data['price'])."</li>
-                                <li><strong>Validity Period:</strong> ".$data['validityPeriod']."</li>
-                            </ul>
-                            <p>Your subscription will give you access to a range of features and benefits designed to enhance your experience on our platform.</p>
-                            <p>You can print you receipt by clicking <a href='http://localhost/jobNexus/employer/subscription/subscription_print.php?id=".base64_encode($subscriptionID)
-                            ."' target='_blank'>here</a> .</p>
-                            <p>If you have any questions or need assistance, feel free to reach out to our support team at jobnexus2@gmail.com.</p>
-                            <p>Thank you once again for choosing Job Nexus. We look forward to helping you find success in your job search!</p>
-                            <p>Best regards,</p>
-                            <p>The Job Nexus Team</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style='background-color: #333; color: #fff; padding: 10px; text-align: center;'>
-                            &copy; 2023 Job Nexus. All rights reserved.
-                        </td>
-                    </tr>
-                </table>
-
+            <body>
+                <div class='container'>
+                    <h1>Congratulations! You've Been Hired!</h1>
+                    <p>Dear ".$data['jobSeekerName'].",</p>
+                    <p>Congratulations! We are delighted to inform you that you have been selected for the position of ".$data['jobTitle']." at ".$data['companyName']."</p>
+                    <p>Your skills and experience stood out among many candidates, and we believe you will be a valuable addition to our team.</p>
+            
+                    <p>If you have any questions or require further information, feel free to contact us at ".$data['employerEmail'].". We look forward to welcoming you aboard!</p>
+            
+                    <p>Best regards,<br>".$data['companyName']."</p>
+                </div>
             </body>
             </html>
+        
         ";
+
         // Set up the SMTP configuration
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'jobnexus2@gmail.com';
-        $mail->Password = 'njysranxlvecliqc';
+        $mail->Username = $data['employerEmail'];
+        //employerEmail
+        $mail->Password = 'qcpahtwuiqjjmmay';
         $mail->SMTPSecure = 'tsl';
         $mail->Port = 587;
 
         // Set up the email content
-        $mail->setFrom('jobnexus2@gmail.com');
-        $mail->addAddress($data['emailAddress']);
+        $mail->setFrom($data['employerEmail']);
+        $mail->addAddress($data['jobSeekerEmail']);
         $mail->isHTML(true);
-        $mail->Subject = "Job Nexus Subscription";
+        $mail->Subject = "Job Nexus : Congratulations on Applications (".$data['jobTitle'].")!!!";
         $mail->Body = $content;
         $mail->send();
     }
 }
 
-header('Content-Type: application/json');
-header("Access-Control-Allow-Origin: *"); // this is to prevent from Bvascript given cors error
+if($_SESSION['login']){
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *"); // this is to prevent from Bvascript given cors error
 
-$mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
+    $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
 
-$jobApplicationOop = new JobApplicationOop();
-try {
-    switch ($mode) {
-        case  "create":
-            $jobApplicationOop->create();
-            break;
-        case  "search":
-            $jobApplicationOop->search();
-            break;
-        case  "update":
-            $jobApplicationOop->update();
-            break;
-        case  "delete":
-            $jobApplicationOop->delete();
-            break;
-        case  "print_report":
-            $jobApplicationOop->print_report();
-            break;
-        default:
-            throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
-            break;
+    $jobApplicationOop = new JobApplicationOop();
+    try {
+        switch ($mode) {
+            case  "create":
+                $jobApplicationOop->create();
+                break;
+            case  "search":
+                $jobApplicationOop->search();
+                break;
+            case  "update":
+                $jobApplicationOop->update();
+                break;
+            case  "delete":
+                $jobApplicationOop->delete();
+                break;
+            case  "print_report":
+                $jobApplicationOop->print_report();
+                break;
+            default:
+                throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
+                break;
+        }
+    } catch (Exception $exception) {
+        echo json_encode([
+            "status" => false,
+            "message" => "post".$exception->getMessage(),
+            "code" => $exception->getCode()
+        ]);
     }
-} catch (Exception $exception) {
-    echo json_encode([
-        "status" => false,
-        "message" => "post".$exception->getMessage(),
-        "code" => $exception->getCode()
-    ]);
+}else{
+    header("location: /jobnexus/employer/login.php");
 }

@@ -1,27 +1,28 @@
 <?php
     session_start();
-    $serverName = "localhost";
-    $userName = "root";
-    $password = "";
-    $database = "db_jobnexus";
-    $employerID = base64_decode($_SESSION['employerID']);
+    if($_SESSION['login']){
+        $serverName = "localhost";
+        $userName = "root";
+        $password = "";
+        $database = "db_jobnexus";
+        $employerID = base64_decode($_SESSION['employerID']);
 
-    $connection = new mysqli($serverName, $userName, $password, $database);
+        $connection = new mysqli($serverName, $userName, $password, $database);
 
-    $sql = "SELECT *
-            FROM employer
-            WHERE employerID = '$employerID'";
+        $sql = "SELECT *
+                FROM employer
+                WHERE employerID = '$employerID'";
 
-    $statement = $connection->prepare($sql);
-    $statement->execute();
-    $result = $statement->get_result();
-    $data =[];
-    while(($row = $result->fetch_assoc())==TRUE){
-        $data = $row;
-    }
+        $statement = $connection->prepare($sql);
+        $statement->execute();
+        $result = $statement->get_result();
+        $data =[];
+        while(($row = $result->fetch_assoc())==TRUE){
+            $data = $row;
+        }
 
-    $officePictures = $data['officePictures'];
-    $officePicture_arr = explode(",", $officePictures);
+        $officePictures = $data['officePictures'];
+        $officePicture_arr = explode(",", $officePictures);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -347,6 +348,13 @@
     <script>
         let url = "company_profile_controller.php";
 
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                submitConfirmation();
+            }
+        });
+        
         $('#aboutUs').summernote({
             tabsize: 2,
             height: 400
@@ -365,41 +373,6 @@
                 }
             });
         }
-
-        // function submitValidate(){
-        //     var form = $("#form_details");
-        //     // you can't pass Jquery form it has to be javascript form object
-        //     var formData = new FormData(form[0]);
-        //     formData.append('mode', 'check_validation');
-        //     $.ajax({
-        //         url: url,
-        //         type: "POST",
-        //         data: formData,
-        //         contentType: false, 
-        //         processData: false,
-        //         success: function(result) {
-        //             if (result.status) {
-        //                 $("#form_details").submit();
-        //             } else {
-        //                 card_el.close();
-        //                 var errors = result.errors;
-        //                 $.each(errors, function(i, item) {
-        //                     // Add class for invalid field
-        //                     var el = $('[name="' + i + '"]');
-        //                     if (i == "logo" || i == "bodyBackground" || i == "shopImage") {
-        //                         el.next().addClass("is-invalid");
-        //                     } else {
-        //                         el.addClass("is-invalid");
-        //                     }
-
-        //                     // Distribute message
-        //                     el.parent().closest('div').find('.invalid-feedback').text(item);
-        //                 });
-        //                 window.scrollTo(0, 0);
-        //             }
-        //         },
-        //     });
-        // }
 
         function getFileNames(inputName){
             var files = $('#'+inputName)[0].files;
@@ -576,3 +549,7 @@
 </html>
 
 <?php
+    } else {
+        header("location: /jobnexus/employer/login.php");
+    }
+?>

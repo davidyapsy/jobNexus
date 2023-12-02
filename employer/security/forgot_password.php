@@ -7,7 +7,6 @@
     $connection = new mysqli($serverName, $userName, $password, $database);
     $status = isset($_GET['status'])?($_GET['status']):"";
     $emailAddress = isset($_GET['emailAddress'])?($_GET['emailAddress']):"";
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,7 +51,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-12">
-                            <button type="button" onclick ="submitValidate()" class="w-100 btn btn-primary" >Reset Password</button>
+                            <button type="button" onclick ="loading()" class="w-100 btn btn-primary" >Reset Password</button>
                         </div>
                     </div>
                 </form>
@@ -71,7 +70,7 @@
         </div>
         <div class="position-absolute bottom-0 end-0 bg-white w-100" style="height:4%;">
             <p class="px-2">© 2023 Copyright
-                <span class="float-end px-2"><a href="https://mdbootstrap.com/">Need help?</a></span>
+                <span class="float-end px-2"><a href="https://tarc.edu.my/">Need help?</a></span>
             </p>
         </div>
         <!-- Bootstrap JS -->
@@ -88,6 +87,13 @@
     <script>
         let url = "/jobnexus/employer/company_profile/company_profile_controller.php";
         
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                loading();
+            }
+        });
+
         $(window).on("load", function(){
             var status = "<?=$status?>";
             var emailAddress = "<?=$emailAddress?>"
@@ -119,6 +125,24 @@
             }
         }
 
+        function loading(){
+            let timerInterval;
+            Swal.fire({
+                title: "Validating!",
+                timer: 5000,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                    submitValidate();
+                },
+                }).then((result) => {
+                /* Read more about handling dismissals below */
+                if (result.dismiss === Swal.DismissReason.timer) {
+                    console.log("I was closed by the timer");
+                }
+            });
+        }
+
         function submitValidate(){
             $('.is-invalid').removeClass('is-invalid');
             $.ajax({
@@ -145,7 +169,7 @@
                             confirmButtonText: 'Cool'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href="login.php";
+                                window.location.href="../login.php";
                             }
                         });
                     }

@@ -85,7 +85,7 @@
                         <hr>
                         <div class="form-group row">
                             <div class="col-md-12">
-                                <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Save</button>
+                                <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Submit</button>
                                 <button type="button" onclick="backConfirmation()" class="btn btn-danger btn-outline">Back</button>
                                 <button type="reset" id="btnReset" class="btn btn-light btn-outline">Reset</button>
                             </div>
@@ -110,6 +110,13 @@
 
     <script>
         let url = "benefit_controller.php";
+
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                submitConfirmation();
+            }
+        });
 
         function backConfirmation(){
             Swal.fire({

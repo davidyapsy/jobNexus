@@ -126,6 +126,13 @@
             $( "#filterBtn" ).trigger( "click" );
         } );
 
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                load_data();
+            }
+        });
+
         function load_data(page_number = 1)
         {
             $.ajax({

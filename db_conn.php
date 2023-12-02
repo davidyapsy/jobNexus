@@ -3,7 +3,7 @@
 $sname= "localhost";
 $unmae= "root";
 $password = "";
-$db_name = "flight_ticketing";
+$db_name = "db_jobnexus";
 
 $conn = mysqli_connect($sname, $unmae, $password, $db_name);
 

@@ -1,5 +1,6 @@
 <?php
     session_start();
+    if($_SESSION['login']){
     error_reporting(0);
     $connection = new mysqli("localhost", "root", "", "db_jobnexus");
 
@@ -81,3 +82,6 @@
 
     // Render excel data 
     echo $excelData; 
+}else{
+    header("location: /jobnexus/employer/login.php");
+}

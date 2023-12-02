@@ -1,28 +1,29 @@
 <?php
     session_start();
-    $transactionStatus = isset($_GET['status'])?$_GET['status']:"";
-    $startDate = isset($_GET['startDate'])?$_GET['startDate']:"";
-    $endDate = isset($_GET['endDate'])?$_GET['endDate']:"";
-    $paymentMethod = isset($_GET['paymentMethod'])?$_GET['paymentMethod']:"";
-    
-    $serverName = "localhost";
-    $userName = "root";
-    $password = "";
-    $database = "db_jobnexus";
+    if($_SESSION['login']){
+        $transactionStatus = isset($_GET['status'])?$_GET['status']:"";
+        $startDate = isset($_GET['startDate'])?$_GET['startDate']:"";
+        $endDate = isset($_GET['endDate'])?$_GET['endDate']:"";
+        $paymentMethod = isset($_GET['paymentMethod'])?$_GET['paymentMethod']:"";
+        
+        $serverName = "localhost";
+        $userName = "root";
+        $password = "";
+        $database = "db_jobnexus";
 
-    $connection = new mysqli($serverName, $userName, $password, $database);
-    $subscriptionPlanID = base64_decode($_GET['id']);
+        $connection = new mysqli($serverName, $userName, $password, $database);
+        $subscriptionPlanID = base64_decode($_GET['id']);
 
-    //employerID
-    $sql = "SELECT *
-            FROM subscription_plan
-            WHERE subscriptionPlanID = '$subscriptionPlanID'";
+        //employerID
+        $sql = "SELECT *
+                FROM subscription_plan
+                WHERE subscriptionPlanID = '$subscriptionPlanID'";
 
-    $result = $connection->query($sql);
-    $data =[];
-    while(($row = $result->fetch_assoc())==TRUE){
-        $data = $row;
-    }
+        $result = $connection->query($sql);
+        $data =[];
+        while(($row = $result->fetch_assoc())==TRUE){
+            $data = $row;
+        }
     
     
 ?>
@@ -163,7 +164,14 @@
 
     <script>
         let url = "subscription_controller.php";
-
+        
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                submitValidate();
+            }
+        });
+        
         $(window).on("load",function(){
             var transactionStatus = "<?= $transactionStatus?>";
             if(transactionStatus=="success"){
@@ -297,7 +305,7 @@
                             }).then((result) => {
                                 if (result.isConfirmed) {
                                     if(paymentMethod=="Online Banking"){
-                                        createRecord();
+                                        loading();
                                     }else{
                                         makePayment();
                                     }
@@ -307,7 +315,6 @@
                         } else{
                             if(paymentMethod=="Online Banking"){
                                 loading();
-                                // createRecord();
                             }else{
                                 makePayment();
                             }
@@ -353,16 +360,22 @@
             let timerInterval;
             Swal.fire({
                 title: "Processing!",
-                timer: 5000,
+                timer: 7000,
                 timerProgressBar: true,
                 didOpen: () => {
                     Swal.showLoading();
                     createRecord();
                 },
                 }).then((result) => {
-                /* Read more about handling dismissals below */
                 if (result.dismiss === Swal.DismissReason.timer) {
-                    console.log("I was closed by the timer");
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'You have successfully subscribed to a plan, Please check your email for receipt! Please login again.',
+                        icon: 'success',
+                        confirmButtonText: 'Cool'
+                    }).then((result) => {
+                        window.location.href= "/jobnexus/employer/security/logout.php";
+                    });
                 }
             });
         }
@@ -384,14 +397,6 @@
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'You have successfully subscribed to a plan, Please check your email for receipt! Please login again.',
-                            icon: 'success',
-                            confirmButtonText: 'Cool'
-                        }).then((result) => {
-                            window.location.href= "/jobnexus/employer/security/logout.php";
-                        });
                         
                     } else {
                         Swal.fire({
@@ -409,3 +414,8 @@
 
     </script>
 </html>
+<?php
+    } else {
+        header("location: /jobnexus/employer/login.php");
+    }
+?>

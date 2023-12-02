@@ -122,6 +122,13 @@
     <script>
         let url = "benefit_controller.php";
         
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                submitConfirmation();
+            }
+        });
+
         function backConfirmation(){
             Swal.fire({
                 title: "Are you sure to leave this page?",

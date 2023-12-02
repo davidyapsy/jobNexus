@@ -853,7 +853,7 @@ class EmployerOop
             $sql = "SELECT B.maxJobPosting, B.maxFeatureJobListing, A.subscriptionID
                     FROM subscription A
                     JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID
-                    WHERE A.employerID = '$employerID' AND A.startDate<='$todaysDate' AND A.endDate>='$todaysDate' AND A.isActive =1";
+                    WHERE A.employerID = '$employerID' AND A.endDate>='$todaysDate' AND A.startDate<='$todaysDate'  AND A.isActive =1";
             $statement = $this->connection->query($sql);
 
             if($statement->num_rows > 0){
@@ -867,7 +867,7 @@ class EmployerOop
                 $_SESSION['maxFeatureJobListing']= 0;
                 $_SESSION['subscriptionID']="";
             }
-            
+            $_SESSION['login']=true;
             $_SESSION['employerID']=base64_encode($employerID);
             $_SESSION['companyName']=$companyName;
 
@@ -1057,6 +1057,8 @@ class EmployerOop
 
         $i=0;
 
+        
+
         //null checking
         if ($companyName == "") {
             $datas[$i]['inputName'] = "companyName";
@@ -1078,6 +1080,18 @@ class EmployerOop
             $datas[$i]['inputName'] = "emailAddress";
             $datas[$i]['errorMessage'] = "Invalid email address";
             $i++;
+        }else{
+            $emailSQL = "
+                SELECT employerID
+                FROM employer
+                WHERE emailAddress = '$emailAddress'
+            ";
+            $stat = $this->connection->query($emailSQL);
+            if($stat->num_rows>0){
+                $datas[$i]['inputName'] = "emailAddress";
+                $datas[$i]['errorMessage'] = "Email address has been used.";
+                $i++;
+            }
         }
         
         if($password ==""){
@@ -1115,7 +1129,21 @@ class EmployerOop
             $datas[$i]['inputName'] = "phoneNumber";
             $datas[$i]['errorMessage'] = "Invalid phone number";
             $i++;
+        }else{
+            $phoneSQL = "
+                SELECT employerID
+                FROM employer
+                WHERE phoneNumber = '$phoneNumber'
+            ";
+            $stat = $this->connection->query($phoneSQL);
+            if($stat->num_rows>0){
+                $datas[$i]['inputName'] = "phoneNumber";
+                $datas[$i]['errorMessage'] = "Phone Number has been used.";
+                $i++;
+            }
         }
+
+
 
         if($i>0){
             echo json_encode(
@@ -1326,47 +1354,46 @@ class EmployerOop
     }
 }
 
-header('Content-Type: application/json');
-header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript given cors error
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript given cors error
 
-$mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
+    $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
 
-$employerOop = new EmployerOop();
-try {
-    switch ($mode) {
-        case "create":
-            $employerOop->create();
-            break;
-        case "update":
-            $employerOop->update();
-            break;
-        case "login_validation":
-            $employerOop->login_validation();
-            break;
-        case "check_validation":
-            $employerOop->check_validation();
-            break;
-        case "register_validation":
-            $employerOop->register_validation();
-            break;
-        case "forgot_password_validation":
-            $employerOop->forgot_password_validation();
-            break;
-        case "reset_password_validation":
-            $employerOop->reset_password_validation();
-            break;
-        case "update_password":
-            $employerOop->update_password();
-            break;
-        default:
-            throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
-            break;
+    $employerOop = new EmployerOop();
+    try {
+        switch ($mode) {
+            case "create":
+                $employerOop->create();
+                break;
+            case "update":
+                $employerOop->update();
+                break;
+            case "login_validation":
+                $employerOop->login_validation();
+                break;
+            case "check_validation":
+                $employerOop->check_validation();
+                break;
+            case "register_validation":
+                $employerOop->register_validation();
+                break;
+            case "forgot_password_validation":
+                $employerOop->forgot_password_validation();
+                break;
+            case "reset_password_validation":
+                $employerOop->reset_password_validation();
+                break;
+            case "update_password":
+                $employerOop->update_password();
+                break;
+            default:
+                throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
+                break;
+        }
+    } catch (Exception $exception) {
+        echo json_encode([
+            "status" => false,
+            "message" => "post".$exception->getMessage(),
+            "code" => $exception->getCode()
+        ]);
     }
-} catch (Exception $exception) {
-    echo json_encode([
-        "status" => false,
-        "message" => "post".$exception->getMessage(),
-        "code" => $exception->getCode()
-    ]);
-}
-

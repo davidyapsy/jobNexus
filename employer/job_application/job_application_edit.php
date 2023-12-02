@@ -1,25 +1,27 @@
 <?php
-    $serverName = "localhost";
-    $userName = "root";
-    $password = "";
-    $database = "db_jobnexus";
+    session_start();
+    if($_SESSION['login']){
+        $serverName = "localhost";
+        $userName = "root";
+        $password = "";
+        $database = "db_jobnexus";
 
-    $connection = new mysqli($serverName, $userName, $password, $database);
-    $jobApplicationID = base64_decode($_GET['jaID']);
-    $jobPostingID = base64_decode($_GET['jpID']);
+        $connection = new mysqli($serverName, $userName, $password, $database);
+        $jobApplicationID = base64_decode($_GET['jaID']);
+        $jobPostingID = base64_decode($_GET['jpID']);
 
-    $sql = "SELECT C.jobTitle, B.firstName, B.lastName, B.emailAddress, B.phoneNumber, B.address, B.working_experience, B.resume, B.skills, A.salaryExpectation, A.availableDate, A.status, A.replies
-            FROM job_application A 
-            JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
-            JOIN job_posting C ON A.jobPostingID = C.jobPostingID
-            JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
-            WHERE A.applicationID = '$jobApplicationID'";
+        $sql = "SELECT C.jobTitle, B.firstName, B.lastName, B.emailAddress, B.phoneNumber, B.address, B.working_experience, B.resume, B.skills, A.salaryExpectation, A.availableDate, A.status, A.replies
+                FROM job_application A 
+                JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
+                JOIN job_posting C ON A.jobPostingID = C.jobPostingID
+                JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
+                WHERE A.applicationID = '$jobApplicationID'";
 
-    $result = $connection->query($sql);
-    $data =[];
-    while(($row = $result->fetch_assoc())==TRUE){
-        $data = $row;
-    }
+        $result = $connection->query($sql);
+        $data =[];
+        while(($row = $result->fetch_assoc())==TRUE){
+            $data = $row;
+        }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -111,7 +113,7 @@
                                 <select class="form-select" id="status" name="status">
                                     <option value=""> -- Please select a status. -- </option>
                                     <option value="Under Review" <?=$data['status']=="Under Review"? "selected":""?>>Under Review</option>
-                                    <option value="Pending" <?=$data['status']=="Pending"? "selected":""?>>Pending</option>
+                                    <option value="Rejected" <?=$data['status']=="Rejected"? "selected":""?>>Rejected</option>
                                     <option value="Success" <?=$data['status']=="Success"? "selected":""?>>Success</option>
                                 </select>
                                 <div class="invalid-feedback"></div>
@@ -150,6 +152,13 @@
     <script>
         let url = "job_application_controller.php";
 
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                submitConfirmation();
+            }
+        });
+        
         function backConfirmation(){
             Swal.fire({
                 title: "Are you sure to leave this page?",
@@ -219,3 +228,9 @@
 
     </script>
 </html>
+
+<?php
+    } else {
+        header("location: /jobnexus/employer/login.php");
+    }
+?>

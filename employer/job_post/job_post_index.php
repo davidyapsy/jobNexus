@@ -1,4 +1,6 @@
 <?php
+session_start();
+if($_SESSION['login']){
     $serverName = "localhost";
     $userName = "root";
     $password = "";
@@ -143,7 +145,7 @@
                                     data-style="zoom-in"
                                     onclick="print_report()">
                                 <span class="ladda-label">
-                                    <i class="bi bi-printer" aria-hidden="true"></i> Report
+                                    <i class="bi bi-file-bar-graph" aria-hidden="true"></i> Report
                                 </span>
                             </button>
                             <button type="button" class="btn btn-danger btn-round btn-sm"
@@ -190,6 +192,13 @@
             $( "#filterBtn" ).trigger( "click" );
         } );
 
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                load_data();
+            }
+        });
+
         function load_data(page_number = 1)
         {
             $.ajax({
@@ -214,6 +223,14 @@
                         {
                             for(var i = 0; i < records.length; i++)
                             {
+                                if(records[i].isPublish=="Unpublished"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-light text-dark'>Unpublished</span>" + "</td>" 
+                                }else if(records[i].isPublish=="Never Publish"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Never Publish</span>" + "</td>" 
+                                }
+                                else if(records[i].isPublish=="Published"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Published</span>" + "</td>" 
+                                }
                                 tableStringBuilder+=
                                 "  <tr>" +
                                 "        <th scope='row' class='text-center'>" + (((i+1)+page_number*5)-5) + ".</th>" +
@@ -222,7 +239,7 @@
                                 "        <td>" + records[i].locationState + "</td>" +
                                 "        <td>" + records[i].employmentType + "</td>" +
                                 "        <td>" + records[i].salary + "</td>" +
-                                "        <td class='text-center'>" + (records[i].isPublish=="Published"?"<span class='badge bg-success'>Published</span>":"<span class='badge bg-info'>Unpublished</span>") + "</td>" +
+                                statusLine+
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
@@ -344,3 +361,9 @@
         }
     </script>
 </html>
+
+<?php
+    } else {
+        header("location: /jobnexus/employer/login.php");
+    }
+?>

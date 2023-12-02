@@ -369,7 +369,7 @@ class BenefitOop
         $statement = $this->connection->query("SELECT count(*) as totalRecord
                                                 FROM benefit
                                                 WHERE employerID = '$employerID' AND isDeleted=0 ". $filter_options);
-                                                
+        
         while (($row = $statement->fetch_assoc()) == TRUE) {
             $total_data = $row['totalRecord'];
         }

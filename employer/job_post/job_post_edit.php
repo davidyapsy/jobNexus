@@ -1,36 +1,37 @@
 <?php
     session_start();
-    $serverName = "localhost";
-    $userName = "root";
-    $password = "";
-    $database = "db_jobnexus";
-    $employerID = base64_decode($_SESSION['employerID']);
+    if($_SESSION['login']){
+        $serverName = "localhost";
+        $userName = "root";
+        $password = "";
+        $database = "db_jobnexus";
+        $employerID = base64_decode($_SESSION['employerID']);
 
-    $connection = new mysqli($serverName, $userName, $password, $database);
-    $jobPostingID = base64_decode($_GET['id']);
-    $maxFeatureJobListing =$_SESSION['maxFeatureJobListing'];
+        $connection = new mysqli($serverName, $userName, $password, $database);
+        $jobPostingID = base64_decode($_GET['id']);
+        $maxFeatureJobListing =$_SESSION['maxFeatureJobListing'];
 
-    $sql = "SELECT *
-            FROM job_posting 
-            WHERE jobPostingID = '$jobPostingID' and employerID = '$employerID'";
+        $sql = "SELECT *
+                FROM job_posting 
+                WHERE jobPostingID = '$jobPostingID' and employerID = '$employerID'";
 
-    $result = $connection->query($sql);
-    $data =[];
-    while(($row = $result->fetch_assoc())==TRUE){
-        $data = $row;
-    }
+        $result = $connection->query($sql);
+        $data =[];
+        while(($row = $result->fetch_assoc())==TRUE){
+            $data = $row;
+        }
 
-    $sql = "SELECT sum(isFeatured) as totalFeatured
-                FROM job_posting
-                WHERE employerID = '$employerID' AND isDeleted=0";
+        $sql = "SELECT sum(isFeatured) as totalFeatured
+                    FROM job_posting
+                    WHERE employerID = '$employerID' AND isDeleted=0";
 
-    $result = $connection->query($sql);
-    $totalFeatured =0;
-    while(($row = $result->fetch_assoc())==TRUE){
-        $totalFeatured = $row['totalFeatured'];
-    }
+        $result = $connection->query($sql);
+        $totalFeatured =0;
+        while(($row = $result->fetch_assoc())==TRUE){
+            $totalFeatured = $row['totalFeatured'];
+        }
 
-    $availableFeature = $maxFeatureJobListing - $totalFeatured;
+        $availableFeature = $maxFeatureJobListing - $totalFeatured;
     
     
 ?>
@@ -123,7 +124,7 @@
                         <div class="form-group row">
                             <label for="experienceLevel" class="col-sm-3 col-form-label">Experience Level: <span class="required">*</span></label></label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="experienceLevel" id="experienceLevel" value="<?= $data['experienceLevel']?>"/>
+                                <input type="number" class="form-control" name="experienceLevel" id="experienceLevel" value="<?= $data['experienceLevel']?>" min="0"/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -175,7 +176,7 @@
                             <label for="applicationDeadline" class="col-sm-3 col-form-label">Application Deadline: </label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline" value="<?=$data['applicationDeadline']?>"  min="<?= date('Y-m-d'); ?>"/> 
+                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline" value="<?=$data['applicationDeadline']?>"  min="<?= date('Y-m-d'); ?>" max="<?= date('Y-m-d', strtotime('+31 days')); ?>"/> 
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
@@ -185,7 +186,7 @@
                             <label for="isPublish" class="col-sm-3 col-form-label">Publish Job Post: </label>
                             <div class="col-sm-9">
                                 <div class="form-control form-check form-switch border-0">
-                                    <input class="form-check-input" type="checkbox" id="chkIsPublish" <?=$data['isPublish']=="Published"?"checked":""?>
+                                    <input class="form-check-input" type="checkbox" id="chkIsPublish" <?=$data['isPublish']=="Published"?"checked":""?> 
                                         name="chkIsPublish" value="">
                                     <div class="invalid-feedback"></div>
                                 </div>
@@ -225,6 +226,13 @@
     <script>
         let url = "job_post_controller.php";
 
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                submitConfirmation();
+            }
+        });
+        
         $('#jobDescription, #jobRequirement, #jobHighlight').summernote({
             tabsize: 2,
             height: 300
@@ -268,16 +276,16 @@
                 contentType:"application/x-www-form-urlencoded",
                 data: {
                     mode: "check_validation",
+                    type: "update",
                     jobPostingID: $("#jobPostingID").val(),
                     jobCategoryID : $("#jobCategory").val(),
                     jobTitle: $("#jobTitle").val(),
                     jobDescription: $('#jobDescription').summernote('code'),
                     jobRequirement: $('#jobRequirement').summernote('code'),
-                    experienceLevel: $("#experienceLevel").val(),
                     locationState: $("#locationState").val(),
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
-                    isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : "Unpublished")
+                    isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : "")
                 }, success: function (response) {
                     const data = response;
                     if (data.status==false) {
@@ -314,7 +322,7 @@
                     salary: $("#salary").val(),
                     employmentType: $("#employmentType").val(),
                     applicationDeadline: $("#applicationDeadline").val(),
-                    isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : "Unpublished"),
+                    isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : ""),
                     publishDate: $("#publishDate").val(),
                     isFeatured: ($("#chkIsFeatured").is(':checked') ?  1 : 0)
                 }, success: function (response) {
@@ -346,3 +354,9 @@
 
     </script>
 </html>
+
+<?php
+    } else {
+        header("location: /jobnexus/employer/login.php");
+    }
+?>

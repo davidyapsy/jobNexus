@@ -1,26 +1,27 @@
 <?php
     session_start();
-    $serverName = "localhost";
-    $userName = "root";
-    $password = "";
-    $database = "db_jobnexus";
-    $employerID = base64_decode($_SESSION['employerID']);
+    if($_SESSION['login']){
+        $serverName = "localhost";
+        $userName = "root";
+        $password = "";
+        $database = "db_jobnexus";
+        $employerID = base64_decode($_SESSION['employerID']);
 
-    $connection = new mysqli($serverName, $userName, $password, $database);
-    $subscriptionID = base64_decode($_GET['id']);
+        $connection = new mysqli($serverName, $userName, $password, $database);
+        $subscriptionID = base64_decode($_GET['id']);
 
-    //employerID
-    $sql = "SELECT B.planName, B.description, B.price, B.validityPeriod, B.maxJobPosting, B.maxJobApplication, B.applicationRankingAvailability, 
-                    B.maxFeatureJobListing, A.startDate, A.endDate, A.isActive, B.subscriptionPlanID
-            FROM subscription A
-            JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID 
-            WHERE subscriptionID = '$subscriptionID' AND employerID = '$employerID' AND A.isActive = 1";
+        //employerID
+        $sql = "SELECT B.planName, B.description, B.price, B.validityPeriod, B.maxJobPosting, B.maxJobApplication, B.applicationRankingAvailability, 
+                        B.maxFeatureJobListing, A.startDate, A.endDate, A.isActive, B.subscriptionPlanID
+                FROM subscription A
+                JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID 
+                WHERE subscriptionID = '$subscriptionID' AND employerID = '$employerID'";
 
-    $result = $connection->query($sql);
-    $data =[];
-    while(($row = $result->fetch_assoc())==TRUE){
-        $data = $row;
-    }
+        $result = $connection->query($sql);
+        $data =[];
+        while(($row = $result->fetch_assoc())==TRUE){
+            $data = $row;
+        }
 
 ?>
 <!DOCTYPE html>
@@ -112,7 +113,7 @@
                         <div class="form-group row">
                             <label for="maxJobApplication" class="col-sm-3 col-form-label">Maximum Job Application: </label>
                             <div class="col-sm-9">
-                                <input type="number" class="form-control" name="maxJobApplication" id="maxJobApplication" value="<?= $data['maxJobApplication']?>" disabled/>
+                                <input type="text" class="form-control" name="maxJobApplication" id="maxJobApplication" value="<?= $data['maxJobApplication']?>" disabled/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -159,7 +160,9 @@
                         <hr>
                         <div class="form-group row">
                             <div class="col-md-12">
-                                <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Save</button>
+                                <?php if($data['isActive']==1){ ?>
+                                    <button type="button" onclick ="cancelConfirmation()" class="btn btn-warning" style="float:right;">Cancel Subscription</button>
+                                <?php } ?>
                                 <button type="button" onclick="backConfirmation()" class="btn btn-danger btn-outline">Back</button>
                             </div>
                         </div>
@@ -198,5 +201,60 @@
             });
         }
 
+        function cancelConfirmation(){
+            Swal.fire({
+                title: "Are you sure to cancel subscription?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    cancelSubs();
+                }
+            });
+        }
+
+        function cancelSubs() {
+            $.ajax({
+                type: "post",
+                url: url,
+                contentType:"application/x-www-form-urlencoded",
+                data: {
+                    mode: "update",
+                    subscriptionID: $("#subscriptionID").val(),
+                    isActive: 0
+                }, success: function (response) {
+                    const data = response;
+                    if (data.status) {
+                        Swal.fire({
+                            title: 'Cancelled!',
+                            text: 'Subscription plan cancelled',
+                            icon: 'success',
+                            confirmButtonText: 'Cool'
+                        }).then((result) => {
+                            window.location.href= "/jobnexus/employer/security/logout.php";
+                        });
+                        
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Please contact technical staff! ',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        })
+                    }
+                }, failure: function (xhr) {
+                    console.log(xhr.status);
+                }
+            })
+        }
+
     </script>
 </html>
+
+<?php
+    } else {
+        header("location: /jobnexus/employer/login.php");
+    }
+?>

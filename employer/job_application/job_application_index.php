@@ -1,23 +1,24 @@
 <?php
     session_start();
-    $serverName = "localhost";
-    $userName = "root";
-    $password = "";
-    $database = "db_jobnexus";
-    $employerID = base64_decode($_SESSION['employerID']);
+    if($_SESSION['login']){
+        $serverName = "localhost";
+        $userName = "root";
+        $password = "";
+        $database = "db_jobnexus";
+        $employerID = base64_decode($_SESSION['employerID']);
 
-    $connection = new mysqli($serverName, $userName, $password, $database);
-    $jobPostingID = base64_decode($_GET['id']);
+        $connection = new mysqli($serverName, $userName, $password, $database);
+        $jobPostingID = base64_decode($_GET['id']);
 
-    $sql = "SELECT jobTitle
-            FROM job_posting 
-            WHERE jobPostingID = '$jobPostingID' AND employerID = '$employerID'";
+        $sql = "SELECT jobTitle
+                FROM job_posting 
+                WHERE jobPostingID = '$jobPostingID' AND employerID = '$employerID'";
 
-    $result = $connection->query($sql);
-    $data =[];
-    while(($row = $result->fetch_assoc())==TRUE){
-        $data = $row;
-    }
+        $result = $connection->query($sql);
+        $data =[];
+        while(($row = $result->fetch_assoc())==TRUE){
+            $data = $row;
+        }
 ?>
 <html>
     <head>
@@ -57,14 +58,14 @@
                         <div class="col-9">
                             <h3>Job Application / <?=$data['jobTitle']?></h3>
                         </div>
-                        <div class="col-3 text-end">
+                        <!-- <div class="col-3 text-end">
                             <a href='job_application_db_access.php?id=<?= base64_encode($jobPostingID);?>'> 
                                 <button type='button' class='btn btn-primary btn-round'>
                                     <i class='bi bi-plus-lg' aria-hidden='true'></i>
                                     <span class='text hidden-md-down'> Potential Candidate </span>
                                 </button>
                             </a>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
@@ -113,7 +114,7 @@
                                     <select class="form-select" id="status" name="status">
                                         <option value="">All (Status)</option>
                                         <option value="Under Review">Under Review</option>
-                                        <option value="Pending">Pending</option>
+                                        <option value="Rejected">Rejected</option>
                                         <option value="Success">Success</option>
                                     </select>
                                 </div>                            
@@ -139,7 +140,7 @@
                                     data-style="zoom-in"
                                     onclick="print_report()">
                                 <span class="ladda-label">
-                                    <i class="bi bi-printer" aria-hidden="true"></i> Report
+                                    <i class="bi bi-file-bar-graph" aria-hidden="true"></i> Report
                                 </span>
                             </button>
                             <button type="button" class="btn btn-danger btn-round btn-sm"
@@ -186,6 +187,13 @@
             $( "#filterBtn" ).trigger( "click" );
         } );
 
+        window.addEventListener("keypress", function(event) {
+            // If the user presses the "Enter" key on the keyboard
+            if (event.key === "Enter") {
+                load_data();
+            }
+        });
+
         function load_data(page_number = 1)
         {
             $.ajax({
@@ -213,8 +221,8 @@
                                 var statusLine="";
                                 if(records[i].status=="Under Review"){
                                     statusLine="        <td class='text-center'>"+"<span class='badge bg-light text-dark'>Under Review</span>" + "</td>" 
-                                }else if(records[i].status=="Pending"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Pending</span>" + "</td>" 
+                                }else if(records[i].status=="Rejected"){
+                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Rejected</span>" + "</td>" 
                                 }
                                 else if(records[i].status=="Success"){
                                     statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Success</span>" + "</td>" 
@@ -296,3 +304,9 @@
         }
     </script>
 </html>
+
+<?php
+    } else {
+        header("location: /jobNexus/employer/login.php");
+    }
+?>

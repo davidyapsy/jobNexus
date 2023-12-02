@@ -413,6 +413,9 @@ class SubscriptionOop
             $this->model->setStartDate($startDate);
             $this->model->setEndDate($endDate);
             $this->setPaymentMethod($paymentMethod);
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
+            $this->model->setSubscriptionID($subscriptionID);
+            $this->model->setIsActive($isActive);
         }
     }
 
@@ -533,6 +536,7 @@ class SubscriptionOop
 
             $this->connection->commit();
 
+            //change
             $this->send_email($subscriptionID);
             echo json_encode(
                 [
@@ -580,22 +584,22 @@ class SubscriptionOop
             $filter_options.=" AND A.subscriptionPlanID = '$subscriptionPlanID'";
         }
         if($startDateFrom!= NULL){
-            $filter_options.=" AND A.startDate >= $startDateFrom";
+            $filter_options.=" AND A.startDate >= '$startDateFrom'";
         }
         if($startDateTo!= NULL){
-            $filter_options.=" AND A.startDate <= $startDateTo";
+            $filter_options.=" AND A.startDate <= '$startDateTo'";
         }
         if($endDateFrom!= NULL){
-            $filter_options.=" AND A.endDate >= $endDateFrom";
+            $filter_options.=" AND A.endDate >= '$endDateFrom'";
         }
         if($endDateTo!= NULL){
-            $filter_options.=" AND A.endDate <= $endDateTo";
+            $filter_options.=" AND A.endDate <= '$endDateTo'";
         }
         if($isActive!=2){
-            $filter_options.=" AND A.isActive = '$isActive'";
+            $filter_options.=" AND A.isActive = $isActive";
         }
         $sql.=$filter_options;
-
+        // echo $sql;
         $total_data=0;
         $statement = $this->connection->query("SELECT count(*) as totalRecord
                                                 FROM subscription A
@@ -1013,41 +1017,44 @@ class SubscriptionOop
     }
 
 }
+if($_SESSION['login']){
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript given cors error
 
-header('Content-Type: application/json');
-header("Access-Control-Allow-Origin: *"); // this is to prevent from javascript given cors error
+    $mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
 
-$mode = filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING);
-
-$subscriptionOop = new SubscriptionOop();
-try {
-    switch ($mode) {
-        case  "create":
-            $subscriptionOop->create();
-            break;
-        case  "search":
-            $subscriptionOop->search();
-            break;
-        case  "update":
-            $subscriptionOop->update();
-            break;
-        case  "delete":
-            $subscriptionOop->delete();
-            break;
-        case "check_validation":
-            $subscriptionOop->check_validation();
-            break;
-        case "make_payment":
-            $subscriptionOop->make_payment();
-            break;
-        default:
-            throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
-            break;
+    $subscriptionOop = new SubscriptionOop();
+    try {
+        switch ($mode) {
+            case  "create":
+                $subscriptionOop->create();
+                break;
+            case  "search":
+                $subscriptionOop->search();
+                break;
+            case  "update":
+                $subscriptionOop->update();
+                break;
+            case  "delete":
+                $subscriptionOop->delete();
+                break;
+            case "check_validation":
+                $subscriptionOop->check_validation();
+                break;
+            case "make_payment":
+                $subscriptionOop->make_payment();
+                break;
+            default:
+                throw new Exception(ReturnCode::ACCESS_DENIED_NO_MODE, ReturnCode::ACCESS_DENIED);
+                break;
+        }
+    } catch (Exception $exception) {
+        echo json_encode([
+            "status" => false,
+            "message" => "post".$exception->getMessage(),
+            "code" => $exception->getCode()
+        ]);
     }
-} catch (Exception $exception) {
-    echo json_encode([
-        "status" => false,
-        "message" => "post".$exception->getMessage(),
-        "code" => $exception->getCode()
-    ]);
+}else{
+    header("location: /jobnexus/employer/login.php");
 }

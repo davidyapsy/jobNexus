@@ -1,22 +1,23 @@
 <?php
     session_start();
-    $serverName = "localhost";
-    $userName = "root";
-    $password = "";
-    $database = "db_jobnexus";
-    $employerID = base64_decode($_SESSION['employerID']);
+    if($_SESSION['login']){
+        $serverName = "localhost";
+        $userName = "root";
+        $password = "";
+        $database = "db_jobnexus";
+        $employerID = base64_decode($_SESSION['employerID']);
 
-    $connection = new mysqli($serverName, $userName, $password, $database);
+        $connection = new mysqli($serverName, $userName, $password, $database);
 
-    //employerID
-    $sql = "SELECT A.jobPostingID, A.jobTitle, B.categoryName, A.employmentType, A.locationState, A.isPublish
-            FROM job_posting A
-            JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
-            WHERE A.employerID = '$employerID' AND A.isDeleted = 0
-            GROUP BY A.jobPostingID, A.jobTitle, B.categoryName, A.employmentType, A.locationState, A.isPublish";
+        //employerID
+        $sql = "SELECT A.jobPostingID, A.jobTitle, B.categoryName, A.employmentType, A.locationState, A.isPublish
+                FROM job_posting A
+                JOIN job_category B ON A.jobCategoryID = B.jobCategoryID
+                WHERE A.employerID = '$employerID' AND A.isDeleted = 0
+                GROUP BY A.jobPostingID, A.jobTitle, B.categoryName, A.employmentType, A.locationState, A.isPublish";
 
-    $result = $connection->query($sql);
-    if($result->num_rows >0){
+        $result = $connection->query($sql);
+            if($result->num_rows >0){
 ?>
 <!DOCTYPE html>
 <html>
@@ -80,7 +81,15 @@
                                         </tbody>
                                         <tfoot class="text-end">
                                             <tr>
-                                                <td><h4 class="<?= $row['isPublish']=="Published"?"text-success":"text-secondary"?>"><?= $row['isPublish']?></h4></td>
+                                                <?php if($row['isPublish']=="Unpublished"){
+                                                    echo "<td><h4><span class='badge bg-light text-dark'>Unpublished</span></h4></td>";
+                                                }else if($row['isPublish']=="Never Publish"){
+                                                    echo "<td><h4><span class='badge bg-warning'>Never Publish</span></h4></td>";
+                                                }
+                                                else if($row['isPublish']=="Published"){
+                                                    echo "<td><h4><span class='badge bg-success'>Published</span></h4></td>";
+                                                }
+                                                ?>
                                             </tr>
                                         </tfoot>
                                     </table>    
@@ -156,4 +165,9 @@
 
     </body>
 </html>
-<?php } ?>
+<?php 
+        } 
+    } else {
+        header("location: /jobNexus/employer/login.php");
+    }
+?>
