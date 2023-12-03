@@ -5,6 +5,7 @@ if($_SESSION['login']){
     $userName = "root";
     $password = "";
     $database = "db_jobnexus";
+    $subscriptionID = $_SESSION['subscriptionID'];
 
     $connection = new mysqli($serverName, $userName, $password, $database);
 
@@ -241,18 +242,30 @@ if($_SESSION['login']){
                                 "        <td>" + records[i].salary + "</td>" +
                                 statusLine+
                                 "" +
-                                "        <td class='text-center'>" +
-                                "          <div class=\"btn-group\">" +
-                                "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
-                                "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
-                                "                 <i class=\"bi bi-pencil\"></i>" +
-                                "               </button>"+
-                                "             </a>" +
-                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].jobPostingID)) + "')\" class=\"btn btn-sm btn-danger\">" +
-                                "              <i class=\"bi bi-trash\"></i>" +
-                                "            </button>" +
-                                "          </div>" +
-                                "        </td>" +
+                                <?php if($subscriptionID != ""){ ?>
+                                    "        <td class='text-center'>" +
+                                    "          <div class=\"btn-group\">" +
+                                    "             <a href=\"job_post_edit.php?id="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
+                                    "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
+                                    "                 <i class=\"bi bi-pencil\"></i>" +
+                                    "               </button>"+
+                                    "             </a>" +
+                                    "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].jobPostingID)) + "')\" class=\"btn btn-sm btn-danger\">" +
+                                    "              <i class=\"bi bi-trash\"></i>" +
+                                    "            </button>" +
+                                    "          </div>" +
+                                    "        </td>" +
+                                <?php } else { ?>
+                                    "        <td class='text-center'>" +
+                                    "          <div class=\"btn-group\">" +
+                                    "             <a href=\"job_post_view.php?id="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
+                                    "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
+                                    "                 <i class=\"bi bi-eye\"></i>" +
+                                    "               </button>"+
+                                    "             </a>" +
+                                    "          </div>" +
+                                    "        </td>" +
+                                <?php } ?>
                                 "      </tr>" +
                                 "";
                             }

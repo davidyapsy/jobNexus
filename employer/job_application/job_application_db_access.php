@@ -1,24 +1,24 @@
 <?php
-    $serverName = "localhost";
-    $userName = "root";
-    $password = "";
-    $database = "db_jobnexus";
+session_start();
+    if($_SESSION['login']){
+        $serverName = "localhost";
+        $userName = "root";
+        $password = "";
+        $database = "db_jobnexus";
+        $employerID = base64_decode($_SESSION['employerID']);
 
-    $connection = new mysqli($serverName, $userName, $password, $database);
-    $jobPostingID = base64_decode($_GET['id']);
+        $connection = new mysqli($serverName, $userName, $password, $database);
+        $jobPostingID = base64_decode($_GET['id']);
 
-    $sql = "SELECT C.jobTitle, B.firstName, B.lastName, B.emailAddress, B.working_experience, A.availableDate, A.status
-            FROM job_application A 
-            JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
-            JOIN job_posting C ON A.jobPostingID = C.jobPostingID
-            JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
-            WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = 'E2300000'";
+        $sql = "SELECT jobTitle
+                FROM job_posting 
+                WHERE jobPostingID = '$jobPostingID' AND employerID = '$employerID'";
 
-    $result = $connection->query($sql);
-    $data =[];
-    while(($row = $result->fetch_assoc())==TRUE){
-        $data = $row;
-    }
+        $result = $connection->query($sql);
+        $data =[];
+        while(($row = $result->fetch_assoc())==TRUE){
+            $data = $row;
+        }
 ?>
 <html>
     <head>
@@ -88,28 +88,20 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="skills" name="skills" placeholder="Skills">
+                                    <input type="text" class="form-control" id="educationLevel" name="educationLevel" placeholder="Education Level">
                                 </div>                          
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i>More than or equals to (RM)</i>
-                                    </span>
-                                    <input type="number" class="form-control" id="salaryExpectation" name="salaryExpectation" value="0" title="SalaryExpectation" min="0">
+                                    <input type="text" class="form-control" id="fieldOfStudy" name="fieldOfStudy" placeholder="Field Of Study">
                                 </div>                          
                             </div>
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    <select class="form-select" id="status" name="status">
-                                        <option value="">All (Status)</option>
-                                        <option value="Under Review">Under Review</option>
-                                        <option value="Rejected">Rejected</option>
-                                        <option value="Success">Success</option>
-                                    </select>
-                                </div>                            
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="institution" name="institution" placeholder="Institution">
+                                </div>                          
                             </div>
                         </div>
                         <div class="text-center">
@@ -141,16 +133,14 @@
                                     <th class="text-center" scope="col" style="width:20%;">Job Seeker Name</th>
                                     <th class="text-center" scope="col" style="width:15%;">Address</th>
                                     <th class="text-center" scope="col" style="width:15%;">Working Year(s)</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Skills</th>
-                                    <th class="text-center" scope="col" style="width:15%;">Salary Expectation</th>
-                                    <th class="text-center" scope="col" style="width:10%;">Status</th>
-                                    <th class="text-center" scope="col"><i class="bi bi-lightning-charge-fill"></i></th>
+                                    <th class="text-center" scope="col" style="width:15%;">Education Level</th>
+                                    <th class="text-center" scope="col" style="width:15%;">Field Of Study</th>
+                                    <th class="text-center" scope="col" style="width:10%;">Institution</th>
                                 </tr>
                             </thead>
                             <tbody id="filtered_data">
                             </tbody>
                         </table>
-                        <div id="pagination_link"></div>
                     </div>
 
                 </div>
@@ -178,15 +168,14 @@
                 url: url,
                 contentType: "application/x-www-form-urlencoded",
                 data: {
-                    mode: "search",
+                    mode: "db_access",
                     jobPostingID: $('#jobPostingID').val(),
                     jobSeekerName: $("#jobSeekerName").val(),
                     address: $("#address").val(),
                     workingExperience: $("#workingExperience").val(),
-                    skills: $("#skills").val(),
-                    salaryExpectation: $("#salaryExpectation").val(),
-                    status: $("#status").val(),
-                    page: page_number
+                    educationLevel: $("#educationLevel").val(),
+                    fieldOfStudy: $("#fieldOfStudy").val(),
+                    institution: $("#institution").val()
                 }, success: function (response) {
                     const data = response;
                     if (data.status) {
@@ -195,35 +184,22 @@
                         if(response.data.length > 0)
                         {
                             for(var i = 0; i < records.length; i++){
-                                var statusLine="";
-                                if(records[i].status=="Under Review"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-light text-dark'>Under Review</span>" + "</td>" 
-                                }else if(records[i].status=="Rejected"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-warning'>Rejected</span>" + "</td>" 
-                                }
-                                else if(records[i].status=="Success"){
-                                    statusLine="        <td class='text-center'>"+"<span class='badge bg-success'>Success</span>" + "</td>" 
-                                }
                                 tableStringBuilder+=
                                 "  <tr>" +
-                                "        <th scope='row' class='text-center'>" + (((i+1)+page_number*5)-5) + ".</th>" +
+                                "        <th scope='row' class='text-center'>" + (i+1) + ".</th>" +
                                 "        <td>" + records[i].jobSeekerName + "</td>" +
                                 "        <td>" + records[i].address + "</td>" +
-                                "        <td>" + records[i].working_experience + " Year(s)" + "</td>" +
-                                "        <td>" + records[i].skills + "</td>" +
-                                "        <td>" + records[i].salaryExpectation + "</td>" +
-                                statusLine +
-                                "" +
-                                "        <td class='text-center'>" +
-                                "          <div class=\"btn-group\">" +
-                                "             <a href=\"job_application_edit.php?jaID="+ encodeURI(btoa(records[i].applicationID)) +"&jpID="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
-                                "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
-                                "                 <i class=\"bi bi-pencil\"></i>" +
+                                "        <td>" + records[i].working_experience + " Year(s) </td>" +
+                                "        <td>" + records[i].education_level + "</td>" +
+                                "        <td>" + records[i].field_of_study + "</td>" +
+                                "        <td>" + records[i].institution + "</td>" +
+                                "        <td>  <a href=\"potential_candidate_view.php?jsID="+ encodeURI(btoa(records[i].jobSeekerID)) +"&jpID="+ "<?=base64_encode($jobPostingID)?>" + "\">"+
+                                "               <button type=\"button\"  title=\"view\" class=\"btn btn-sm btn-warning mx-1\">" +
+                                "                 <i class=\"bi bi-eye\"></i>" +
                                 "               </button>"+
-                                "             </a>" +
-                                "          </div>" +
-                                "        </td>" +
-                                "      </tr>" +
+                                "        </td> </a>" +
+                                "" +
+                                "  </tr>" +
                                 "";
                             }
                         }
@@ -232,7 +208,6 @@
                             tableStringBuilder += '<tr><td colspan="7" class="text-center">No Data Found</td></tr>';
                         }
                         tbody.html("").html(tableStringBuilder);
-                        $('#pagination_link').html(response.pagination);
                     } else {
                         console.log("something wrong");
                     }
@@ -250,26 +225,28 @@
         }
 
         function export_to_excel(){
+            var jobPostingID =  $("#jobPostingID").val();
             var jobSeekerName= $("#jobSeekerName").val();
             var address= $("#address").val();
             var workingExperience= $("#workingExperience").val();
-            var skills= $("#skills").val();
-            var salaryExpectation= $("#salaryExpectation").val();
-            var status= $("#status").val();
+            var educationLevel= $("#educationLevel").val();
+            var fieldOfStudy= $("#fieldOfStudy").val();
+            var institution= $("#institution").val();
             $.ajax({
                 type: "post",
-                url: "job_application_export.php",
+                url: "potential_candidate_export.php",
                 contentType: "application/x-www-form-urlencoded",
                 data: {
+                    jobPostingID: jobPostingID,
                     jobSeekerName: jobSeekerName,
                     address: address,
                     workingExperience: workingExperience,
-                    skills: skills,
-                    availableDateTo: availableDateTo,
-                    status: status
+                    educationLevel: educationLevel,
+                    fieldOfStudy: fieldOfStudy,
+                    institution: institution
                 },success: function(dataResult){
-                    window.open('job_application_export.php?jobSeekerName='+jobSeekerName+'&address='+address+'&workingExperience='+workingExperience
-                    +'&skills='+skills+'&salaryExpectation='+salaryExpectation+'&status='+status);
+                    window.open('potential_candidate_export.php?id='+jobPostingID+'&jobSeekerName='+jobSeekerName+'&address='+address+'&workingExperience='+workingExperience
+                    +'&educationLevel='+educationLevel+'&fieldOfStudy='+fieldOfStudy+'&institution='+institution);
                 }, failure: function(xhr){
                     console.log(xhr);
                 }
@@ -277,3 +254,7 @@
         }
     </script>
 </html>
+
+<?php } else {
+    header("location: /jobnexus/employer/login/php");
+} ?>

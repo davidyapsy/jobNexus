@@ -1,4 +1,6 @@
 <?php
+session_start();
+    $subscriptionID = ($_SESSION['subscriptionID']);
     $serverName = "localhost";
     $userName = "root";
     $password = "";
@@ -45,14 +47,16 @@
                         <div class="col-11">
                             <h3>Benefit</h3>
                         </div>
-                        <div class="col" >
-                            <a href='benefit_add.php'> 
-                                <button type='button' class='btn btn-primary btn-round'>
-                                    <i class='bi bi-plus-lg' aria-hidden='true'></i>
-                                        <span class='text hidden-md-down'> Add </span>
-                                </button>
-                            </a>
-                        </div>
+                        <?php if($subscriptionID!=""){ ?>
+                            <div class="col" >
+                                <a href='benefit_add.php'> 
+                                    <button type='button' class='btn btn-primary btn-round'>
+                                        <i class='bi bi-plus-lg' aria-hidden='true'></i>
+                                            <span class='text hidden-md-down'> Add </span>
+                                    </button>
+                                </a>
+                            </div>
+                        <?php } ?>
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
@@ -160,18 +164,30 @@
                                 "        <td>" + records[i].benefitDescription+ "</td>" +
                                 "        <td class='text-center'><h5><span class='badge bg-primary'> <i class='bi " + records[i].icon + "'></i></span></h5></td>" +
                                 "" +
-                                "        <td class='text-center'>" +
-                                "          <div class=\"btn-group\">" +
-                                "             <a href=\"benefit_edit.php?id="+ encodeURI(btoa(records[i].benefitID)) + "\">"+
-                                "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
-                                "                 <i class=\"bi bi-pencil\"></i>" +
-                                "               </button>"+
-                                "             </a>" +
-                                "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].benefitID)) + "')\" class=\"btn btn-sm btn-danger\">" +
-                                "              <i class=\"bi bi-trash\"></i>" +
-                                "            </button>" +
-                                "          </div>" +
-                                "        </td>" +
+                                <?php if($subscriptionID!=""){ ?>
+                                    "        <td class='text-center'>" +
+                                    "          <div class=\"btn-group\">" +
+                                    "             <a href=\"benefit_edit.php?id="+ encodeURI(btoa(records[i].benefitID)) + "\">"+
+                                    "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
+                                    "                 <i class=\"bi bi-pencil\"></i>" +
+                                    "               </button>"+
+                                    "             </a>" +
+                                    "            <button type=\"button\" title=\"delete\" onclick=\"deleteRecord('" + encodeURI(btoa(records[i].benefitID)) + "')\" class=\"btn btn-sm btn-danger\">" +
+                                    "              <i class=\"bi bi-trash\"></i>" +
+                                    "            </button>" +
+                                    "          </div>" +
+                                    "        </td>" +
+                                <?php } else { ?>
+                                    "        <td class='text-center'>" +
+                                    "          <div class=\"btn-group\">" +
+                                    "             <a href=\"benefit_view.php?id="+ encodeURI(btoa(records[i].benefitID)) + "\">"+
+                                    "               <button type=\"button\"  title=\"view\" class=\"btn btn-sm btn-warning mx-1\">" +
+                                    "                 <i class=\"bi bi-eye\"></i>" +
+                                    "               </button>"+
+                                    "             </a>" +
+                                    "          </div>" +
+                                    "        </td>" +
+                                <?php } ?>
                                 "      </tr>" +
                                 "";
                             }

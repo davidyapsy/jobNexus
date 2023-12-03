@@ -8,6 +8,7 @@ if (isset($_GET['id'])) {
     $encodedJobPostingID = $_GET['id'];
     $jobPostingID = base64_decode($encodedJobPostingID);
 
+
     $sql="SELECT `job_posting`.*, `employer`.*, `benefit`.*
         FROM `job_posting`
         JOIN `employer` ON `job_posting`.`employerID` = `employer`.`employerID`
@@ -24,12 +25,17 @@ if (isset($_GET['id'])) {
         $benefits[] = array("benefitTitle"=>$rowX['benefitTitle'], "benefitDescription"=>$rowX['benefitDescription'], "icon"=>$rowX['icon']);
         $row=$rowX;
     }
-    
-
 } else {
     // if 'id' parameter is missing
     echo "<script>alert('Invalid URL. Please go back and try again.'); window.location.href = 'job.php';</script>";
 }
+
+$receivedData = isset($_GET['data']) ? $_GET['data'] : false;
+$errorMsg = isset($_GET['errorMsg']) ? $_GET['errorMsg'] : "";
+
+//for apply job successfully
+$valid = isset($_GET['valid']) ? $_GET['valid'] : false;
+$msg = isset($_GET['msg']) ? $_GET['msg'] : "";
 ?>
 <!DOCTYPE html>
 <!--
@@ -42,15 +48,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Project/PHP/PHPProject.php to edi
         <link rel="icon" type="image/x-icon" href="..\Pic/JobNexus_Logo.png">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"> -->
-        <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script> -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">  
         <link href="https://cdn.jsdelivr.net/npm/sweetalert@11.1.9/dist/sweetalert2.min.css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
-
         <style>
             .topnav{
                 background-color: white;
@@ -69,10 +72,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Project/PHP/PHPProject.php to edi
             }
             .topnavright{
                 float: right ; 
-            }
-            .topnavright button{
-                border: none;
-                background-color: white;
             }
             .btn, .applybtn{
                 background-color: #BABBDE;
@@ -142,8 +141,47 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Project/PHP/PHPProject.php to edi
     </head>
     
     <body style="background-color:#dfe2e6;">
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.all.min.js"></script>
+        <script type="text/javascript">
+            function showAlert(message) {
+                Swal.fire({
+                    title: "Error!",
+                    text: message,
+                    icon: "error"
+                });
+            }
+            
+            function success(msg){
+                Swal.fire({
+                      title: "Yay!",
+                      text: msg,
+                      icon: "success"
+                });
+            }
+
+            // Reset the data parameter in the URL when the page is loaded
+            $(document).ready(function() {
+                var url = new URL(window.location.href);
+                url.searchParams.delete('data');
+                url.searchParams.delete('valid');
+                var newUrl = url.toString();
+                history.replaceState({}, '', newUrl);
+
+            // Trigger the alert if data was received
+            <?php if($receivedData): ?>
+                showAlert('<?php echo $errorMsg; ?>');
+            <?php endif; ?>
+
+            // Trigger the alert if password changed 
+            <?php if($valid): ?>
+                success('<?php echo $msg; ?>');
+            <?php endif; ?>
+            });
+        </script>
+        
         <div class="topnav">
-            <a class="active" href="../index.php"><h5>Job Nexus</h5></a>
+            <a class="active" href="..\index.php"><h5>Job Nexus</h5></a>
             <a href="job.php">Jobs</a>
             <a href="companies.php">Companies</a>
                 <div class="topnavright">
@@ -223,8 +261,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Project/PHP/PHPProject.php to edi
                                         <?php }?>
                                     </tbody>
 
-                                </table>
-                                       
+                                </table>  
                                 <hr>
                                 
                                 <div class="extraInfo">
@@ -249,12 +286,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Project/PHP/PHPProject.php to edi
                         </div>
 
                         <div class="applyBox justify-content-center d-flex col-3 p-3">
-                            <form action="..\jobApplyFunctions.php" method="post" onsubmit="return submitApplication();" id="apply-form">
-                                <!-- Hidden input for jobPostingID and pop up window, to pass the id to php file -->
+                            <form action="applyJob.php" method="post" onsubmit="return submitApplication();" id="apply-form">
+                                <!-- hidden input for jobPostingID -->
                                 <input type="hidden" name="jobPostingID" value="<?= $row['jobPostingID'] ?>">
-                                <input type="hidden" name="coverLetterSummary" id="hidden-coverLetter" value="">
-                                <input type="hidden" name="salaryExpectation" id="hidden-salaryExpectation" value="">
-                                <input type="hidden" name="availableDate" id="hidden-availableDate" value="">
                                 <div>
                                     <img src="..\Pic/salary.png" alt="Salary" height="35" width="35">
                                     <label class="p-2 fw-bold">RM <?= $row['salary']?></label>
@@ -268,7 +302,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Project/PHP/PHPProject.php to edi
                                     <label class="p-2 fw-bold"><?= $row['employmentType']?></label>
                                 </div>
                                 
-                                <input type="submit" name="applyJob" class="applybtn mt-3 fw-bold" value="Apply Now">
+                                <input type="submit" name="next" class="applybtn mt-3 fw-bold" value="Apply Now">
                             </form>
                         </div>
                        
@@ -290,88 +324,92 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Project/PHP/PHPProject.php to edi
                     window.location.href = '../LoginRegister/login.php';
                 });
                 return false; // Prevent the form submission
-            }
-
-            // Collect existing form data
-            const formData = new FormData(document.getElementById('apply-form'));
-
-            Swal.fire({
-                title: "Almost there!",
-                html: `
-                    <p>Please enter the details below to submit the application.</p>
-                    <div style="display: flex; flex-direction: column;">
-                        <label for="coverLetter">Cover Letter: </label>
-                        <textarea id="coverLetter" class="swal2-input" required style="font-size: 14px;"></textarea>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column;">
-                        <label for="salaryExpectation">Salary Expectation(RM): </label>
-                        <input id="salaryExpectation" type="number" class="swal2-input" required style="font-size: 14px;">
-                    </div>
-
-                    <div style="display: flex; flex-direction: column;">
-                        <label for="availableDate">Availability Date: </label>
-                        <input id="availableDate" type="date" class="swal2-input" required style="font-size: 14px;">
-                    </div>
-                `,
-                focusConfirm: false,
-                preConfirm: () => {
-                    // Validate the inputs
-                    const coverLetter = document.getElementById("coverLetter").value;
-                    const salaryExpectation = document.getElementById("salaryExpectation").value;
-                    const availableDate = document.getElementById("availableDate").value;
-
-                    if (!coverLetter || !salaryExpectation || !availableDate) {
-                        Swal.showValidationMessage(`Please fill in all fields.`);
-                        return false;
-                    }
-
-                    // Update form fields with new values
-                    formData.set("coverLetterSummary", coverLetter);
-                    formData.set("salaryExpectation", salaryExpectation);
-                    formData.set("availableDate", availableDate);
-
-                    return [coverLetter, salaryExpectation, availableDate];
-                }
-            }).then((result) => {
-                // Check if the formValues are available and not empty
-                if (result.value && result.value.length > 0) {
-                    // Update the hidden inputs with new values
-                    document.getElementById("hidden-coverLetter").value = result.value[0];
-                    document.getElementById("hidden-salaryExpectation").value = result.value[1];
-                    document.getElementById("hidden-availableDate").value = result.value[2];
-
-                    // Submit the form using fetch
-                    fetch('../jobApplyFunctions.php', {
-                        method: 'POST',
-                        body: formData,
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Handle the response from jobApplication.php
-                        Swal.fire({
-                            title: data.success ? "Application Submitted!" : "Application failed!",
-                            text: data.success ? "You may check the status in your profile." : "Please try again.",
-                            icon: data.success ? "success" : "error"
-                        }).then(() => {
-                            // Redirect to the job.php page or another page as needed
-                            if (data.success) {
-                                window.location.href = 'JobSearch/job.php';
-                            } else {
-                                // Handle the case where the application failed
-                                // You can add additional logic or show another message if needed
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error:', error)
-                    });
-                }
-            });
-
-            // Prevent the default form submission
-            return false;
+            };
         }
+
+//            // Collect existing form data
+//            const formData = new FormData(document.getElementById('apply-form'));
+//
+//            Swal.fire({
+//                title: "Almost there!",
+//                html: `
+//                    <p>Please enter the details below to submit the application.</p>
+//                    <div style="display: flex; flex-direction: column;">
+//                        <label for="coverLetter">Cover Letter: </label>
+//                        <textarea id="coverLetter" class="swal2-input" required style="font-size: 14px;"></textarea>
+//                    </div>
+//
+//                    <div style="display: flex; flex-direction: column;">
+//                        <label for="salaryExpectation">Salary Expectation(RM): </label>
+//                        <input id="salaryExpectation" type="number" class="swal2-input" required style="font-size: 14px;">
+//                    </div>
+//
+//                    <div style="display: flex; flex-direction: column;">
+//                        <label for="availableDate">Availability Date: </label>
+//                        <input id="availableDate" type="date" class="swal2-input" required style="font-size: 14px;">
+//                    </div>
+//                `,
+//                focusConfirm: false,
+//                preConfirm: () => {
+//                    // Validate the inputs
+//                    const coverLetter = document.getElementById("coverLetter").value;
+//                    const salaryExpectation = document.getElementById("salaryExpectation").value;
+//                    const availableDate = document.getElementById("availableDate").value;
+//
+//                    if (!coverLetter || !salaryExpectation || !availableDate) {
+//                        Swal.showValidationMessage(`Please fill in all fields.`);
+//                        return false;
+//                    }
+//
+//                    // Update form fields with new values
+//                    formData.set("coverLetterSummary", coverLetter);
+//                    formData.set("salaryExpectation", salaryExpectation);
+//                    formData.set("availableDate", availableDate);
+//
+//                    return [coverLetter, salaryExpectation, availableDate];
+//                }
+//            }).then((result) => {
+//                // Check if the formValues are available and not empty
+//                if (result.value && result.value.length > 0) {
+//                    // Update the hidden inputs with new values
+//                    document.getElementById("hidden-coverLetter").value = result.value[0];
+//                    document.getElementById("hidden-salaryExpectation").value = result.value[1];
+//                    document.getElementById("hidden-availableDate").value = result.value[2];
+//
+//                    // Submit the form using fetch
+//    fetch('jobApplyFunctions.php', {
+//        method: 'POST',
+//        body: formData,
+//    })
+//    .then(response => response.json())
+//    .then(data => {
+//        // Handle the response from jobApplyFunctions.php
+//        Swal.fire({
+//            title: data.success ? "Application Submitted!" : "Application failed!",
+//            text: data.success ? "You may check the status in your profile." : "Please try again.",
+//            icon: data.success ? "success" : "error"
+//        }).then(() => {
+//            // Redirect to the job.php page or another page as needed
+//            if (data.success) {
+//                window.location.href = 'JobSearch/job.php';
+//            } else {
+//                // Handle the case where the application failed
+//                // You can add additional logic or show another message if needed
+//            }
+//        });
+//    })
+//    .catch(error => {
+//        console.error('Error:', error);
+//    });
+//
+//    // Prevent the default form submission
+//    return true;
+//                }
+//            });
+//
+//            // Prevent the default form submission
+//            return false;
+//        }
 
         </script>
     </body>

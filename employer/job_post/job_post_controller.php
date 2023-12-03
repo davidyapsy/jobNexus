@@ -832,6 +832,7 @@ class JobPostingOop
         $employmentType = $this->model->getEmploymentType();
         $applicationDeadline= $this->model->getApplicationDeadline();
         $isPublish= $this->model->getIsPublish();
+        $isFeatured= $this->model->getIsFeatured();
         $publishDate = $this->model->getPublishDate();
         $isDeleted=0;
         $newID = $jobPostingID;
@@ -880,11 +881,11 @@ class JobPostingOop
         if (strlen($jobCategoryID) > 0 &&  strlen($jobTitle) > 0 &&  strlen($jobDescription) > 0 &&  strlen($jobRequirement) > 0 &&  strlen($locationState) > 0 &&  strlen($employmentType) > 0) {
             $statement = $this->connection->prepare("UPDATE job_posting 
                                                     SET jobPostingID = ?, jobCategoryID = ?, jobTitle = ?, jobDescription = ?, jobRequirement = ?, jobHighlight = ?, experienceLevel = ?, locationState = ?, salary = ?,
-                                                        employmentType = ?, applicationDeadline = ?, isPublish = ?, publishDate = ?, isDeleted = ?
+                                                        employmentType = ?, applicationDeadline = ?, isPublish = ?, publishDate = ?, isFeatured = ?, isDeleted = ?
                                                     WHERE employerID = ? AND jobPostingID = ?");
 
-            $statement->bind_param("ssssssisdssssiss", $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, $salary, $employmentType,
-                                                        $applicationDeadline, $isPublish, $publishDate, $isDeleted, $employerID, $jobPostingID);
+            $statement->bind_param("ssssssisdssssiiss", $newID, $jobCategoryID, $jobTitle, $jobDescription, $jobRequirement, $jobHighlight, $experienceLevel, $locationState, $salary, $employmentType,
+                                                        $applicationDeadline, $isPublish, $publishDate, $isFeatured, $isDeleted, $employerID, $jobPostingID);
 
             try {
                 $statement->execute();
@@ -986,17 +987,21 @@ class JobPostingOop
             $datas[$i]['errorMessage']="Employment Type is required";
             $i++;
         }
-        if($isPublish == "Published" && $applicationDeadline < date("Y-m-d")){
-            $datas[$i]['inputName']="applicationDeadline";
-            $datas[$i]['errorMessage']="Application Deadline must be larger than today's date";
-            $i++;
-        }
+        
+        //Publish before
         if($type == "update"){
-            if(substr($jobPostingID, 2, 6)!="700101" && $isPublish == "Published"){
+            $todaysDate = date('Y-m-d');
+            if(substr($jobPostingID, 2, 6)!="700101" && $isPublish == "Published" && $todaysDate > $applicationDeadline){
                 $datas[$i]['inputName']="chkIsPublish";
                 $datas[$i]['errorMessage']="This job has been posted before, Please create another job";
                 $i++;
             }
+        }
+        //Never publish
+            if($isPublish == "Published" && $applicationDeadline < date("Y-m-d")){ 
+            $datas[$i]['inputName']="applicationDeadline";
+            $datas[$i]['errorMessage']="Application Deadline must be larger than or equals to today's date";
+            $i++;
         }
 
         if($i>0){

@@ -64,21 +64,21 @@
                         <div class="form-group row">
                             <label for="benefitTitle" class="col-sm-3 col-form-label">Benefit Title: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="benefitTitle" id="benefitTitle" value="<?=$data['benefitTitle']?>"/>
+                                <input type="input" class="form-control" name="benefitTitle" id="benefitTitle" value="<?=$data['benefitTitle']?>" disabled/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="benefitDescription" class="col-sm-3 col-form-label">Benefit Description: </label>
                             <div class="col-sm-9">
-                                <textarea class="form-control" name="benefitDescription" id="benefitDescription" rows="4" placeholder="Max 200 characters" maxlength="200"><?=$data['benefitDescription']?></textarea>
+                                <textarea class="form-control" name="benefitDescription" id="benefitDescription" rows="4" placeholder="Max 200 characters" maxlength="200" disabled><?=$data['benefitDescription']?></textarea>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="icon" class="col-sm-3 col-form-label">Icon:</label>
                             <div class="col-sm-9">
-                                <select class="form-select" id="icon" name="icon">
+                                <select class="form-select" id="icon" name="icon" disabled>
                                     <option value=""> -- Please select an icon. -- </option>
                                     <option value="bi-heart-pulse" <?=$data['icon']=='bi-heart-pulse'?"selected":""?>> Health </option>
                                     <option value="bi-wifi" <?=$data['icon']=='bi-wifi'?"selected":""?>>Internet<i class="bi bi-wifi"></i></option>
@@ -96,7 +96,6 @@
                         <hr>
                         <div class="form-group row">
                             <div class="col-md-12">
-                                <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Save</button>
                                 <button type="button" onclick="backConfirmation()" class="btn btn-danger btn-outline">Back</button>
                             </div>
                         </div>
@@ -118,110 +117,9 @@
 
     </body>
 
-    <script>
-        let url = "benefit_controller.php";
-        
-        window.addEventListener("keypress", function(event) {
-            // If the user presses the "Enter" key on the keyboard
-            if (event.key === "Enter") {
-                submitConfirmation();
-            }
-        });
-
+    <script>        
         function backConfirmation(){
-            Swal.fire({
-                title: "Are you sure to leave this page?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#ff0000",
-                confirmButtonText: 'Discard',
-                cancelButtonText: "Stay",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "benefit_index.php"
-                }
-                
-            });
-        }
-
-        function submitConfirmation(){
-            Swal.fire({
-                title: "Are you sure to save it?",
-                icon: "info",
-                showCancelButton: true,
-                confirmButtonText: 'Yes',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    submitValidate();
-                }
-            });
-        }
-
-        function submitValidate(){
-            $('.is-invalid').removeClass('is-invalid');
-            $.ajax({
-                type: "post",
-                url: url,
-                contentType:"application/x-www-form-urlencoded",
-                data: {
-                    mode: "check_validation",
-                    benefitTitle : $("#benefitTitle").val()
-                }, success: function (response) {
-                    const data = response;
-                    if (data.icon==false) {
-                        for(let i=0;i<data.data.length;i++){
-                            let eachData = data.data[i];
-                            var el = $('[name="' + eachData['inputName'] + '"]');
-                            el.addClass("is-invalid");
-                            el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
-                        }
-                    } else {
-                        updateRecord();
-                    }
-                }, failure: function (xhr) {
-                    console.log(xhr.icon);
-                }
-            })
-        }
-
-        function updateRecord() {
-            $.ajax({
-                type: "post",
-                url: url,
-                contentType:"application/x-www-form-urlencoded",
-                data: {
-                    mode: "update",
-                    benefitID : $("#benefitID").val(),
-                    benefitTitle : $("#benefitTitle").val(),
-                    benefitDescription: $("#benefitDescription").val(),
-                    icon: $("#icon").val()
-                }, success: function (response) {
-                    const data = response;
-                    if (data.status) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Record successfully updated! ',
-                            icon: 'success',
-                            confirmButtonText: 'Cool'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href="benefit_index.php"
-                            }
-                        });
-                        
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Please contact technical staff! ',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        })
-                    }
-                }, failure: function (xhr) {
-                    console.log(xhr.icon);
-                }
-            })
+            window.location.href = "benefit_index.php";
         }
 
     </script>

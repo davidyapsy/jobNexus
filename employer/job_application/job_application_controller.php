@@ -235,6 +235,9 @@ class JobApplicationOop
     private $jobSeekerName;
     private $address;
     private $workingExperience;
+    private $educationLevel;
+    private $fieldOfStudy;
+    private $institution;
     private $skills;
     private $page;
 
@@ -276,9 +279,42 @@ class JobApplicationOop
         return $this->workingExperience;
     }
 
-    public function setWorkingExperience($workingExperience=0): JobApplicationOop
+    public function setWorkingExperience($workingExperience=""): JobApplicationOop
     {
         $this->workingExperience = $workingExperience;
+        return $this;
+    }
+
+    public function getEducationLevel(): String
+    {
+        return $this->educationLevel;
+    }
+
+    public function setEducationLevel($educationLevel=""): JobApplicationOop
+    {
+        $this->educationLevel = $educationLevel;
+        return $this;
+    }
+
+    public function getFieldOfStudy(): String
+    {
+        return $this->fieldOfStudy;
+    }
+
+    public function setFieldOfStudy($fieldOfStudy=""): JobApplicationOop
+    {
+        $this->fieldOfStudy = $fieldOfStudy;
+        return $this;
+    }
+
+    public function getInstitution(): String
+    {
+        return $this->institution;
+    }
+
+    public function setInstitution($institution=""): JobApplicationOop
+    {
+        $this->institution = $institution;
         return $this;
     }
 
@@ -366,6 +402,9 @@ class JobApplicationOop
         $jobSeekerName = filter_input(INPUT_POST, "jobSeekerName", FILTER_SANITIZE_STRING);
         $address = filter_input(INPUT_POST, "address", FILTER_SANITIZE_STRING);
         $workingExperience = filter_input(INPUT_POST, "workingExperience", FILTER_SANITIZE_NUMBER_INT);
+        $educationLevel = filter_input(INPUT_POST, "educationLevel", FILTER_SANITIZE_STRING);
+        $fieldOfStudy = filter_input(INPUT_POST, "fieldOfStudy", FILTER_SANITIZE_STRING);
+        $institution = filter_input(INPUT_POST, "institution", FILTER_SANITIZE_STRING);
         $skills = filter_input(INPUT_POST, "skills", FILTER_SANITIZE_STRING);
 
         if(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "update"){
@@ -382,6 +421,15 @@ class JobApplicationOop
             $this->setSkills($skills);
             $this->model->setSalaryExpectation($salaryExpectation);
             $this->model->setStatus($status);
+        }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "db_access"){
+            $this->setEmployerID($employerID);
+            $this->model->setJobPostingID($jobPostingID);
+            $this->setJobSeekerName($jobSeekerName);
+            $this->setAddress($address);
+            $this->setWorkingExperience($workingExperience);
+            $this->setEducationLevel($educationLevel);
+            $this->setFieldOfStudy($fieldOfStudy);
+            $this->setInstitution($institution);
         }elseif(filter_input(INPUT_POST, "mode", FILTER_SANITIZE_STRING) == "print_report"){
             $this->setEmployerID($employerID);
             $this->model->setJobPostingID($jobPostingID);
@@ -447,7 +495,7 @@ class JobApplicationOop
         if($status!=""){
             $filter_option.=" AND A.status = '$status'";
         }
-        //ranking (order by working_experience, education level, field of study, skills, salaryexpectation)
+        
         $filter_option.=" ORDER BY B.working_experience";
 
         $sql.=$filter_option;
@@ -645,6 +693,324 @@ class JobApplicationOop
     function delete()
     {
         //Implement Delete method
+    }
+
+    /**
+     * @throws Exception
+     */
+    function db_access(){
+        // you don't need to commit work here ya !
+        $employerID = $this->getEmployerID();
+        $jobPostingID = $this->model->getJobPostingID();
+        $jobSeekerName = $this->getJobSeekerName();
+        $address = $this->getAddress();
+        $workingExperience = $this->getWorkingExperience();
+        $educationLevel = $this->getEducationLevel();
+        $fieldOfStudy = $this->getFieldOfStudy();
+        $institution = $this->getInstitution();
+        
+        
+        //job category details
+        $sql = "SELECT keywords
+                FROM job_category A
+                JOIN job_posting B ON A.jobCategoryID = B.jobCategoryID
+                WHERE B.jobPostingID = '$jobPostingID' AND B.employerID = '$employerID'";
+        $result = $this->connection->query($sql);
+        $jobCategoryData =[];
+        while(($row = $result->fetch_assoc())==TRUE){
+            $jobCategoryData = $row;
+        }
+
+        $keywordsArr = explode(',', $jobCategoryData['keywords']);
+
+        $filter_option = "";
+        if($jobSeekerName!=""){
+            $filter_option.=" AND CONCAT(firstName,' ',lastName) LIKE '%$jobSeekerName%'";
+        }
+        if($address!=""){
+            $filter_option.=" AND address LIKE '%$address%'";
+        }
+        if($workingExperience!=0){
+            $filter_option.=" AND working_experience >= $workingExperience";
+        }
+        if($educationLevel!=""){
+            $filter_option.=" AND education_level LIKE '%$educationLevel%'";
+        }
+        if($fieldOfStudy!=""){
+            $filter_option.=" AND field_of_study LIKE '%$fieldOfStudy%'";
+        }
+        if($institution!=""){
+            $filter_option.=" AND institution LIKE '%$institution%'";
+        }
+
+        $jobSeekerData =[];
+        foreach($keywordsArr as $keyword){
+            //job seeker details
+            $sql = "SELECT jobSeekerID, CONCAT(firstName, ' ', lastName) as jobSeekerName, address, working_experience, education_level, field_of_study, institution
+                    FROM job_seeker 
+                    WHERE isOpenForJobs = 1 AND (UPPER(field_of_study) LIKE UPPER('%$keyword%') OR UPPER(skills) LIKE UPPER('%$keyword%'))";
+            $sql.=$filter_option;
+            $result = $this->connection->query($sql);
+            while(($row = $result->fetch_assoc())==TRUE){
+                $jobSeekerData[] = $row;
+            }
+        }
+        $jobSeekerData  = (array_unique($jobSeekerData, SORT_REGULAR));
+
+        $output = array(
+            'data'				=>	$jobSeekerData,
+            'status'            =>  true
+        );
+
+        echo json_encode($output);
+    }
+
+    /**
+     * @throws Exception
+     */
+    function backup(){
+        $data = array();
+        $limit = 5;
+        $page = $this->getPage();
+
+        if($page > 1) {
+            $start = (($page - 1) * $limit);
+            $page = $page;
+        } else {
+            $start = 0;
+        }
+
+        // you don't need to commit work here ya !
+        $employerID = $this->getEmployerID();
+        $jobPostingID = $this->model->getJobPostingID();
+        $jobSeekerName = $this->getJobSeekerName();
+        $address = $this->getAddress();
+        $workingExperience = $this->getWorkingExperience();
+        $educationLevel = $this->getEducationLevel();
+        $fieldOfStudy = $this->getFieldOfStudy();
+        $institution = $this->getInstitution();
+
+        //job category details
+        $sql = "SELECT keywords
+                FROM job_category A
+                JOIN job_posting B ON A.jobCategoryID = B.jobCategoryID
+                WHERE B.jobPostingID = '$jobPostingID' AND B.employerID = '$employerID'";
+        $result = $this->connection->query($sql);
+        $jobCategoryData =[];
+        while(($row = $result->fetch_assoc())==TRUE){
+            $jobCategoryData = $row;
+        }
+
+        // job seeker details
+        $keywordsArr = explode(',', $jobCategoryData['keywords']);
+        $jobSeekerData =[];
+        
+        $filter_option = "";
+        if($jobSeekerName!=""){
+            $filter_option.=" AND CONCAT(firstName,' ',lastName) LIKE '%$jobSeekerName%'";
+        }
+        if($address!=""){
+            $filter_option.=" AND address LIKE '%$address%'";
+        }
+        if($workingExperience!=0){
+            $filter_option.=" AND working_experience >= $workingExperience";
+        }
+        if($educationLevel!=""){
+            $filter_option.=" AND educationLevel LIKE '%$educationLevel%'";
+        }
+        if($fieldOfStudy!=""){
+            $filter_option.=" AND fieldOfStudy LIKE '%$fieldOfStudy%'";
+        }
+        if($institution!=0){
+            $filter_option.=" AND institution LIKE '%$institution%'";
+        }
+
+        foreach($keywordsArr as $keyword){
+            //job seeker details
+            $sql = "SELECT CONCAT(firstName, ' ', lastName) as jobSeekerName, address, working_experience, education_level, field_of_study, institution
+                    FROM job_seeker 
+                    WHERE isOpenForJobs = 1 AND (UPPER(field_of_study) LIKE UPPER('%$keyword%') OR UPPER(skills) LIKE UPPER('%$keyword%'))";
+            $sql .= $filter_option;
+            $result = $this->connection->query($sql);
+            while(($row = $result->fetch_assoc())==TRUE){
+                $jobSeekerData[] = $row;
+            }
+        }
+
+        //table data
+        $sql = "SELECT A.applicationID, CONCAT(B.firstName,' ',B.lastName) AS jobSeekerName, B.address, B.working_experience, B.skills, A.salaryExpectation, A.status, C.jobPostingID
+        FROM job_application A 
+        JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
+        JOIN job_posting C ON A.jobPostingID = C.jobPostingID
+        WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = '$employerID'";
+
+        $filter_option = "";
+        if($jobSeekerName!=""){
+            $filter_option.=" AND CONCAT(B.firstName,' ',B.lastName) LIKE '%$jobSeekerName%'";
+        }
+        if($address!=""){
+            $filter_option.=" AND B.address LIKE '%$address%'";
+        }
+        if($workingExperience!=0){
+            $filter_option.=" AND B.working_experience >= $workingExperience";
+        }
+        if($skills!=""){
+            $filter_option.=" AND B.skills LIKE '%$skills%'";
+        }
+        if($salaryExpectation!=""){
+            $filter_option.=" AND A.salaryExpectation >= $salaryExpectation";
+        }
+        if($status!=""){
+            $filter_option.=" AND A.status = '$status'";
+        }
+        
+        $filter_option.=" ORDER BY B.working_experience";
+
+        $sql.=$filter_option;
+
+        $total_data=0;
+        $statement = $this->connection->query("SELECT count(*) as totalRecord
+                                                FROM job_application A 
+                                                JOIN job_seeker B ON A.jobSeekerID = B.jobSeekerID
+                                                JOIN job_posting C ON A.jobPostingID = C.jobPostingID
+                                                JOIN job_category D ON C.jobCategoryID = D.jobCategoryID
+                                                WHERE A.jobPostingID = '$jobPostingID' AND C.employerID = '$employerID'".$filter_option);
+        while (($row = $statement->fetch_assoc()) == TRUE) {
+            $total_data = $row['totalRecord'];
+        }
+
+        $filter_query = $sql . ' LIMIT ' . $start . ', ' . $limit . '';
+        $stat = $this->connection->prepare($filter_query);
+        $stat->execute();
+        $result = $stat->get_result();
+        $data = [];
+            while (($row = $result->fetch_assoc()) == TRUE) {
+                $data[] = $row;
+            }
+
+        //pagination
+        $pagination_html = '
+        <div align="center">
+            <ul class="pagination justify-content-center">
+        ';
+
+        $total_links = ceil($total_data/$limit);
+        $previous_link = '';
+        $next_link = '';
+        $page_link = '';
+
+        if($total_links > 4){
+            if($page < 5){
+                for($count = 1; $count <= 5; $count++)
+                {
+                    $page_array[] = $count;
+                }
+                $page_array[] = '...';
+                $page_array[] = $total_links;
+            }else{
+                $end_limit = $total_links - 5;
+
+                if($page > $end_limit)
+                {
+                    $page_array[] = 1;
+                    $page_array[] = '...';
+
+                    for($count = $end_limit; $count <= $total_links; $count++)
+                    {
+                        $page_array[] = $count;
+                    }
+                }
+                else
+                {
+                    $page_array[] = 1;
+                    $page_array[] = '...';
+
+                    for($count = $page - 1; $count <= $page + 1; $count++)
+                    {
+                        $page_array[] = $count;
+                    }
+
+                    $page_array[] = '...';
+                    $page_array[] = $total_links;
+                }
+            }
+        }else{
+            for($count = 1; $count <= $total_links; $count++){
+                $page_array[] = $count;
+            }
+        }
+
+        if($total_links!=0){
+            for($count = 0; $count < count($page_array); $count++)
+            {
+                if($page == $page_array[$count]){
+                    $page_link .= '
+                    <li class="page-item active">
+                        <a class="page-link" href="#">'.$page_array[$count].' </a>
+                    </li>
+                    ';
+
+                    $previous_id = $page_array[$count] - 1;
+
+                    if($previous_id > 0){
+                        $previous_link = '<li class="page-item"><a class="page-link" href="Bvascript:load_data('.$previous_id.')">Previous</a></li>';
+                    }else{
+                        $previous_link = '
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Previous</a>
+                        </li>
+                        ';
+                    }
+
+                    $next_id = $page_array[$count] + 1;
+
+                    if($next_id > $total_links){
+                        $next_link = '
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                        ';
+                    }else{
+                        $next_link = '
+                        <li class="page-item"><a class="page-link" href="Bvascript:load_data('.$next_id.')">Next</a></li>
+                        ';
+                    }
+                }
+                else{
+                    if($page_array[$count] == '...')
+                    {
+                        $page_link .= '
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">...</a>
+                        </li>
+                        ';
+                    }
+                    else
+                    {
+                        $page_link .= '
+                        <li class="page-item">
+                            <a class="page-link" href="Bvascript:load_data('.$page_array[$count].')">'.$page_array[$count].'</a>
+                        </li>
+                        ';
+                    }
+                }
+            }
+
+            $pagination_html .= $previous_link . $page_link . $next_link;
+        }
+        $pagination_html .= '
+            </ul>
+        </div>
+        ';
+
+        $output = array(
+            'data'				=>	$data,
+            'pagination'		=>	$pagination_html,
+            'total_data'		=>	$total_data,
+            'status'            =>  true
+        );
+
+        echo json_encode($output);
     }
 
     /**
@@ -927,6 +1293,9 @@ if($_SESSION['login']){
             case  "delete":
                 $jobApplicationOop->delete();
                 break;
+            case  "db_access":
+                $jobApplicationOop->db_access();
+                break;            
             case  "print_report":
                 $jobApplicationOop->print_report();
                 break;

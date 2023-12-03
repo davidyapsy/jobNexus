@@ -848,9 +848,34 @@ class EmployerOop
                 ]
             );
         } else{
-            session_start();
             $todaysDate = date('Y-m-d');
-            $sql = "SELECT B.maxJobPosting, B.maxFeatureJobListing, A.subscriptionID
+            $subscriptionID = "";
+            $selectSQL = "SELECT subscriptionID, endDate
+                            FROM subscription
+                            WHERE employerID = '$employerID' AND isActive =1";
+            $stat = $this->connection->query($selectSQL);
+            
+            if($stat->num_rows>0){
+                while(($row = $stat->fetch_assoc())==TRUE){
+                    if($todaysDate>$row['endDate']){
+                        $subscriptionID = $row['subscriptionID'];
+                    }
+                }
+            }
+
+            if($subscriptionID!=""){
+                $updateSQL = "UPDATE subscription
+                                SET isActive = 0
+                                WHERE subscriptionID = '$subscriptionID'";
+                $stat = $this->connection->query($updateSQL);
+                $updateSQL = "UPDATE job_posting
+                                SET isPublish = 'Unpublished'
+                                WHERE employerID = '$employerID'";
+                $stat = $this->connection->query($updateSQL);
+            }
+            
+            session_start();
+            $sql = "SELECT B.maxJobPosting, B.maxFeatureJobListing, A.subscriptionID, databaseAccess
                     FROM subscription A
                     JOIN subscription_plan B ON A.subscriptionPlanID = B.subscriptionPlanID
                     WHERE A.employerID = '$employerID' AND A.endDate>='$todaysDate' AND A.startDate<='$todaysDate'  AND A.isActive =1";
@@ -861,11 +886,13 @@ class EmployerOop
                     $_SESSION['maxJobPosting']= $row['maxJobPosting'];
                     $_SESSION['maxFeatureJobListing']= $row['maxFeatureJobListing'];
                     $_SESSION['subscriptionID']=base64_encode($row['subscriptionID']);
+                    $_SESSION['db_access'] = $row['databaseAccess'];
                 }
             }else{
                 $_SESSION['maxJobPosting']= 0;
                 $_SESSION['maxFeatureJobListing']= 0;
                 $_SESSION['subscriptionID']="";
+                $_SESSION['db_access'] = 0;
             }
             $_SESSION['login']=true;
             $_SESSION['employerID']=base64_encode($employerID);

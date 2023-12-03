@@ -27,19 +27,23 @@ if (isset($_POST['search'])) {
     }
 }
 
-if(!empty($_SESSION['cmpSearch'])){
+if (!empty($_SESSION['cmpSearch'])) {
     $filter = $_SESSION['cmpSearch'];
     
     $sql = "SELECT employer.*, COUNT(job_posting.employerID) AS jobCount
-    FROM employer LEFT JOIN job_posting ON employer.employerID = job_posting.employerID
+    FROM employer
+    LEFT JOIN job_posting ON employer.employerID = job_posting.employerID AND job_posting.isPublish = 'Published' AND job_posting.isDeleted = 0
     WHERE employer.companyName LIKE '%$filter%' AND employer.status = 'approved'
     GROUP BY employer.employerID;";
-} else{
+} else {
     $sql = "SELECT employer.*, COUNT(job_posting.employerID) AS jobCount
-    FROM employer LEFT JOIN job_posting ON employer.employerID = job_posting.employerID
+    FROM employer
+    LEFT JOIN job_posting ON employer.employerID = job_posting.employerID AND job_posting.isPublish = 'Published' AND job_posting.isDeleted = 0
     WHERE employer.status = 'approved'
     GROUP BY employer.employerID;";
 }
+
+
 
 $result = mysqli_query($conn, $sql);
 
@@ -124,7 +128,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
     
     <body style="background-color:#dfe2e6;">
         <div class="topnav">
-            <a href="../index.php"><h5>Job Nexus</h5></a>
+            <a href="..\index.php"><h5>Job Nexus</h5></a>
             <a href="job.php">Jobs</a>
             <a class="active" href="companies.php">Companies</a>
             

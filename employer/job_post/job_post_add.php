@@ -167,7 +167,8 @@
                             <label for="applicationDeadline" class="col-sm-3 col-form-label">Application Deadline: </label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline"  min="<?= date('Y-m-d'); ?>" max="<?= date('Y-m-d', strtotime('+31 days')); ?>"> 
+                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline" disabled
+                                     min="<?= date('Y-m-d'); ?>" max="<?= date('Y-m-d', strtotime('+31 days')); ?>"> 
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
@@ -224,10 +225,14 @@
             }
         });
 
-        $(".custom-file-input").on("change", function() {
-            var files = Array.from(this.files)
-            var fileName = files.map(f =>{return f.name}).join(",")
-            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        $("#chkIsPublish").change(function() {
+            if($(this).prop('checked')) {
+                $("#applicationDeadline").prop('disabled', false);
+            } else {
+                $("#applicationDeadline").prop('disabled', true);
+                $("#applicationDeadline").val("");
+
+            }
         });
 
         $('#jobDescription, #jobRequirement, #jobHighlight').summernote({

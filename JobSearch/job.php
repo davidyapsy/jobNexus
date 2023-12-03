@@ -191,7 +191,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
     
     <body style="background-color:#dfe2e6;">
         <div class="topnav">
-            <a href="../index.php"><h5>Job Nexus</h5></a>
+            <a href="..\index.php"><h5>Job Nexus</h5></a>
             <a class="active" href="job.php">Jobs</a>
             <a href="companies.php">Companies</a>
             

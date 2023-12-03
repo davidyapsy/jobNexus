@@ -79,7 +79,7 @@
                         <div class="form-group row">
                             <label for="jobCategory" class="col-sm-3 col-form-label">Job Category: <span class="required">*</span> </label>
                             <div class="col-sm-9">
-                                <select class="form-select" id="jobCategory" name="jobCategory">
+                                <select class="form-select" id="jobCategory" name="jobCategory" disabled>
                                     <option value=""> -- Please select a job category. -- </option>
                                     <?php $jobCategory_sql = "SELECT jobCategoryID, categoryName
                                                             FROM job_category";
@@ -96,7 +96,7 @@
                         <div class="form-group row">
                             <label for="jobTitle" class="col-sm-3 col-form-label">Job Title: <span class="required">*</span></label>
                             <div class="col-sm-9">
-                                <input type="input" class="form-control" name="jobTitle" id="jobTitle" value="<?= $data['jobTitle']?>"/>
+                                <input type="input" class="form-control" name="jobTitle" id="jobTitle" value="<?= $data['jobTitle']?>" disabled/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -124,14 +124,14 @@
                         <div class="form-group row">
                             <label for="experienceLevel" class="col-sm-3 col-form-label">Experience Level: <span class="required">*</span></label></label>
                             <div class="col-sm-9">
-                                <input type="number" class="form-control" name="experienceLevel" id="experienceLevel" value="<?= $data['experienceLevel']?>" min="0"/>
+                                <input type="number" class="form-control" name="experienceLevel" id="experienceLevel" value="<?= $data['experienceLevel']?>" min="0" disabled/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="locationState" class="col-sm-3 col-form-label">State: <span class="required">*</span> </label>
                             <div class="col-sm-9">
-                                <select class="form-select" id="locationState" name="locationState">
+                                <select class="form-select" id="locationState" name="locationState" disabled>
                                     <option value=""> -- Please select a state. -- </option>
                                     <option value="Selangor" <?= $data['locationState']=='Selangor'?"selected":""?>>Selangor</option>
                                     <option value="Kuala Lumpur" <?= $data['locationState']=='Kuala Lumpur'?"selected":""?>>Kuala Lumpur</option>
@@ -154,14 +154,14 @@
                         <div class="form-group row">
                             <label for="salary" class="col-sm-3 col-form-label">Salary: </label>
                             <div class="col-sm-9">
-                                <input type="number" class="form-control" name="salary" id="salary" min="0" max="30000" step="100" value="<?= $data['salary']?>"/>
+                                <input type="number" class="form-control" name="salary" id="salary" min="0" max="30000" step="100" value="<?= $data['salary']?>" disabled/>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="employmentType" class="col-sm-3 col-form-label">Employment Type: <span class="required">*</span> </label>
                             <div class="col-sm-9">
-                                <select class="form-select" id="employmentType" name="employmentType">
+                                <select class="form-select" id="employmentType" name="employmentType" disabled>
                                     <option value=""> -- Please select an employment type. -- </option>
                                     <option value="Full-time" <?= $data['employmentType']=='Full-time'?"selected":""?>>Full-time</option>
                                     <option value="Part-time" <?= $data['employmentType']=='Part-time'?"selected":""?>>Part-time</option>
@@ -176,11 +176,8 @@
                             <label for="applicationDeadline" class="col-sm-3 col-form-label">Application Deadline: </label>
                             <div class="col-sm-9">
                                 <div class="input-group">
-                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline" 
-                                    <?php if($data['applicationDeadline']!="1970-01-01" || $data['isPublish']=="Unpublished" || $data['isPublish']=="Never Publish"){?>
-                                        disabled
-                                    <?php } ?>
-                                     value="<?=$data['applicationDeadline']?>"  min="<?= date('Y-m-d'); ?>" max="<?= date('Y-m-d', strtotime('+31 days')); ?>"/> 
+                                    <input type="date" class="form-control" id="applicationDeadline" name="applicationDeadline" value="<?=$data['applicationDeadline']?>" 
+                                     min="<?= date('Y-m-d'); ?>" max="<?= date('Y-m-d', strtotime('+31 days')); ?>" disabled/> 
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
@@ -190,7 +187,7 @@
                             <label for="isPublish" class="col-sm-3 col-form-label">Publish Job Post: </label>
                             <div class="col-sm-9">
                                 <div class="form-control form-check form-switch border-0">
-                                    <input class="form-check-input" type="checkbox" id="chkIsPublish" <?=$data['isPublish']=="Published"?"checked":""?> 
+                                    <input class="form-check-input" type="checkbox" id="chkIsPublish" disabled <?=$data['isPublish']=="Published"?"checked":""?> 
                                         name="chkIsPublish" value="">
                                     <div class="invalid-feedback"></div>
                                 </div>
@@ -200,8 +197,7 @@
                             <label for="isFeatured" class="col-sm-3 col-form-label">Feature Job Post: </label>
                             <div class="col-sm-9">
                                 <div class="form-control form-check form-switch border-0">
-                                    <input class="form-check-input" type="checkbox" <?=$availableFeature>0?"":"disabled"?> id="chkIsFeatured" name="chkIsFeatured"
-                                        <?=$data['isFeatured']=="1"?"checked":""?>  value="">
+                                    <input class="form-check-input" type="checkbox" <?=$availableFeature>0?"":"disabled"?> id="chkIsFeatured" name="chkIsFeatured" value="" disabled>
                                 </div>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -209,7 +205,6 @@
                         <hr>
                         <div class="form-group row">
                             <div class="col-md-12">
-                                <button type="button" onclick ="submitConfirmation()" class="btn btn-primary" style="float:right;">Save</button>
                                 <button type="button" onclick="backConfirmation()" class="btn btn-danger btn-outline">Back</button>
                             </div>
                         </div>
@@ -230,147 +225,19 @@
 
     <script>
         let url = "job_post_controller.php";
-
-        window.addEventListener("keypress", function(event) {
-            // If the user presses the "Enter" key on the keyboard
-            if (event.key === "Enter") {
-                submitConfirmation();
-            }
-        });
-
-        <?php if($data['applicationDeadline']=="1970-01-01") { ?>
-            $("#chkIsPublish").change(function() {
-                if($(this).prop('checked')) {
-                    $("#applicationDeadline").prop('disabled', false);
-                } else {
-                    $("#applicationDeadline").prop('disabled', true);
-                    $("#applicationDeadline").val("1970-01-01");
-
-                }
-            });
-        <?php } ?>
         
         $('#jobDescription, #jobRequirement, #jobHighlight').summernote({
             tabsize: 2,
             height: 300
         });
+        $('#jobDescription').summernote('disable');
+        $('#jobRequirement').summernote('disable');
+        $('#jobHighlight').summernote('disable');
+
 
         function backConfirmation(){
-            Swal.fire({
-                title: "Are you sure to leave this page?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#ff0000",
-                confirmButtonText: 'Discard',
-                cancelButtonText: "Stay",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "job_post_index.php"
-                }
-                
-            });
+            window.location.href = "job_post_index.php";
         }
-
-        function submitConfirmation(){
-            Swal.fire({
-                title: "Are you sure to save it?",
-                icon: "info",
-                showCancelButton: true,
-                confirmButtonText: 'Yes',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    submitValidate();
-                }
-            });
-        }
-
-        function submitValidate(){
-            $('.is-invalid').removeClass('is-invalid');
-            $.ajax({
-                type: "post",
-                url: url,
-                contentType:"application/x-www-form-urlencoded",
-                data: {
-                    mode: "check_validation",
-                    type: "update",
-                    jobPostingID: $("#jobPostingID").val(),
-                    jobCategoryID : $("#jobCategory").val(),
-                    jobTitle: $("#jobTitle").val(),
-                    jobDescription: $('#jobDescription').summernote('code'),
-                    jobRequirement: $('#jobRequirement').summernote('code'),
-                    locationState: $("#locationState").val(),
-                    employmentType: $("#employmentType").val(),
-                    applicationDeadline: $("#applicationDeadline").val(),
-                    isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : ""),
-                    publishDate: $("#publishDate").val()
- 
-                }, success: function (response) {
-                    const data = response;
-                    if (data.status==false) {
-                        for(let i=0;i<data.data.length;i++){
-                            let eachData = data.data[i];
-                            var el = $('[name="' + eachData['inputName'] + '"]');
-                            el.addClass("is-invalid");
-                            el.parent().closest('div').find('.invalid-feedback').text(eachData['errorMessage']); 
-                        }
-                    } else {
-                        updateRecord();
-                    }
-                }, failure: function (xhr) {
-                    console.log(xhr.status);
-                }
-            })
-        }
-
-        function updateRecord() {
-            $.ajax({
-                type: "post",
-                url: url,
-                contentType:"application/x-www-form-urlencoded",
-                data: {
-                    mode: "update",
-                    jobPostingID: $("#jobPostingID").val(),
-                    jobCategoryID : $("#jobCategory").val(),
-                    jobTitle: $("#jobTitle").val(),
-                    jobDescription: $('#jobDescription').summernote('code'),
-                    jobRequirement: $('#jobRequirement').summernote('code'),
-                    jobHighlight: $('#jobHighlight').summernote('code'),
-                    experienceLevel: $("#experienceLevel").val(),
-                    locationState: $("#locationState").val(),
-                    salary: $("#salary").val(),
-                    employmentType: $("#employmentType").val(),
-                    applicationDeadline: $("#applicationDeadline").val(),
-                    isPublish: ($("#chkIsPublish").is(':checked') ?  "Published" : ""),
-                    publishDate: $("#publishDate").val(),
-                    isFeatured: ($("#chkIsFeatured").is(':checked') ?  1 : 0)
-                }, success: function (response) {
-                    const data = response;
-                    if (data.status) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Record successfully updated! ',
-                            icon: 'success',
-                            confirmButtonText: 'Cool'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "job_post_index.php"
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Please contact technical staff! ',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        })
-                    }
-                }, failure: function (xhr) {
-                    console.log(xhr.status);
-                }
-            })
-        }
-
     </script>
 </html>
 

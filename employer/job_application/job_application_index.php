@@ -6,6 +6,8 @@
         $password = "";
         $database = "db_jobnexus";
         $employerID = base64_decode($_SESSION['employerID']);
+        $subscriptionID = $_SESSION['subscriptionID'];
+        $db_access = $_SESSION['db_access'];
 
         $connection = new mysqli($serverName, $userName, $password, $database);
         $jobPostingID = base64_decode($_GET['id']);
@@ -19,6 +21,7 @@
         while(($row = $result->fetch_assoc())==TRUE){
             $data = $row;
         }
+
 ?>
 <html>
     <head>
@@ -58,14 +61,16 @@
                         <div class="col-9">
                             <h3>Job Application / <?=$data['jobTitle']?></h3>
                         </div>
-                        <!-- <div class="col-3 text-end">
-                            <a href='job_application_db_access.php?id=<?= base64_encode($jobPostingID);?>'> 
-                                <button type='button' class='btn btn-primary btn-round'>
-                                    <i class='bi bi-plus-lg' aria-hidden='true'></i>
-                                    <span class='text hidden-md-down'> Potential Candidate </span>
-                                </button>
-                            </a>
-                        </div> -->
+                        <div class="col-3 text-end">
+                            <?php if($db_access){ ?>
+                                <a href='job_application_db_access.php?id=<?=base64_encode($jobPostingID)?>'> 
+                                    <button type='button' class='btn btn-primary btn-round'>
+                                        <i class='bi bi-plus-lg' aria-hidden='true'></i>
+                                        <span class='text hidden-md-down'> Potential Candidate </span>
+                                    </button>
+                                </a>
+                            <?php } ?>
+                        </div>
                     </div>
                 </div>
                 <div class="panel-body bg-white p-2 rounded">
@@ -127,14 +132,6 @@
                                     onclick="load_data()">
                                 <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
                             </button>
-                            <!-- <button type="button" id="exportBtn"
-                                    class="btn btn-round btn-success btn-sm ladda-button"
-                                    data-style="zoom-in"
-                                    onclick="export_to_excel()">
-                                <span class="ladda-label">
-                                    <i class="bi bi-file-earmark-excel" aria-hidden="true"></i> Export
-                                </span>
-                            </button> -->
                             <button type="button" id="reportBtn"
                                     class="btn btn-round btn-success btn-sm ladda-button"
                                     data-style="zoom-in"
@@ -239,11 +236,19 @@
                                 "" +
                                 "        <td class='text-center'>" +
                                 "          <div class=\"btn-group\">" +
-                                "             <a href=\"job_application_edit.php?jaID="+ encodeURI(btoa(records[i].applicationID)) +"&jpID="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
-                                "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
-                                "                 <i class=\"bi bi-pencil\"></i>" +
-                                "               </button>"+
-                                "             </a>" +
+                                <?php if ($subscriptionID != ""){ ?>
+                                    "             <a href=\"job_application_edit.php?jaID="+ encodeURI(btoa(records[i].applicationID)) +"&jpID="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
+                                    "               <button type=\"button\"  title=\"update\" class=\"btn btn-sm btn-warning mx-1\">" +
+                                    "                 <i class=\"bi bi-pencil\"></i>" +
+                                    "               </button>"+
+                                    "             </a>" +
+                                <?php } else { ?>
+                                    "             <a href=\"job_application_view.php?jaID="+ encodeURI(btoa(records[i].applicationID)) +"&jpID="+ encodeURI(btoa(records[i].jobPostingID)) + "\">"+
+                                    "               <button type=\"button\"  title=\"view\" class=\"btn btn-sm btn-warning mx-1\">" +
+                                    "                 <i class=\"bi bi-eye\"></i>" +
+                                    "               </button>"+
+                                    "             </a>" +
+                                <?php } ?>
                                 "          </div>" +
                                 "        </td>" +
                                 "      </tr>" +

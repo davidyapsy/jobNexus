@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 session_start();
 
 include "db_conn.php";
@@ -35,31 +33,55 @@ function generateJobApplicationID($conn) {
 function addJobApplication($conn, $applyID, $jobPostID, $coverLetterSummary, $salaryExpectation, $availableDate) {
     $jobAppID = generateJobApplicationID($conn);
     $createdAt = date("Y-m-d H:i:s");
-    
-    $sql = "INSERT INTO `job_application`(`applicationID`, `jobSeekerID`, `jobPostingID`, `applicationDate`, `coverLetterSummary`, `status`, `salaryExpectation`, `availableDate`) VALUES ('$jobAppID','$applyID','$jobPostID','$createdAt','$coverLetterSummary','Under Review','$salaryExpectation','$availableDate')";
 
+    $sql = "INSERT INTO `job_application`(`applicationID`, `jobSeekerID`, `jobPostingID`, `applicationDate`, `coverLetterSummary`, `status`, `salaryExpectation`, `availableDate`) VALUES ('$jobAppID','$applyID','$jobPostID','$createdAt','$coverLetterSummary','Under Review','$salaryExpectation','$availableDate')";
     $result = mysqli_query($conn, $sql);
 
     if ($result) {
-        echo "<script>alert('Application Submitted! You may check the status at your profile'); window.location.href = 'JobSearch/job.php';</script>";
+        $valid = true;
+        $msg = "Application Submitted! You may check the status at your profile";
+        header("Location: JobSearch/jobDetails.php?id=" . base64_encode($jobPostID) . "&valid=" . urlencode($valid) . "&msg=" . urlencode($msg));
+        exit();
     } else {
         echo "<script>alert('Application Failed! Please try again.'); window.location.href = 'JobSearch/jobDetails.php?id=" . base64_encode($jobPostID) . "';</script>";
+        $dataToSend = true;
+        $errorMsg = "Application Failed! Please try again.";
+        header("Location: JobSearch/jobDetails.php?id=" . base64_encode($jobPostID)."&data=" . urlencode($dataToSend) . "&errorMsg=" . urlencode($errorMsg));
+        exit();
     }
 }
 
-if (isset($_POST['applyJob'])) {
+if (isset($_POST['apply'])) {
     $applyID =  $_SESSION['jobSeekerID'];
     $jobPostID = $_POST['jobPostingID'];
-    $coverLetterSummary = $_POST['coverLetterSummary'];
+    $summaryLetter = $_POST['summaryLetter'];
     $salaryExpectation = $_POST['salaryExpectation'];
     $availableDate = $_POST['availableDate'];
 
-    if (empty($coverLetterSummary) || empty($salaryExpectation) || empty($availableDate)) {
-        echo "<script>alert('Please don\'t submit blank input'); window.location.href = 'JobSearch/jobDetails.php?id=" . base64_encode($jobPostID) . "';</script>";
-    } else {
-        addJobApplication($conn, $applyID, $jobPostID, $coverLetterSummary, $salaryExpectation, $availableDate);
+    // Validate salary
+    if (!is_numeric($salaryExpectation) || $salaryExpectation <= 0) {
+        $dataToSend = true;
+        $errorMsg = "Please enter a valid positive numeric value for salary.";
+        header("Location: JobSearch/jobDetails.php?id=" . base64_encode($jobPostID)."&data=" . urlencode($dataToSend) . "&errorMsg=" . urlencode($errorMsg));
+        exit();
     }
+
+    $dateObj = DateTime::createFromFormat('Y-m-d', $availableDate);
+if (!$dateObj || $dateObj->format('Y-m-d') !== $availableDate) {
+    $dataToSend = true;
+    $errorMsg = "Please enter a valid date in the format yyyy-mm-dd.";
+    header("Location: JobSearch/jobDetails.php?id=" . base64_encode($jobPostID)."&data=" . urlencode($dataToSend) . "&errorMsg=" . urlencode($errorMsg));
+    exit();
 }
 
+    // Validate other fields (summary letter, etc.)
+    if (empty($summaryLetter)) {
+        $dataToSend = true;
+        $errorMsg = "Please don't submit a blank summary letter.";
+        header("Location: JobSearch/jobDetails.php?id=" . base64_encode($jobPostID)."&data=" . urlencode($dataToSend) . "&errorMsg=" . urlencode($errorMsg));
+        exit();
+    }
 
-
+    // If all validations pass, proceed to addJobApplication
+    addJobApplication($conn, $applyID, $jobPostID, $summaryLetter, $salaryExpectation, $availableDate);
+}

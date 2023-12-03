@@ -9,7 +9,7 @@ if (isset($_GET['id'])) {
     $employerID = base64_decode($encodedJobPostingID);
 
     $sql="SELECT `employer`.*, COUNT(job_posting.employerID) AS jobCount FROM `employer` JOIN `job_posting` ON `employer`.`employerID` = `job_posting`.`employerID`
-    WHERE employer.employerID = '$employerID';";
+    WHERE employer.employerID = '$employerID' AND job_posting.isPublish = 'Published' AND job_posting.isDeleted=0;";
     
     $result = mysqli_query($conn, $sql);
 
@@ -19,7 +19,7 @@ if (isset($_GET['id'])) {
         //get result
         $row = mysqli_fetch_assoc($result);
         $sql1="SELECT `job_posting`.* FROM `job_posting` JOIN `employer` ON `employer`.`employerID` = `job_posting`.`employerID`
-        WHERE employer.employerID = '$employerID';";
+        WHERE employer.employerID = '$employerID' AND job_posting.isPublish = 'Published' AND job_posting.isDeleted=0;";
         $result1 = mysqli_query($conn, $sql1);
         if (!$result1->num_rows === 0) {
             $row1 = mysqli_fetch_assoc($result1);
@@ -122,7 +122,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Project/PHP/PHPProject.php to edi
     
     <body style="background-color:#dfe2e6;">
         <div class="topnav">
-            <a class="active" href="../index.php"><h5>Job Nexus</h5></a>
+            <a class="active" href="..\index.php"><h5>Job Nexus</h5></a>
             <a href="job.php">Jobs</a>
             <a href="companies.php">Companies</a>
                 <div class="topnavright">
